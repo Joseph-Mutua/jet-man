@@ -15,7 +15,6 @@ body {
 .night {
   height: 80vh;
   width: 90vw;
-
   margin: 5rem auto;
   background: url(./assets/images/Img_1.png);
   background-size: cover;
@@ -37,7 +36,20 @@ body {
  
 }
 
-.car {
+.airpot {
+  height: 50%;
+  width: 500%;
+  background: url("./assets/images/Airport.png");
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0; 
+  background-repeat: no-repeat;
+
+ 
+}
+
+.jet {
   position: absolute;
   bottom: 7.5%;
   left: 24%;
