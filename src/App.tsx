@@ -7,10 +7,11 @@ import "./App.css";
 const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  
   const [tilt, setTilt] = useState(false);
   const jetPosXRef = useRef(0);
   const jetPosYRef = useRef(0);
- const requestRef = useRef<number>(0);
+  const requestRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -71,30 +72,37 @@ const App: React.FC = () => {
     ctx.restore();
   };
 
- const animate = (timestamp: number) => {
-   // Explicitly type timestamp as number
-   if (!startTimeRef.current) {
-     startTimeRef.current = timestamp;
-   } else {
-     // Ensure startTimeRef.current is not null before subtracting
-     // TypeScript should not complain about timestamp being possibly null in this context
-     const elapsedTime = timestamp - startTimeRef.current;
+  const animate = (timestamp: number) => {
+    // Explicitly type timestamp as number
+    if (!startTimeRef.current) {
+      startTimeRef.current = timestamp;
+    } else {
+      // Ensure startTimeRef.current is not null before subtracting
+      // TypeScript should not complain about timestamp being possibly null in this context
+     // const elapsedTime = timestamp - startTimeRef.current;
 
-     if (tilt) {
-       const speed = 5;
-       jetPosXRef.current += speed * Math.cos(Math.PI / 4);
-       jetPosYRef.current += speed * Math.sin(Math.PI / 4);
-     } else {
-       jetPosXRef.current += 5;
-     }
+      if (tilt) {
+        const speed = 5;
+        jetPosXRef.current += speed * Math.cos(Math.PI / 4);
+        jetPosYRef.current += speed * Math.sin(Math.PI / 4);
+      } else {
+        jetPosXRef.current += 5;
+      }
 
-     draw();
+      draw();
 
-     if (isRunning) {
-       requestRef.current = requestAnimationFrame(animate);
-     }
-   }
- };
+      if (isRunning) {
+        requestRef.current = requestAnimationFrame(animate);
+      }
+    }
+  };
+
+
+const growthConst  = 0.00006;
+
+const timeToMultiplier = (millis: number) => Math.pow(Math.E, growthConst * millis);
+
+
 
 
   // Load images outside of the draw function to avoid reloading them on each call
