@@ -1,8 +1,8 @@
 .App {
   text-align: center;
+  margin: 0;
 }
 body {
-  margin: 0;
   background-image: linear-gradient(
     to top,
     #1e3c72 0%,
@@ -32,8 +32,6 @@ body {
   bottom: 0;
   left: 0;
   background-repeat: repeat-x;
-
- 
 }
 
 .airpot {
@@ -43,10 +41,8 @@ body {
   display: block;
   position: absolute;
   bottom: 0;
-  left: 0; 
+  left: 0;
   background-repeat: no-repeat;
-
- 
 }
 
 .jet {
@@ -79,12 +75,10 @@ body {
   }
 }
 
-.moveRight{
-   animation: moveRight 6s linear infinite;
-
+.moveRight {
+  animation: moveRight 6s linear infinite;
 }
 
 .suspension {
-    animation: suspension 1s linear infinite;
-
+  animation: suspension 1s linear infinite;
 }

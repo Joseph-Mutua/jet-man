@@ -1,168 +1,118 @@
-// import React, { useState, useEffect } from "react";
-// import JetImage from "./assets/images/jet.png";
-
-// import "./App.css";
-
-// const App: React.FC = () => {
-//   const [isRunning, setIsRunning] = useState<boolean>(false);
-//   const [counter, setCounter] = useState<number>(0.0);
-//   const [randomNumber, setRandomNumber] = useState<number>(0.0);
-
-//   useEffect(() => {
-//     let intervalId: NodeJS.Timeout;
-
-//     if (isRunning) {
-//       setRandomNumber(parseFloat((Math.random() * 10 + 1).toFixed(2)));
-//       intervalId = setInterval(() => {
-//         setCounter((prevCounter) => {
-//           const newCounter = parseFloat((prevCounter + 0.01).toFixed(2));
-//           if (newCounter >= randomNumber) {
-//             setIsRunning(false);
-//             clearInterval(intervalId);
-//           }
-//           return newCounter;
-//         });
-//       }, 100);
-//     } else {
-//       setCounter(0.0);
-//     }
-
-//     return () => clearInterval(intervalId);
-//   }, [isRunning, randomNumber]);
-
-//   const handleStartClick = () => {
-//     setIsRunning(!isRunning);
-//   };
-
-//   return (
-//     <div className="App">
-//       <div className="night">
-//         <div className={isRunning ? "surface moveRight" : "surface"}></div>
-//         <div className={isRunning ? "jet moveUpwards" : "jet"}>
-//           <img src={JetImage} alt="jet" />
-//         </div>
-//       </div>
-//       <div style={{ marginBottom: "50px" }}>
-//         <button onClick={handleStartClick}>
-//           {isRunning ? "Stop" : "Start"}
-//         </button>
-//       </div>
-//       <div style={{ color: "green", fontSize: "2rem", textAlign: "center" }}>
-//         {counter.toFixed(2)}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default App;
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import JetImage from "./assets/images/jet.png";
-import AirpotImage from "./assets/images/Airport.png";
-import RoadSurface from "./assets/images/Img_02.png";
+import RoadImage from "./assets/images/Road.png";
+import BackgroundImage from "./assets/images/canvas.jpg";
 import "./App.css";
 
-function App() {
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const jetImageRef = useRef(new Image());
-  const airpotImageRef = useRef(new Image());
-  const roadSurfaceImageRef = useRef(new Image());
+  const [isRunning, setIsRunning] = useState(false);
+  const jetPosXRef = useRef(0); // Use a ref to track the jet's X position
+  const requestRef = useRef<number>(); // Use a ref to track the requestAnimationFrame ID
 
-  const handleStartClick = () => {
-    setIsRunning(!isRunning);
+  // Load images
+  const backgroundImage = new Image();
+  backgroundImage.src = BackgroundImage;
+  const roadImage = new Image();
+  roadImage.src = RoadImage;
+  const jetImage = new Image();
+  jetImage.src = JetImage;
+
+  const draw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (canvas && ctx) {
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw background
+      ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+
+      // Draw road
+      ctx.drawImage(
+        roadImage,
+        0,
+        canvas.height - roadImage.height,
+        canvas.width,
+        roadImage.height
+      );
+
+      // Draw jet
+      ctx.drawImage(
+        jetImage,
+        jetPosXRef.current,
+        canvas.height - roadImage.height,
+        jetImage.width,
+        jetImage.height
+      );
+    }
+  };
+  const [jetImageWidth, setJetImageWidth] = useState(0);
+  useEffect(() => {
+    const jetImage = new Image();
+    jetImage.src = JetImage;
+    jetImage.onload = () => {
+      // Once the jet image is loaded, update the state with its width
+      setJetImageWidth(jetImage.width);
+    };
+  }, []);
+
+  const update = () => {
+    if (canvasRef.current && jetImageWidth > 0) {
+      // Ensure jetImageWidth is known
+      jetPosXRef.current += 2;
+      if (jetPosXRef.current > canvasRef.current.width) {
+        jetPosXRef.current = -jetImageWidth; // Use state for jet image width
+      }
+    }
+  };
+
+  const animate = () => {
+    draw();
+    update();
+
+    if (isRunning) {
+      requestRef.current = requestAnimationFrame(animate);
+    }
   };
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (canvas) {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.8;
+      draw(); // Initial drawing to show the jet and background
+    }
+  }, []);
 
-    const context = canvas.getContext("2d");
-    if(!context) return;
-
-    context.imageSmoothingEnabled = false;
-    let animationFrameId: number;
-    let x = 0;
-
-    const render = () => {
-      if (!isRunning) {
-        window.cancelAnimationFrame(animationFrameId);
-        return;
+  useEffect(() => {
+    if (isRunning) {
+      requestRef.current = requestAnimationFrame(animate);
+    } else {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+        draw(); // Redraw the last position of the jet when stopped
       }
-
-      if (!context) return;
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw the images
-      // const airpotHeight = canvas.height * 0.5; // 50% of the canvas height
-      // const airpotWidth =
-      //   airpotImageRef.current.width *
-      //   (airpotHeight / airpotImageRef.current.height); // Keep the original aspect ratio
-      // context.drawImage(
-      //   airpotImageRef.current,
-      //   x,
-      //   canvas.height - airpotHeight,
-      //   airpotWidth,
-      //   airpotHeight
-      // );
-
-      const roadSurfaceHeight = canvas.height * 0.2; // 20% of the canvas height
-      const roadSurfaceWidth =
-        roadSurfaceImageRef.current.width *
-        (roadSurfaceHeight / roadSurfaceImageRef.current.height); // Keep the original aspect ratio
-
-      for (let i = -1; i < canvas.width / roadSurfaceWidth + 1; i++) {
-        context.drawImage(
-          roadSurfaceImageRef.current,
-          x + i * roadSurfaceWidth,
-          canvas.height - roadSurfaceHeight,
-          roadSurfaceWidth,
-          roadSurfaceHeight
-        );
-      }
-      const jetHeight = canvas.height * 0.075; // 7.5% of the canvas height
-      const jetWidth =
-        jetImageRef.current.width * (jetHeight / jetImageRef.current.height); // Keep the original aspect ratio
-      context.drawImage(
-        jetImageRef.current,
-        canvas.width * 0.24,
-        canvas.height - jetHeight,
-        jetWidth,
-        jetHeight
-      );
-
-      // Move the road surface
-      x -= 1;
-      if (x < -roadSurfaceWidth) {
-        x = 0;
-      }
-
-      animationFrameId = window.requestAnimationFrame(render);
-    };
-
-    // Load the images and start the animation when they're ready
-    jetImageRef.current.onload = render;
-    jetImageRef.current.src = JetImage;
-    airpotImageRef.current.src = AirpotImage;
-    roadSurfaceImageRef.current.src = RoadSurface;
+    }
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
     };
   }, [isRunning]);
 
   return (
     <div className="App">
-      <canvas ref={canvasRef} className="night" />
-
-      <div style={{ marginBottom: "50px" }}>
-        <button onClick={handleStartClick}>
+      <canvas ref={canvasRef} style={{ border: "1px solid red" }} />
+      <div>
+        {" "}
+        <button onClick={() => setIsRunning(!isRunning)}>
           {isRunning ? "Stop" : "Start"}
         </button>
       </div>
     </div>
   );
-}
+};
 
 export default App;
-
