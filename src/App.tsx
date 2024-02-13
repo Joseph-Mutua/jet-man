@@ -7,11 +7,16 @@ import "./App.css";
 const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  
+
   const [tilt, setTilt] = useState(false);
   const jetPosXRef = useRef(0);
   const jetPosYRef = useRef(0);
   const requestRef = useRef<number>(0);
+
+  //Odds
+  // Keep track of the actual elapsed time in milliseconds
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const intervalRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,10 +30,12 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (isRunning) {
+
       setTimeout(() => setTilt(true), 2000); // Trigger tilt after 2 seconds
       requestRef.current = requestAnimationFrame(animate);
     } else {
       // Reset positions and tilt when animation stops
+      stopTimer();
       jetPosXRef.current = 0;
       jetPosYRef.current = 0;
       setTilt(false);
@@ -77,10 +84,6 @@ const App: React.FC = () => {
     if (!startTimeRef.current) {
       startTimeRef.current = timestamp;
     } else {
-      // Ensure startTimeRef.current is not null before subtracting
-      // TypeScript should not complain about timestamp being possibly null in this context
-     // const elapsedTime = timestamp - startTimeRef.current;
-
       if (tilt) {
         const speed = 5;
         jetPosXRef.current += speed * Math.cos(Math.PI / 4);
@@ -97,14 +100,6 @@ const App: React.FC = () => {
     }
   };
 
-
-const growthConst  = 0.00006;
-
-const timeToMultiplier = (millis: number) => Math.pow(Math.E, growthConst * millis);
-
-
-
-
   // Load images outside of the draw function to avoid reloading them on each call
   const backgroundImage = new Image();
   backgroundImage.src = BackgroundImageSrc;
@@ -114,15 +109,60 @@ const timeToMultiplier = (millis: number) => Math.pow(Math.E, growthConst * mill
   jetImage.src = JetImageSrc;
 
   const startTimeRef = useRef<number | null>(null);
-  // Correct the radians calculation for use in animate function
-  const radians = Math.PI / 4; // 45 degrees in radians for upward movement
+
+  //Odds Component
+
+  const startTimer = () => {
+    const startTime = performance.now();
+    intervalRef.current = window.setInterval(() => {
+      // Update the actual elapsed time
+      const newElapsedTime = performance.now() - startTime;
+      setElapsedTime(newElapsedTime);
+    }, 10);
+  };
+
+  const stopTimer = () => {
+    if (intervalRef.current !== undefined) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = undefined;
+    }
+  };
+
+  const resetTimer = () => {
+    setElapsedTime(0); // Reset actual elapsed time
+    if (intervalRef.current !== undefined) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = undefined;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current !== undefined) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+  const displayedTime = Math.exp(0.00006 * elapsedTime);
+
+  const handleStart = () => {
+    setIsRunning(!isRunning);
+  };
+
+  useEffect(() => {
+    if (isRunning) {
+      resetTimer();
+      startTimer();
+    } else {
+      stopTimer();
+    }
+  }, [isRunning]);
 
   return (
     <div className="App">
       <canvas ref={canvasRef} style={{ border: "1px solid red" }} />
-      <button onClick={() => setIsRunning(!isRunning)}>
-        {isRunning ? "Stop" : "Start"}
-      </button>
+      <h2>Odds: {displayedTime.toFixed(2)}</h2>
+      <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
     </div>
   );
 };
