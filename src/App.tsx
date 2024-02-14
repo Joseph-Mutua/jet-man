@@ -7,6 +7,7 @@ import "./App.css";
 const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [randomNumber, setRandomNumber] = useState<number | null>(null);
 
   const [tilt, setTilt] = useState(false);
   const jetPosXRef = useRef(0);
@@ -114,6 +115,7 @@ const App: React.FC = () => {
     if (intervalRef.current !== undefined) {
       clearInterval(intervalRef.current);
       intervalRef.current = undefined;
+      setIsRunning(false);
     }
   };
 
@@ -129,6 +131,8 @@ const App: React.FC = () => {
     setIsRunning(!isRunning);
     if (!isRunning) {
       setElapsedTime(0);
+      const generatedNumber = (Math.random() * (10 - 1) + 1).toFixed(2);
+      setRandomNumber(parseFloat(generatedNumber));
     }
   };
 
@@ -139,7 +143,15 @@ const App: React.FC = () => {
       stopTimer();
     }
   }, [isRunning]);
+
   const gameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
+
+  useEffect(() => {
+    if (parseFloat(gameOdds) === randomNumber) {
+      setIsRunning(false); 
+      stopTimer();
+    }
+  }, [gameOdds, randomNumber]);
 
   return (
     <div className="App">
@@ -156,11 +168,25 @@ const App: React.FC = () => {
             whiteSpace: "nowrap",
             margin: 0,
             padding: 0,
+            color: parseFloat(gameOdds) === randomNumber ? "red" : "green", 
           }}
         >
           {gameOdds} X
         </h1>
-        <h2></h2>
+        <h2
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "calc(50% + 4rem)", 
+            fontSize: "2rem",
+            transform: "translate(-50%, -50%)",
+            whiteSpace: "nowrap",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {randomNumber !== null ? randomNumber : ""}
+        </h2>
       </div>
       <div>
         <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
