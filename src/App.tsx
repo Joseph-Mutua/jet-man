@@ -7,7 +7,7 @@ import "./App.css";
 const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [randomNumber, setRandomNumber] = useState<number | null>(null);
+  const [targetGameOdds, setTargetGameOdds] = useState<string | null>(null);
 
   const [tilt, setTilt] = useState(false);
   const jetPosXRef = useRef(0);
@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const backgroundImage = new Image();
   backgroundImage.src = BackgroundImageSrc;
   const roadImage = new Image();
-  roadImage.src = RoadImageSrc;
+ roadImage.src = RoadImageSrc;
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
 
@@ -131,8 +131,8 @@ const App: React.FC = () => {
     setIsRunning(!isRunning);
     if (!isRunning) {
       setElapsedTime(0);
-      const generatedNumber = (Math.random() * (10 - 1) + 1).toFixed(2);
-      setRandomNumber(parseFloat(generatedNumber));
+      const generatedOdds = generateTargetGameOdds();
+      setTargetGameOdds(generatedOdds);
     }
   };
 
@@ -144,20 +144,31 @@ const App: React.FC = () => {
     }
   }, [isRunning]);
 
-  const gameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
+
+  const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
   useEffect(() => {
-    if (parseFloat(gameOdds) === randomNumber) {
-      setIsRunning(false); 
+    if (
+      targetGameOdds &&
+      parseFloat(currentGameOdds) >= parseFloat(targetGameOdds)
+    ) {
+      setIsRunning(false);
       stopTimer();
     }
-  }, [gameOdds, randomNumber]);
+  }, [currentGameOdds, targetGameOdds]);
+
+
+  const generateTargetGameOdds = () => {
+    const maxElapsedTime = 30000;
+    const randomElapsedTime = Math.random() * maxElapsedTime;
+    return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
+  };
+
 
   return (
     <div className="App">
       <div style={{ position: "relative" }}>
         <canvas ref={canvasRef} style={{ border: "1px solid red" }} />
-
         <h1
           style={{
             position: "absolute",
@@ -168,16 +179,19 @@ const App: React.FC = () => {
             whiteSpace: "nowrap",
             margin: 0,
             padding: 0,
-            color: parseFloat(gameOdds) === randomNumber ? "red" : "green", 
+            color:
+              parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
+                ? "red"
+                : "green",
           }}
         >
-          {gameOdds} X
+          {currentGameOdds} X
         </h1>
         <h2
           style={{
             position: "absolute",
             left: "50%",
-            top: "calc(50% + 4rem)", 
+            top: "calc(50% + 4rem)",
             fontSize: "2rem",
             transform: "translate(-50%, -50%)",
             whiteSpace: "nowrap",
@@ -185,7 +199,7 @@ const App: React.FC = () => {
             padding: 0,
           }}
         >
-          {randomNumber !== null ? randomNumber : ""}
+          {targetGameOdds !== null ? targetGameOdds : ""}
         </h2>
       </div>
       <div>
