@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const backgroundImage = new Image();
   backgroundImage.src = BackgroundImageSrc;
   const roadImage = new Image();
- roadImage.src = RoadImageSrc;
+  roadImage.src = RoadImageSrc;
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
 
@@ -54,37 +54,102 @@ const App: React.FC = () => {
     return () => cancelAnimationFrame(requestRef.current);
   }, [isRunning, tilt]);
 
-  const draw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+  // const draw = () => {
+  //   const canvas = canvasRef.current;
+  //   const ctx = canvas?.getContext("2d");
+  //   if (!canvas || !ctx) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(
-      roadImage,
-      0,
-      canvas.height - roadImage.height,
-      canvas.width,
-      roadImage.height
-    );
+  //   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  //   ctx.drawImage(
+  //     roadImage,
+  //     0,
+  //     canvas.height - roadImage.height,
+  //     canvas.width,
+  //     roadImage.height
+  //   );
 
-    const radians = tilt ? Math.PI / 4 : 0;
-    const jetX = jetPosXRef.current;
-    const jetY =
-      canvas.height - roadImage.height - jetImage.height - jetPosYRef.current;
+  //   const radians = tilt ? Math.PI / 4 : 0;
+  //   const jetX = jetPosXRef.current;
+  //   const jetY =
+  //     canvas.height - roadImage.height - jetImage.height - jetPosYRef.current;
 
-    ctx.save();
-    if (tilt) {
-      ctx.translate(jetX + jetImage.width / 2, jetY + jetImage.height / 2);
-      ctx.rotate(-radians);
-      ctx.drawImage(jetImage, -jetImage.width / 2, -jetImage.height / 2);
-    } else {
-      ctx.drawImage(jetImage, jetX, jetY);
-    }
-    ctx.restore();
-  };
+  //   ctx.save();
+  //   if (tilt) {
+  //     ctx.translate(jetX + jetImage.width / 2, jetY + jetImage.height / 2);
+  //     ctx.rotate(-radians);
+  //     ctx.drawImage(jetImage, -jetImage.width / 2, -jetImage.height / 2);
+  //   } else {
+  //     ctx.drawImage(jetImage, jetX, jetY);
+  //   }
+  //   ctx.restore();
 
+
+
+  // };
+
+
+
+
+const draw = () => {
+  const canvas = canvasRef.current;
+  const ctx = canvas?.getContext("2d");
+  if (!canvas || !ctx) return;
+
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Calculate the background and road positions based on the jet's movement
+  let backgroundPosition = -jetPosXRef.current;
+  let roadPosition = -jetPosXRef.current;
+
+  // Draw the background with scrolling effect
+  ctx.drawImage(
+    backgroundImage,
+    backgroundPosition,
+    0,
+    canvas.width,
+    canvas.height
+  );
+  ctx.drawImage(
+    backgroundImage,
+    backgroundPosition + canvas.width,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  // Draw the road surface with scrolling effect
+  ctx.drawImage(
+    roadImage,
+    roadPosition,
+    canvas.height - roadImage.height,
+    canvas.width,
+    roadImage.height
+  );
+  ctx.drawImage(
+    roadImage,
+    roadPosition + canvas.width,
+    canvas.height - roadImage.height,
+    canvas.width,
+    roadImage.height
+  );
+
+  // Draw the jet
+  const radians = tilt ? Math.PI / 4 : 0;
+  const jetX = jetPosXRef.current;
+  const jetY =
+    canvas.height - roadImage.height - jetImage.height - jetPosYRef.current;
+  ctx.save();
+  if (tilt) {
+    ctx.translate(jetX + jetImage.width / 2, jetY + jetImage.height / 2);
+    ctx.rotate(-radians);
+    ctx.drawImage(jetImage, -jetImage.width / 2, -jetImage.height / 2);
+  } else {
+    ctx.drawImage(jetImage, jetX, jetY);
+  }
+  ctx.restore();
+};
   const animate = (timestamp: number) => {
     if (!startTimeRef.current) {
       startTimeRef.current = timestamp;
@@ -97,6 +162,7 @@ const App: React.FC = () => {
         jetPosXRef.current += 5;
       }
       draw();
+
       if (isRunning) {
         requestRef.current = requestAnimationFrame(animate);
       }
@@ -144,7 +210,6 @@ const App: React.FC = () => {
     }
   }, [isRunning]);
 
-
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
   useEffect(() => {
@@ -157,13 +222,11 @@ const App: React.FC = () => {
     }
   }, [currentGameOdds, targetGameOdds]);
 
-
   const generateTargetGameOdds = () => {
     const maxElapsedTime = 30000;
     const randomElapsedTime = Math.random() * maxElapsedTime;
     return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
   };
-
 
   return (
     <div className="App">
