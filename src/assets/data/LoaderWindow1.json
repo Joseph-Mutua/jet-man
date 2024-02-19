@@ -1,0 +1,80 @@
+{
+  "frames": {
+    "LoaderWindow/15": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 1414,
+        "h": 692
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1414,
+        "h": 692
+      },
+      "sourceSize": {
+        "w": 1414,
+        "h": 692
+      }
+    },
+    "LoaderWindow/16": {
+      "frame": {
+        "x": 2,
+        "y": 696,
+        "w": 1414,
+        "h": 692
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1414,
+        "h": 692
+      },
+      "sourceSize": {
+        "w": 1414,
+        "h": 692
+      }
+    },
+    "LoaderWindow/17": {
+      "frame": {
+        "x": 2,
+        "y": 1390,
+        "w": 1414,
+        "h": 692
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 1414,
+        "h": 692
+      },
+      "sourceSize": {
+        "w": 1414,
+        "h": 692
+      }
+    }
+  },
+  "animations": {
+    "LoaderWindow": ["LoaderWindow/15", "LoaderWindow/16", "LoaderWindow/17"]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "LoaderWindow-1.png",
+    "format": "RGBA4444",
+    "size": {
+      "w": 1418,
+      "h": 2084
+    },
+    "scale": "1",
+    "related_multi_packs": ["LoaderWindow-0.json"],
+    "smartupdate": "$TexturePacker:SmartUpdate:4e6fde7b321f7255df9a68bc687971c4:56e4490214acc398968887713b2f3674:8489e4327448bf54a091b2e123c4a168$"
+  }
+}

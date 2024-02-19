@@ -1,0 +1,461 @@
+{
+  "frames": {
+    "Comet/1": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 18,
+        "h": 15
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 161,
+        "y": 31,
+        "w": 18,
+        "h": 15
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/2": {
+      "frame": {
+        "x": 22,
+        "y": 2,
+        "w": 136,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 47,
+        "y": 31,
+        "w": 136,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/3": {
+      "frame": {
+        "x": 160,
+        "y": 2,
+        "w": 160,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 33,
+        "y": 31,
+        "w": 160,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/4": {
+      "frame": {
+        "x": 322,
+        "y": 2,
+        "w": 153,
+        "h": 94
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 31,
+        "w": 153,
+        "h": 94
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/5": {
+      "frame": {
+        "x": 477,
+        "y": 2,
+        "w": 143,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 31,
+        "w": 143,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/6": {
+      "frame": {
+        "x": 622,
+        "y": 2,
+        "w": 139,
+        "h": 94
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 31,
+        "w": 139,
+        "h": 94
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/7": {
+      "frame": {
+        "x": 763,
+        "y": 2,
+        "w": 147,
+        "h": 101
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 31,
+        "w": 147,
+        "h": 101
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/8": {
+      "frame": {
+        "x": 2,
+        "y": 105,
+        "w": 147,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 31,
+        "w": 147,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/9": {
+      "frame": {
+        "x": 151,
+        "y": 105,
+        "w": 161,
+        "h": 94
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 31,
+        "w": 161,
+        "h": 94
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/10": {
+      "frame": {
+        "x": 314,
+        "y": 105,
+        "w": 162,
+        "h": 94
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 31,
+        "y": 31,
+        "w": 162,
+        "h": 94
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/11": {
+      "frame": {
+        "x": 478,
+        "y": 105,
+        "w": 157,
+        "h": 94
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 34,
+        "w": 157,
+        "h": 94
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/12": {
+      "frame": {
+        "x": 637,
+        "y": 105,
+        "w": 157,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 36,
+        "w": 157,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/13": {
+      "frame": {
+        "x": 796,
+        "y": 105,
+        "w": 157,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 36,
+        "w": 157,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/14": {
+      "frame": {
+        "x": 2,
+        "y": 201,
+        "w": 181,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 36,
+        "w": 181,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/15": {
+      "frame": {
+        "x": 185,
+        "y": 201,
+        "w": 177,
+        "h": 99
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 36,
+        "y": 66,
+        "w": 177,
+        "h": 99
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/16": {
+      "frame": {
+        "x": 364,
+        "y": 201,
+        "w": 177,
+        "h": 93
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 36,
+        "y": 72,
+        "w": 177,
+        "h": 93
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/17": {
+      "frame": {
+        "x": 543,
+        "y": 201,
+        "w": 177,
+        "h": 85
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 36,
+        "y": 80,
+        "w": 177,
+        "h": 85
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/18": {
+      "frame": {
+        "x": 722,
+        "y": 201,
+        "w": 162,
+        "h": 79
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 51,
+        "y": 86,
+        "w": 162,
+        "h": 79
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/19": {
+      "frame": {
+        "x": 886,
+        "y": 201,
+        "w": 22,
+        "h": 63
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 51,
+        "y": 102,
+        "w": 22,
+        "h": 63
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/20": {
+      "frame": {
+        "x": 910,
+        "y": 201,
+        "w": 16,
+        "h": 55
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 46,
+        "y": 110,
+        "w": 16,
+        "h": 55
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    },
+    "Comet/21": {
+      "frame": {
+        "x": 928,
+        "y": 201,
+        "w": 7,
+        "h": 6
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 52,
+        "y": 112,
+        "w": 7,
+        "h": 6
+      },
+      "sourceSize": {
+        "w": 213,
+        "h": 165
+      }
+    }
+  },
+  "animations": {
+    "Comet": [
+      "Comet/1",
+      "Comet/2",
+      "Comet/3",
+      "Comet/4",
+      "Comet/5",
+      "Comet/6",
+      "Comet/7",
+      "Comet/8",
+      "Comet/9",
+      "Comet/10",
+      "Comet/11",
+      "Comet/12",
+      "Comet/13",
+      "Comet/14",
+      "Comet/15",
+      "Comet/16",
+      "Comet/17",
+      "Comet/18",
+      "Comet/19",
+      "Comet/20",
+      "Comet/21"
+    ]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "Comet.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 955,
+      "h": 302
+    },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:c86b6265a7c1ca6d26813b2f8a069f5a:e59ab05322965a3dcc3a3b95065d5293:ff7dd01feeebfb11fd1f0bcfd7387b78$"
+  }
+}

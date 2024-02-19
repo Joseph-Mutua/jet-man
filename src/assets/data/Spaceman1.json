@@ -1,0 +1,1238 @@
+{
+  "frames": {
+    "Spaceman1/1": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 34,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 12,
+        "w": 34,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/2": {
+      "frame": {
+        "x": 38,
+        "y": 2,
+        "w": 34,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 12,
+        "w": 34,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/3": {
+      "frame": {
+        "x": 74,
+        "y": 2,
+        "w": 34,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 11,
+        "w": 34,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/4": {
+      "frame": {
+        "x": 110,
+        "y": 2,
+        "w": 35,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 11,
+        "w": 35,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/5": {
+      "frame": {
+        "x": 147,
+        "y": 2,
+        "w": 35,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 11,
+        "w": 35,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/6": {
+      "frame": {
+        "x": 184,
+        "y": 2,
+        "w": 35,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 11,
+        "w": 35,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/7": {
+      "frame": {
+        "x": 221,
+        "y": 2,
+        "w": 35,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 12,
+        "y": 11,
+        "w": 35,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/8": {
+      "frame": {
+        "x": 258,
+        "y": 2,
+        "w": 36,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 11,
+        "w": 36,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/9": {
+      "frame": {
+        "x": 296,
+        "y": 2,
+        "w": 36,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 10,
+        "w": 36,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/10": {
+      "frame": {
+        "x": 334,
+        "y": 2,
+        "w": 36,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 10,
+        "w": 36,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/11": {
+      "frame": {
+        "x": 372,
+        "y": 2,
+        "w": 37,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 10,
+        "w": 37,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/12": {
+      "frame": {
+        "x": 411,
+        "y": 2,
+        "w": 37,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 10,
+        "w": 37,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/13": {
+      "frame": {
+        "x": 450,
+        "y": 2,
+        "w": 37,
+        "h": 42
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 9,
+        "w": 37,
+        "h": 42
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/14": {
+      "frame": {
+        "x": 2,
+        "y": 46,
+        "w": 37,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 9,
+        "w": 37,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/15": {
+      "frame": {
+        "x": 41,
+        "y": 46,
+        "w": 37,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 11,
+        "y": 9,
+        "w": 37,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/16": {
+      "frame": {
+        "x": 80,
+        "y": 46,
+        "w": 38,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 9,
+        "w": 38,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/17": {
+      "frame": {
+        "x": 120,
+        "y": 46,
+        "w": 38,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 9,
+        "w": 38,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/18": {
+      "frame": {
+        "x": 160,
+        "y": 46,
+        "w": 38,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 8,
+        "w": 38,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/19": {
+      "frame": {
+        "x": 200,
+        "y": 46,
+        "w": 39,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 8,
+        "w": 39,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/20": {
+      "frame": {
+        "x": 241,
+        "y": 46,
+        "w": 39,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 8,
+        "w": 39,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/21": {
+      "frame": {
+        "x": 282,
+        "y": 46,
+        "w": 39,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 8,
+        "w": 39,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/22": {
+      "frame": {
+        "x": 323,
+        "y": 46,
+        "w": 39,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 10,
+        "y": 8,
+        "w": 39,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/23": {
+      "frame": {
+        "x": 364,
+        "y": 46,
+        "w": 40,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 7,
+        "w": 40,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/24": {
+      "frame": {
+        "x": 406,
+        "y": 46,
+        "w": 40,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 7,
+        "w": 40,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/25": {
+      "frame": {
+        "x": 448,
+        "y": 46,
+        "w": 40,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 7,
+        "w": 40,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/26": {
+      "frame": {
+        "x": 2,
+        "y": 89,
+        "w": 40,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 7,
+        "w": 40,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/27": {
+      "frame": {
+        "x": 44,
+        "y": 89,
+        "w": 40,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 7,
+        "w": 40,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/28": {
+      "frame": {
+        "x": 86,
+        "y": 89,
+        "w": 40,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 7,
+        "w": 40,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/29": {
+      "frame": {
+        "x": 128,
+        "y": 89,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 6,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/30": {
+      "frame": {
+        "x": 171,
+        "y": 89,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/31": {
+      "frame": {
+        "x": 214,
+        "y": 89,
+        "w": 42,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 42,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/32": {
+      "frame": {
+        "x": 258,
+        "y": 89,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/33": {
+      "frame": {
+        "x": 301,
+        "y": 89,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/34": {
+      "frame": {
+        "x": 344,
+        "y": 89,
+        "w": 42,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 42,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/35": {
+      "frame": {
+        "x": 388,
+        "y": 89,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/36": {
+      "frame": {
+        "x": 431,
+        "y": 89,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 8,
+        "y": 6,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/37": {
+      "frame": {
+        "x": 2,
+        "y": 132,
+        "w": 43,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 6,
+        "w": 43,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/38": {
+      "frame": {
+        "x": 47,
+        "y": 132,
+        "w": 43,
+        "h": 42
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 5,
+        "w": 43,
+        "h": 42
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/39": {
+      "frame": {
+        "x": 92,
+        "y": 132,
+        "w": 43,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 6,
+        "w": 43,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/40": {
+      "frame": {
+        "x": 137,
+        "y": 132,
+        "w": 43,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 6,
+        "w": 43,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/41": {
+      "frame": {
+        "x": 182,
+        "y": 132,
+        "w": 43,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 6,
+        "w": 43,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/42": {
+      "frame": {
+        "x": 227,
+        "y": 132,
+        "w": 43,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 6,
+        "w": 43,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/43": {
+      "frame": {
+        "x": 272,
+        "y": 132,
+        "w": 44,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/44": {
+      "frame": {
+        "x": 318,
+        "y": 132,
+        "w": 43,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 6,
+        "w": 43,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/45": {
+      "frame": {
+        "x": 363,
+        "y": 132,
+        "w": 44,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/46": {
+      "frame": {
+        "x": 409,
+        "y": 132,
+        "w": 44,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/47": {
+      "frame": {
+        "x": 455,
+        "y": 132,
+        "w": 44,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/48": {
+      "frame": {
+        "x": 2,
+        "y": 176,
+        "w": 44,
+        "h": 38
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 38
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/49": {
+      "frame": {
+        "x": 48,
+        "y": 176,
+        "w": 44,
+        "h": 37
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 7,
+        "w": 44,
+        "h": 37
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/50": {
+      "frame": {
+        "x": 94,
+        "y": 176,
+        "w": 43,
+        "h": 37
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 7,
+        "w": 43,
+        "h": 37
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/51": {
+      "frame": {
+        "x": 139,
+        "y": 176,
+        "w": 43,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 7,
+        "w": 43,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/52": {
+      "frame": {
+        "x": 184,
+        "y": 176,
+        "w": 43,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 8,
+        "w": 43,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/53": {
+      "frame": {
+        "x": 229,
+        "y": 176,
+        "w": 44,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 8,
+        "w": 44,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/54": {
+      "frame": {
+        "x": 275,
+        "y": 176,
+        "w": 44,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 8,
+        "w": 44,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/55": {
+      "frame": {
+        "x": 321,
+        "y": 176,
+        "w": 43,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 9,
+        "w": 43,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/56": {
+      "frame": {
+        "x": 366,
+        "y": 176,
+        "w": 43,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 9,
+        "w": 43,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/57": {
+      "frame": {
+        "x": 411,
+        "y": 176,
+        "w": 42,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 10,
+        "w": 42,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    },
+    "Spaceman1/58": {
+      "frame": {
+        "x": 455,
+        "y": 176,
+        "w": 41,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 10,
+        "w": 41,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 54,
+        "h": 53
+      }
+    }
+  },
+  "animations": {
+    "Spaceman1": [
+      "Spaceman1/1",
+      "Spaceman1/2",
+      "Spaceman1/3",
+      "Spaceman1/4",
+      "Spaceman1/5",
+      "Spaceman1/6",
+      "Spaceman1/7",
+      "Spaceman1/8",
+      "Spaceman1/9",
+      "Spaceman1/10",
+      "Spaceman1/11",
+      "Spaceman1/12",
+      "Spaceman1/13",
+      "Spaceman1/14",
+      "Spaceman1/15",
+      "Spaceman1/16",
+      "Spaceman1/17",
+      "Spaceman1/18",
+      "Spaceman1/19",
+      "Spaceman1/20",
+      "Spaceman1/21",
+      "Spaceman1/22",
+      "Spaceman1/23",
+      "Spaceman1/24",
+      "Spaceman1/25",
+      "Spaceman1/26",
+      "Spaceman1/27",
+      "Spaceman1/28",
+      "Spaceman1/29",
+      "Spaceman1/30",
+      "Spaceman1/31",
+      "Spaceman1/32",
+      "Spaceman1/33",
+      "Spaceman1/34",
+      "Spaceman1/35",
+      "Spaceman1/36",
+      "Spaceman1/37",
+      "Spaceman1/38",
+      "Spaceman1/39",
+      "Spaceman1/40",
+      "Spaceman1/41",
+      "Spaceman1/42",
+      "Spaceman1/43",
+      "Spaceman1/44",
+      "Spaceman1/45",
+      "Spaceman1/46",
+      "Spaceman1/47",
+      "Spaceman1/48",
+      "Spaceman1/49",
+      "Spaceman1/50",
+      "Spaceman1/51",
+      "Spaceman1/52",
+      "Spaceman1/53",
+      "Spaceman1/54",
+      "Spaceman1/55",
+      "Spaceman1/56",
+      "Spaceman1/57",
+      "Spaceman1/58"
+    ]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "Spaceman1.png",
+    "format": "RGBA4444",
+    "size": {
+      "w": 501,
+      "h": 216
+    },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:59b245229b3b4d6ca30b6706e91a39b5:b7eb2aa2984f3a3cdeb1a2c77d094fd0:27f7242b62ca1c52a272e777619c757d$"
+  }
+}

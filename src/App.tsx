@@ -4,6 +4,29 @@ import RoadImageSrc from "./assets/images/Road.png";
 import BackgroundImageSrc from "./assets/images/canvas.jpg";
 import "./App.css";
 
+import Sprite from "./components/Sprite";
+import { Frame } from "./components/types";
+
+//Spriutes
+interface JsonData {
+  frames: Record<string, Frame>;
+  animations: any;
+  meta: any;
+}
+
+const sprites = [
+  "Fire1",
+  "Fire2",
+  "Fire3",
+  "Fire4",
+  "Boom",
+  "Loader",
+  "Parachute0",
+  "Parachute1",
+  "Spaceman0",
+  "Spaceman1",
+];
+
 const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -17,6 +40,15 @@ const App: React.FC = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number | null>(null);
+
+  // State for sprite image sources and JSON data
+  const [spritesImageSrc, setSpritesImageSrc] = useState<string[]>([]);
+  const [spritesJson, setSpritesJson] = useState<JsonData[]>([]);
+
+  // Additional state to track the scrolling offset of background and road
+  const [scrollOffset, setScrollOffset] = useState(0);
+
+  const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
   const backgroundImage = new Image();
   backgroundImage.src = BackgroundImageSrc;
@@ -40,134 +72,100 @@ const App: React.FC = () => {
   }, [elapsedTime]);
 
   useEffect(() => {
-    if (isRunning) {
-      setTimeout(() => setTilt(true), 2000);
-      requestRef.current = requestAnimationFrame(animate);
-    } else {
-      stopTimer();
-      jetPosXRef.current = 0;
-      jetPosYRef.current = 0;
-      setTilt(false);
+    const canvas = canvasRef.current;
+    if (
+      canvas &&
+      backgroundImage.complete &&
+      roadImage.complete &&
+      jetImage.complete
+    ) {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.8;
       draw();
     }
+  }, [scrollOffset]); // Re-draw when scrollOffset changes
 
-    return () => cancelAnimationFrame(requestRef.current);
-  }, [isRunning, tilt]);
+  const draw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
 
-  // const draw = () => {
-  //   const canvas = canvasRef.current;
-  //   const ctx = canvas?.getContext("2d");
-  //   if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  //   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  //   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-  //   ctx.drawImage(
-  //     roadImage,
-  //     0,
-  //     canvas.height - roadImage.height,
-  //     canvas.width,
-  //     roadImage.height
-  //   );
+    // Use scrollOffset for background and road, adjusted for leftward scrolling
+    let backgroundPosition = scrollOffset % canvas.width;
+    let roadPosition = scrollOffset % canvas.width;
 
-  //   const radians = tilt ? Math.PI / 4 : 0;
-  //   const jetX = jetPosXRef.current;
-  //   const jetY =
-  //     canvas.height - roadImage.height - jetImage.height - jetPosYRef.current;
+    // Draw the background with adjustments for leftward scrolling
+    ctx.drawImage(
+      backgroundImage,
+      backgroundPosition,
+      0,
+      canvas.width,
+      canvas.height
+    );
+    if (backgroundPosition < 0) {
+      ctx.drawImage(
+        backgroundImage,
+        backgroundPosition + canvas.width,
+        0,
+        canvas.width,
+        canvas.height
+      );
+    }
 
-  //   ctx.save();
-  //   if (tilt) {
-  //     ctx.translate(jetX + jetImage.width / 2, jetY + jetImage.height / 2);
-  //     ctx.rotate(-radians);
-  //     ctx.drawImage(jetImage, -jetImage.width / 2, -jetImage.height / 2);
-  //   } else {
-  //     ctx.drawImage(jetImage, jetX, jetY);
-  //   }
-  //   ctx.restore();
+    // Draw the road surface with adjustments for leftward scrolling
+    ctx.drawImage(
+      roadImage,
+      roadPosition,
+      canvas.height - roadImage.height,
+      canvas.width,
+      roadImage.height
+    );
+    if (roadPosition < 0) {
+      ctx.drawImage(
+        roadImage,
+        roadPosition + canvas.width,
+        canvas.height - roadImage.height,
+        canvas.width,
+        roadImage.height
+      );
+    }
 
+    // Modify jet position to be in the bottom left corner
+    const jetX = jetImage.width; // Start from the left side of the canvas
+    const jetY = canvas.height - roadImage.height - jetImage.height; // Position above the road, at the bottom
 
-
-  // };
-
-
-
-
-const draw = () => {
-  const canvas = canvasRef.current;
-  const ctx = canvas?.getContext("2d");
-  if (!canvas || !ctx) return;
-
-  // Clear the canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Calculate the background and road positions based on the jet's movement
-  let backgroundPosition = -jetPosXRef.current;
-  let roadPosition = -jetPosXRef.current;
-
-  // Draw the background with scrolling effect
-  ctx.drawImage(
-    backgroundImage,
-    backgroundPosition,
-    0,
-    canvas.width,
-    canvas.height
-  );
-  ctx.drawImage(
-    backgroundImage,
-    backgroundPosition + canvas.width,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  // Draw the road surface with scrolling effect
-  ctx.drawImage(
-    roadImage,
-    roadPosition,
-    canvas.height - roadImage.height,
-    canvas.width,
-    roadImage.height
-  );
-  ctx.drawImage(
-    roadImage,
-    roadPosition + canvas.width,
-    canvas.height - roadImage.height,
-    canvas.width,
-    roadImage.height
-  );
-
-  // Draw the jet
-  const radians = tilt ? Math.PI / 4 : 0;
-  const jetX = jetPosXRef.current;
-  const jetY =
-    canvas.height - roadImage.height - jetImage.height - jetPosYRef.current;
-  ctx.save();
-  if (tilt) {
-    ctx.translate(jetX + jetImage.width / 2, jetY + jetImage.height / 2);
-    ctx.rotate(-radians);
-    ctx.drawImage(jetImage, -jetImage.width / 2, -jetImage.height / 2);
-  } else {
     ctx.drawImage(jetImage, jetX, jetY);
-  }
-  ctx.restore();
-};
-  const animate = (timestamp: number) => {
-    if (!startTimeRef.current) {
-      startTimeRef.current = timestamp;
-    } else {
-      if (tilt) {
-        const speed = 5;
-        jetPosXRef.current += speed * Math.cos(Math.PI / 4);
-        jetPosYRef.current += speed * Math.sin(Math.PI / 4);
-      } else {
-        jetPosXRef.current += 5;
-      }
-      draw();
-
-      if (isRunning) {
-        requestRef.current = requestAnimationFrame(animate);
-      }
-    }
   };
+
+  const animate = () => {
+    // Directly check if we should continue animating.
+    if (
+      !isRunning ||
+      parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
+    ) {
+      // When stopping, ensure no further animation frames are requested
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+      return; // Stop the animation loop
+    }
+
+    setScrollOffset((prev) => prev - 2); // Decrement scroll offset to scroll background and road
+    requestRef.current = requestAnimationFrame(animate);
+  };
+
+
+
+
+
+  // Handle the condition when currentGameOdds >= targetGameOdds
+  useEffect(() => {
+    if (parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")) {
+      setIsRunning(false); // This will trigger the useEffect above to stop the animation
+    }
+  }, [currentGameOdds, targetGameOdds]);
 
   const startTimer = () => {
     const startTime = performance.now();
@@ -202,15 +200,27 @@ const draw = () => {
     }
   };
 
-  useEffect(() => {
-    if (isRunning) {
-      startTimer();
-    } else {
-      stopTimer();
+useEffect(() => {
+  if (isRunning) {
+    startTimer();
+    requestRef.current = requestAnimationFrame(animate);
+  } else {
+    // When stopping, reset the scrollOffset and ensure no further animation frames are requested
+    setScrollOffset(0); // Reset scroll offset to stop scrolling
+    stopTimer();
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
     }
-  }, [isRunning]);
+  }
 
-  const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
+  // Cleanup function to cancel any pending animation frame request when the component unmounts or rerenders
+  return () => {
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+    }
+  };
+}, [isRunning]);
+
 
   useEffect(() => {
     if (
@@ -227,6 +237,41 @@ const draw = () => {
     const randomElapsedTime = Math.random() * maxElapsedTime;
     return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
   };
+
+  // Load sprites when the component mounts or the isRunning state changes
+  useEffect(() => {
+    const loadSprites = async () => {
+      const loadedImageSrc = [];
+      const loadedJson = [];
+      for (const spriteName of sprites) {
+        const image = await import(`./assets/images/${spriteName}.png`);
+        const json = await import(`./assets/data/${spriteName}.json`);
+        loadedImageSrc.push(image.default);
+        loadedJson.push(json.default);
+      }
+      setSpritesImageSrc(loadedImageSrc);
+      setSpritesJson(loadedJson);
+    };
+
+    if (isRunning) {
+      loadSprites();
+    }
+  }, [isRunning]);
+
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   if (
+  //     canvas &&
+  //     backgroundImage.complete &&
+  //     roadImage.complete &&
+  //     jetImage.complete &&
+  //     spritesImageSrc.length === sprites.length // Make sure sprites are loaded
+  //   ) {
+  //     canvas.width = window.innerWidth * 0.9;
+  //     canvas.height = window.innerHeight * 0.8;
+  //     draw();
+  //   }
+  // }, [elapsedTime, spritesImageSrc.length]);
 
   return (
     <div className="App">
