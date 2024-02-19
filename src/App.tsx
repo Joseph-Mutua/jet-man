@@ -14,11 +14,9 @@ interface JsonData {
   meta: any;
 }
 
-const sprites = [
-  "Fire1",
-  "Fire2",
-  "Fire3",
-  "Fire4",
+const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
+
+const jetSprites = [
   "Boom",
   "Loader",
   "Parachute0",
@@ -42,8 +40,9 @@ const App: React.FC = () => {
   const startTimeRef = useRef<number | null>(null);
 
   // State for sprite image sources and JSON data
-  const [spritesImageSrc, setSpritesImageSrc] = useState<string[]>([]);
-  const [spritesJson, setSpritesJson] = useState<JsonData[]>([]);
+  const [imageSrc, setImageSrc] = useState("");
+  const [json, setJson] = useState<JsonData | null>(null);
+  const [currentSprite, setCurrentSprite] = useState(0);
 
   // Additional state to track the scrolling offset of background and road
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -104,6 +103,8 @@ const App: React.FC = () => {
       canvas.width,
       canvas.height
     );
+
+    
     if (backgroundPosition < 0) {
       ctx.drawImage(
         backgroundImage,
@@ -137,6 +138,11 @@ const App: React.FC = () => {
     const jetY = canvas.height - roadImage.height - jetImage.height; // Position above the road, at the bottom
 
     ctx.drawImage(jetImage, jetX, jetY);
+
+
+
+
+    
   };
 
   const animate = () => {
@@ -152,13 +158,9 @@ const App: React.FC = () => {
       return; // Stop the animation loop
     }
 
-    setScrollOffset((prev) => prev - 2); // Decrement scroll offset to scroll background and road
+    setScrollOffset((prev) => prev - 5); // Decrement scroll offset to scroll background and road
     requestRef.current = requestAnimationFrame(animate);
   };
-
-
-
-
 
   // Handle the condition when currentGameOdds >= targetGameOdds
   useEffect(() => {
@@ -200,27 +202,26 @@ const App: React.FC = () => {
     }
   };
 
-useEffect(() => {
-  if (isRunning) {
-    startTimer();
-    requestRef.current = requestAnimationFrame(animate);
-  } else {
-    // When stopping, reset the scrollOffset and ensure no further animation frames are requested
-    setScrollOffset(0); // Reset scroll offset to stop scrolling
-    stopTimer();
-    if (requestRef.current) {
-      cancelAnimationFrame(requestRef.current);
+  useEffect(() => {
+    if (isRunning) {
+      startTimer();
+      requestRef.current = requestAnimationFrame(animate);
+    } else {
+      // When stopping, reset the scrollOffset and ensure no further animation frames are requested
+      setScrollOffset(0); // Reset scroll offset to stop scrolling
+      stopTimer();
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
     }
-  }
 
-  // Cleanup function to cancel any pending animation frame request when the component unmounts or rerenders
-  return () => {
-    if (requestRef.current) {
-      cancelAnimationFrame(requestRef.current);
-    }
-  };
-}, [isRunning]);
-
+    // Cleanup function to cancel any pending animation frame request when the component unmounts or rerenders
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
+  }, [isRunning]);
 
   useEffect(() => {
     if (
@@ -238,40 +239,90 @@ useEffect(() => {
     return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
   };
 
-  // Load sprites when the component mounts or the isRunning state changes
+
   useEffect(() => {
-    const loadSprites = async () => {
-      const loadedImageSrc = [];
-      const loadedJson = [];
-      for (const spriteName of sprites) {
-        const image = await import(`./assets/images/${spriteName}.png`);
-        const json = await import(`./assets/data/${spriteName}.json`);
-        loadedImageSrc.push(image.default);
-        loadedJson.push(json.default);
-      }
-      setSpritesImageSrc(loadedImageSrc);
-      setSpritesJson(loadedJson);
+    const loadSprite = async (spriteName: string) => {
+      const image = await import(`./assets/images/${spriteName}.png`);
+      const json = await import(`./assets/data/${spriteName}.json`);
+      setImageSrc(image.default);
+      setJson(json.default);
     };
 
-    if (isRunning) {
-      loadSprites();
-    }
-  }, [isRunning]);
+    loadSprite(fireSprites[currentSprite]);
 
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   if (
-  //     canvas &&
-  //     backgroundImage.complete &&
-  //     roadImage.complete &&
-  //     jetImage.complete &&
-  //     spritesImageSrc.length === sprites.length // Make sure sprites are loaded
-  //   ) {
-  //     canvas.width = window.innerWidth * 0.9;
-  //     canvas.height = window.innerHeight * 0.8;
-  //     draw();
-  //   }
-  // }, [elapsedTime, spritesImageSrc.length]);
+    const interval = setInterval(() => {
+      setCurrentSprite((prevSprite) => (prevSprite + 1) % fireSprites.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [currentSprite]);
+
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (
+      canvas &&
+      backgroundImage.complete &&
+      roadImage.complete &&
+      jetImage.complete &&
+      imageSrc.length === fireSprites.length // Make sure sprites are loaded
+    ) {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.8;
+      draw();
+    }
+  }, [elapsedTime, imageSrc.length]);
+
+
+
+    useEffect(() => {
+      const image = new Image();
+
+      image.src = imageSrc;
+
+      const canvas = canvasRef.current;
+      const context = canvas?.getContext("2d");
+
+      let currentFrame = 1;
+      if(!json) return;
+      const totalFrames = Object.keys(json.frames).length;
+
+      const animate = () => {
+        if (context && canvas && json.frames && isRunning) {
+          requestAnimationFrame(animate);
+         // context.clearRect(0, 0, canvas.width, canvas.height);
+          const spriteName = json.meta.image.split(".")[0];
+
+          const frameData = json.frames[`${spriteName}/${currentFrame}`]?.frame;
+
+          if (frameData) {
+            // Calculate half the width and half the height
+            const halfWidth = frameData.w / 2;
+            const halfHeight = frameData.h / 2;
+
+            // Draw the image at half its natural size
+            context.drawImage(
+              image,
+              frameData.x,
+              frameData.y,
+              frameData.w, // Original width from the frame data
+              frameData.h, // Original height from the frame data
+              0, // dx - You can adjust this as needed
+              0, // dy - You can adjust this as needed
+              halfWidth, // dWidth - half of the original width
+              halfHeight // dHeight - half of the original height
+            );
+            currentFrame = (currentFrame % totalFrames) + 1;
+          }
+        }
+      };
+
+      if (isRunning) {
+        image.onload = animate;
+      }
+    }, [imageSrc, json, isRunning]);
+
+
 
   return (
     <div className="App">
@@ -310,6 +361,11 @@ useEffect(() => {
           {targetGameOdds !== null ? targetGameOdds : ""}
         </h2>
       </div>
+      {/* <div>
+        {imageSrc && json ? (
+          <Sprite imageSrc={imageSrc} json={json} isRunning={isRunning} />
+        ) : null}
+      </div> */}
       <div>
         <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
       </div>
