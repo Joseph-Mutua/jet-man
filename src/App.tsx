@@ -14,6 +14,12 @@ interface JsonData {
   meta: any;
 }
 
+
+interface Position {
+  x: number;
+  y: number;
+}
+
 const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 
 const jetSprites = [
@@ -40,13 +46,14 @@ const App: React.FC = () => {
   const intervalRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number | null>(null);
 
-  // State for sprite image sources and JSON data
   const [imageSrc, setImageSrc] = useState("");
   const [json, setJson] = useState<JsonData | null>(null);
   const [currentSprite, setCurrentSprite] = useState(0);
 
-  // Additional state to track the scrolling offset of background and road
   const [scrollOffset, setScrollOffset] = useState(0);
+
+  const [jetPosition, setJetPosition] = useState({ x: 0, y: 0 });
+
 
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
@@ -56,6 +63,8 @@ const App: React.FC = () => {
   roadImage.src = RoadImageSrc;
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
+
+
 
   useEffect(() => {
     const canvas = backgroundCanvasRef.current;
@@ -83,20 +92,19 @@ const App: React.FC = () => {
       canvas.height = window.innerHeight * 0.8;
       draw();
     }
-  }, [scrollOffset]); // Re-draw when scrollOffset changes
+  }, [scrollOffset]);
 
   const draw = () => {
     const canvas = backgroundCanvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Use scrollOffset for background and road, adjusted for leftward scrolling
     let backgroundPosition = scrollOffset % canvas.width;
     let roadPosition = scrollOffset % canvas.width;
 
-    // Draw the background with adjustments for leftward scrolling
     ctx.drawImage(
       backgroundImage,
       backgroundPosition,
@@ -115,7 +123,6 @@ const App: React.FC = () => {
       );
     }
 
-    // Draw the road surface with adjustments for leftward scrolling
     ctx.drawImage(
       roadImage,
       roadPosition,
@@ -133,34 +140,30 @@ const App: React.FC = () => {
       );
     }
 
-    // Modify jet position to be in the bottom left corner
-    const jetX = jetImage.width; // Start from the left side of the canvas
-    const jetY = canvas.height - roadImage.height - jetImage.height; // Position above the road, at the bottom
-
+    const jetX = jetImage.width;
+    const jetY = canvas.height - roadImage.height - jetImage.height;
+    setJetPosition({ x: jetX, y: jetY });
     ctx.drawImage(jetImage, jetX, jetY);
   };
 
   const animate = () => {
-    // Directly check if we should continue animating.
     if (
       !isRunning ||
       parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
     ) {
-      // When stopping, ensure no further animation frames are requested
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
       }
-      return; // Stop the animation loop
+      return;
     }
 
-    setScrollOffset((prev) => prev - 5); // Decrement scroll offset to scroll background and road
+    setScrollOffset((prev) => prev - 5);
     requestRef.current = requestAnimationFrame(animate);
   };
 
-  // Handle the condition when currentGameOdds >= targetGameOdds
   useEffect(() => {
     if (parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")) {
-      setIsRunning(false); // This will trigger the useEffect above to stop the animation
+      setIsRunning(false);
     }
   }, [currentGameOdds, targetGameOdds]);
 
@@ -181,14 +184,26 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    return () => {
-      if (intervalRef.current !== undefined) {
-        clearInterval(intervalRef.current);
+    if (!isRunning) {
+      const canvas = spriteCanvasRef.current;
+      const context = canvas?.getContext("2d");
+      if (context && canvas) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
       }
-    };
-  }, []);
+      setCurrentSprite(0);
+    }
+  }, [isRunning]);
 
   const handleStart = () => {
+    if (isRunning) {
+      const canvas = spriteCanvasRef.current;
+      const context = canvas?.getContext("2d");
+      if (context && canvas) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      setCurrentSprite(0);
+    }
+
     setIsRunning(!isRunning);
     if (!isRunning) {
       setElapsedTime(0);
@@ -202,15 +217,13 @@ const App: React.FC = () => {
       startTimer();
       requestRef.current = requestAnimationFrame(animate);
     } else {
-      // When stopping, reset the scrollOffset and ensure no further animation frames are requested
-      setScrollOffset(0); // Reset scroll offset to stop scrolling
+      setScrollOffset(0);
       stopTimer();
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
       }
     }
 
-    // Cleanup function to cancel any pending animation frame request when the component unmounts or rerenders
     return () => {
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
@@ -246,7 +259,7 @@ const App: React.FC = () => {
 
     const interval = setInterval(() => {
       setCurrentSprite((prevSprite) => (prevSprite + 1) % fireSprites.length);
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [currentSprite]);
@@ -258,7 +271,7 @@ const App: React.FC = () => {
       backgroundImage.complete &&
       roadImage.complete &&
       jetImage.complete &&
-      imageSrc.length === fireSprites.length // Make sure sprites are loaded
+      imageSrc.length === fireSprites.length
     ) {
       canvas.width = window.innerWidth * 0.9;
       canvas.height = window.innerHeight * 0.8;
@@ -266,42 +279,51 @@ const App: React.FC = () => {
     }
   }, [elapsedTime, imageSrc.length]);
 
+
+  useEffect(() => {
+    if (spriteCanvasRef.current) {
+      spriteCanvasRef.current.style.top = `${jetPosition.y}px`;
+     
+      spriteCanvasRef.current.style.left = `${jetPosition.x}px`;
+    }
+  }, [jetPosition]);
+
+
   useEffect(() => {
     const image = new Image();
-
     image.src = imageSrc;
 
     const canvas = spriteCanvasRef.current;
     const context = canvas?.getContext("2d");
-
     let currentFrame = 1;
+
     if (!json) return;
+
     const totalFrames = Object.keys(json.frames).length;
+    let animationId: number;
 
     const animate = () => {
       if (context && canvas && json.frames && isRunning) {
-        requestAnimationFrame(animate);
+        animationId = requestAnimationFrame(animate);
         context.clearRect(0, 0, canvas.width, canvas.height);
-        const spriteName = json.meta.image.split(".")[0];
 
+        const spriteName = json.meta.image.split(".")[0];
         const frameData = json.frames[`${spriteName}/${currentFrame}`]?.frame;
 
         if (frameData) {
-          // Calculate half the width and half the height
           const halfWidth = frameData.w / 1.5;
           const halfHeight = frameData.h / 1.5;
 
-          // Draw the image at half its natural size
           context.drawImage(
             image,
             frameData.x,
             frameData.y,
-            frameData.w, // Original width from the frame data
-            frameData.h, // Original height from the frame data
-            0, // dx - You can adjust this as needed
-            0, // dy - You can adjust this as needed
-            halfWidth, // dWidth - half of the original width
-            halfHeight // dHeight - half of the original height
+            frameData.w,
+            frameData.h,
+            0,
+            0,
+            halfWidth,
+            halfHeight
           );
           currentFrame = (currentFrame % totalFrames) + 1;
         }
@@ -309,8 +331,12 @@ const App: React.FC = () => {
     };
 
     if (isRunning) {
-      image.onload = animate;
+      animate();
     }
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
   }, [imageSrc, json, isRunning]);
 
   return (
@@ -320,17 +346,14 @@ const App: React.FC = () => {
           {" "}
           <canvas
             ref={backgroundCanvasRef}
-            style={{
-          
-              border: "1px solid red",
-            }}
+        
           />
           <canvas
             ref={spriteCanvasRef}
             style={{
               position: "absolute",
-              top:"79%",
-              left:"10%",
+              // top: "80%",
+              // left: "10%",
             }}
           />
         </div>
@@ -340,7 +363,7 @@ const App: React.FC = () => {
             position: "absolute",
             left: "50%",
             top: "50%",
-            fontSize: "4rem",
+            fontSize: "5rem",
             transform: "translate(-50%, -50%)",
             whiteSpace: "nowrap",
             margin: 0,
@@ -368,11 +391,6 @@ const App: React.FC = () => {
           {targetGameOdds !== null ? targetGameOdds : ""}
         </h2>
       </div>
-      {/* <div>
-        {imageSrc && json ? (
-          <Sprite imageSrc={imageSrc} json={json} isRunning={isRunning} />
-        ) : null}
-      </div> */}
       <div>
         <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
       </div>
