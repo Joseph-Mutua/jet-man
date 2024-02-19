@@ -1,0 +1,230 @@
+{
+  "frames": {
+    "Fire1/1": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 140,
+        "h": 39
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 74,
+        "y": 26,
+        "w": 140,
+        "h": 39
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/2": {
+      "frame": {
+        "x": 144,
+        "y": 2,
+        "w": 137,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 71,
+        "y": 30,
+        "w": 137,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/3": {
+      "frame": {
+        "x": 283,
+        "y": 2,
+        "w": 148,
+        "h": 44
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 60,
+        "y": 19,
+        "w": 148,
+        "h": 44
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/4": {
+      "frame": {
+        "x": 433,
+        "y": 2,
+        "w": 118,
+        "h": 44
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 89,
+        "y": 17,
+        "w": 118,
+        "h": 44
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/5": {
+      "frame": {
+        "x": 553,
+        "y": 2,
+        "w": 107,
+        "h": 34
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 32,
+        "w": 107,
+        "h": 34
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/6": {
+      "frame": {
+        "x": 662,
+        "y": 2,
+        "w": 121,
+        "h": 27
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 87,
+        "y": 30,
+        "w": 121,
+        "h": 27
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/7": {
+      "frame": {
+        "x": 785,
+        "y": 2,
+        "w": 122,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 86,
+        "y": 17,
+        "w": 122,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/8": {
+      "frame": {
+        "x": 909,
+        "y": 2,
+        "w": 143,
+        "h": 37
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 71,
+        "y": 26,
+        "w": 143,
+        "h": 37
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/9": {
+      "frame": {
+        "x": 1054,
+        "y": 2,
+        "w": 148,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 60,
+        "y": 30,
+        "w": 148,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    },
+    "Fire1/10": {
+      "frame": {
+        "x": 1204,
+        "y": 2,
+        "w": 123,
+        "h": 22
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 85,
+        "y": 35,
+        "w": 123,
+        "h": 22
+      },
+      "sourceSize": {
+        "w": 231,
+        "h": 102
+      }
+    }
+  },
+  "animations": {
+    "Fire1": [
+      "Fire1/1",
+      "Fire1/2",
+      "Fire1/3",
+      "Fire1/4",
+      "Fire1/5",
+      "Fire1/6",
+      "Fire1/7",
+      "Fire1/8",
+      "Fire1/9",
+      "Fire1/10"
+    ]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "Fire1.png",
+    "format": "RGBA4444",
+    "size": {
+      "w": 1329,
+      "h": 48
+    },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:9b06858d8c640850a17ac93d7aaa5006:0639a4a5805f20fb85af76ee715d9110:ce84fc105346bb63b7eaec567273fba9$"
+  }
+}
