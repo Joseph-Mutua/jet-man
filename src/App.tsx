@@ -26,7 +26,8 @@ const jetSprites = [
 ];
 
 const App: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const backgroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const spriteCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [targetGameOdds, setTargetGameOdds] = useState<string | null>(null);
 
@@ -57,7 +58,7 @@ const App: React.FC = () => {
   jetImage.src = JetImageSrc;
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = backgroundCanvasRef.current;
     if (
       canvas &&
       backgroundImage.complete &&
@@ -71,7 +72,7 @@ const App: React.FC = () => {
   }, [elapsedTime]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = backgroundCanvasRef.current;
     if (
       canvas &&
       backgroundImage.complete &&
@@ -85,7 +86,7 @@ const App: React.FC = () => {
   }, [scrollOffset]); // Re-draw when scrollOffset changes
 
   const draw = () => {
-    const canvas = canvasRef.current;
+    const canvas = backgroundCanvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
@@ -104,7 +105,6 @@ const App: React.FC = () => {
       canvas.height
     );
 
-    
     if (backgroundPosition < 0) {
       ctx.drawImage(
         backgroundImage,
@@ -138,11 +138,6 @@ const App: React.FC = () => {
     const jetY = canvas.height - roadImage.height - jetImage.height; // Position above the road, at the bottom
 
     ctx.drawImage(jetImage, jetX, jetY);
-
-
-
-
-    
   };
 
   const animate = () => {
@@ -239,7 +234,6 @@ const App: React.FC = () => {
     return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
   };
 
-
   useEffect(() => {
     const loadSprite = async (spriteName: string) => {
       const image = await import(`./assets/images/${spriteName}.png`);
@@ -257,9 +251,8 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [currentSprite]);
 
-
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = backgroundCanvasRef.current;
     if (
       canvas &&
       backgroundImage.complete &&
@@ -273,61 +266,75 @@ const App: React.FC = () => {
     }
   }, [elapsedTime, imageSrc.length]);
 
+  useEffect(() => {
+    const image = new Image();
 
+    image.src = imageSrc;
 
-    useEffect(() => {
-      const image = new Image();
+    const canvas = spriteCanvasRef.current;
+    const context = canvas?.getContext("2d");
 
-      image.src = imageSrc;
+    let currentFrame = 1;
+    if (!json) return;
+    const totalFrames = Object.keys(json.frames).length;
 
-      const canvas = canvasRef.current;
-      const context = canvas?.getContext("2d");
+    const animate = () => {
+      if (context && canvas && json.frames && isRunning) {
+        requestAnimationFrame(animate);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const spriteName = json.meta.image.split(".")[0];
 
-      let currentFrame = 1;
-      if(!json) return;
-      const totalFrames = Object.keys(json.frames).length;
+        const frameData = json.frames[`${spriteName}/${currentFrame}`]?.frame;
 
-      const animate = () => {
-        if (context && canvas && json.frames && isRunning) {
-          requestAnimationFrame(animate);
-         // context.clearRect(0, 0, canvas.width, canvas.height);
-          const spriteName = json.meta.image.split(".")[0];
+        if (frameData) {
+          // Calculate half the width and half the height
+          const halfWidth = frameData.w / 1.5;
+          const halfHeight = frameData.h / 1.5;
 
-          const frameData = json.frames[`${spriteName}/${currentFrame}`]?.frame;
-
-          if (frameData) {
-            // Calculate half the width and half the height
-            const halfWidth = frameData.w / 2;
-            const halfHeight = frameData.h / 2;
-
-            // Draw the image at half its natural size
-            context.drawImage(
-              image,
-              frameData.x,
-              frameData.y,
-              frameData.w, // Original width from the frame data
-              frameData.h, // Original height from the frame data
-              0, // dx - You can adjust this as needed
-              0, // dy - You can adjust this as needed
-              halfWidth, // dWidth - half of the original width
-              halfHeight // dHeight - half of the original height
-            );
-            currentFrame = (currentFrame % totalFrames) + 1;
-          }
+          // Draw the image at half its natural size
+          context.drawImage(
+            image,
+            frameData.x,
+            frameData.y,
+            frameData.w, // Original width from the frame data
+            frameData.h, // Original height from the frame data
+            0, // dx - You can adjust this as needed
+            0, // dy - You can adjust this as needed
+            halfWidth, // dWidth - half of the original width
+            halfHeight // dHeight - half of the original height
+          );
+          currentFrame = (currentFrame % totalFrames) + 1;
         }
-      };
-
-      if (isRunning) {
-        image.onload = animate;
       }
-    }, [imageSrc, json, isRunning]);
+    };
 
-
+    if (isRunning) {
+      image.onload = animate;
+    }
+  }, [imageSrc, json, isRunning]);
 
   return (
     <div className="App">
       <div style={{ position: "relative" }}>
-        <canvas ref={canvasRef} style={{ border: "1px solid red" }} />
+        <div>
+          {" "}
+          <canvas
+            ref={backgroundCanvasRef}
+            style={{
+          
+              border: "1px solid red",
+            }}
+          />
+          <canvas
+            ref={spriteCanvasRef}
+            style={{
+              position: "absolute",
+              top:"79%",
+              left:"10%",
+            }}
+          />
+        </div>
+
         <h1
           style={{
             position: "absolute",
