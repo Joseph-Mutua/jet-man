@@ -14,7 +14,6 @@ interface JsonData {
   meta: any;
 }
 
-
 interface Position {
   x: number;
   y: number;
@@ -54,7 +53,6 @@ const App: React.FC = () => {
 
   const [jetPosition, setJetPosition] = useState({ x: 0, y: 0 });
 
-
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
   const backgroundImage = new Image();
@@ -64,21 +62,6 @@ const App: React.FC = () => {
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
 
-
-
-  useEffect(() => {
-    const canvas = backgroundCanvasRef.current;
-    if (
-      canvas &&
-      backgroundImage.complete &&
-      roadImage.complete &&
-      jetImage.complete
-    ) {
-      canvas.width = window.innerWidth * 0.9;
-      canvas.height = window.innerHeight * 0.8;
-      draw();
-    }
-  }, [elapsedTime]);
 
   useEffect(() => {
     const canvas = backgroundCanvasRef.current;
@@ -98,7 +81,6 @@ const App: React.FC = () => {
     const canvas = backgroundCanvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
-
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -241,12 +223,6 @@ const App: React.FC = () => {
     }
   }, [currentGameOdds, targetGameOdds]);
 
-  const generateTargetGameOdds = () => {
-    const maxElapsedTime = 30000;
-    const randomElapsedTime = Math.random() * maxElapsedTime;
-    return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
-  };
-
   useEffect(() => {
     const loadSprite = async (spriteName: string) => {
       const image = await import(`./assets/images/${spriteName}.png`);
@@ -279,15 +255,13 @@ const App: React.FC = () => {
     }
   }, [elapsedTime, imageSrc.length]);
 
-
   useEffect(() => {
     if (spriteCanvasRef.current) {
       spriteCanvasRef.current.style.top = `${jetPosition.y}px`;
-     
+
       spriteCanvasRef.current.style.left = `${jetPosition.x}px`;
     }
   }, [jetPosition]);
-
 
   useEffect(() => {
     const image = new Image();
@@ -339,15 +313,18 @@ const App: React.FC = () => {
     };
   }, [imageSrc, json, isRunning]);
 
+  const generateTargetGameOdds = () => {
+    const maxElapsedTime = 30000;
+    const randomElapsedTime = Math.random() * maxElapsedTime;
+    return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
+  };
+
   return (
     <div className="App">
       <div style={{ position: "relative" }}>
         <div>
           {" "}
-          <canvas
-            ref={backgroundCanvasRef}
-        
-          />
+          <canvas ref={backgroundCanvasRef} />
           <canvas
             ref={spriteCanvasRef}
             style={{
