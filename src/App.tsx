@@ -38,7 +38,7 @@ const App: React.FC = () => {
 
   const [tilt, setTilt] = useState(false);
   const jetPosXRef = useRef(0);
-  const jetPosYRef = useRef(0);
+  //const jetPosYRef = useRef(0);
   const requestRef = useRef<number>(0);
 
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -50,6 +50,7 @@ const App: React.FC = () => {
   const [currentSprite, setCurrentSprite] = useState(0);
 
   const [scrollOffset, setScrollOffset] = useState(0);
+  const [jetSpeed, setJetSpeed] = useState(0);
 
   const [jetPosition, setJetPosition] = useState({ x: 0, y: 0 });
 
@@ -61,8 +62,6 @@ const App: React.FC = () => {
   roadImage.src = RoadImageSrc;
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
-
-
 
   const draw = () => {
     const canvas = backgroundCanvasRef.current;
@@ -109,9 +108,26 @@ const App: React.FC = () => {
       );
     }
 
-    const jetX = jetImage.width;
+    const transform = tilt ? "rotate(135deg)" : "none";
+
+    const jetX = jetImage.width + jetSpeed;
     const jetY = canvas.height - roadImage.height - jetImage.height;
     setJetPosition({ x: jetX, y: jetY });
+
+    // if (spriteCanvasRef.current) {
+    //   spriteCanvasRef.current.style.transform = transform;
+    // }
+
+    if (tilt) {
+      // Calculate the center position of the jet for rotation
+      let centerX = jetX + jetImage.width / 2;
+      let centerY = jetY + jetImage.height / 2;
+
+      // Translate the context to the center of the jet, rotate, and then translate back
+      ctx.translate(centerX, centerY);
+      ctx.rotate((-45 * Math.PI) / 180); // Convert 45 degrees to radians
+      ctx.translate(-centerX, -centerY);
+    }
     ctx.drawImage(jetImage, jetX, jetY);
   };
 
@@ -126,10 +142,10 @@ const App: React.FC = () => {
       return;
     }
 
-    setScrollOffset((prev) => prev - 5);
+    setScrollOffset((prev) => prev - 3);
+    setJetSpeed((prev) => prev + 2);
     requestRef.current = requestAnimationFrame(animate);
   };
-
 
   const startTimer = () => {
     const startTime = performance.now();
@@ -149,6 +165,7 @@ const App: React.FC = () => {
 
   const handleStart = () => {
     if (isRunning) {
+      setTilt(false);
       const canvas = spriteCanvasRef.current;
       const context = canvas?.getContext("2d");
       if (context && canvas) {
@@ -156,10 +173,11 @@ const App: React.FC = () => {
       }
       setCurrentSprite(0);
     }
-
     setIsRunning(!isRunning);
     if (!isRunning) {
       setElapsedTime(0);
+      setTilt(false); // Ensure tilt is reset when restarting
+      setTimeout(() => setTilt(true), 2000);
       const generatedOdds = generateTargetGameOdds();
       setTargetGameOdds(generatedOdds);
     }
@@ -191,6 +209,7 @@ const App: React.FC = () => {
       }
       setCurrentSprite(0);
       setScrollOffset(0);
+      setJetSpeed(0);
       stopTimer();
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
@@ -264,6 +283,19 @@ const App: React.FC = () => {
           const halfWidth = frameData.w / 1.5;
           const halfHeight = frameData.h / 1.5;
 
+          // Save the current context
+          context.save();
+
+          if (tilt) {
+        
+            const centerX = halfWidth / 1.5;
+            const centerY = halfHeight / 1.5;
+
+            context.translate(centerX, centerY);
+            context.rotate((315 * Math.PI) / 180);
+            context.translate(-centerX, -centerY);
+          }
+
           context.drawImage(
             image,
             frameData.x,
@@ -275,6 +307,10 @@ const App: React.FC = () => {
             halfWidth,
             halfHeight
           );
+
+          // Restore the context to its original state
+          context.restore();
+
           currentFrame = (currentFrame % totalFrames) + 1;
         }
       }
@@ -287,8 +323,7 @@ const App: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [imageSrc, json, isRunning]);
-
+  }, [imageSrc, json, isRunning, tilt]); // Include 'tilt' in the dependency array
 
   const generateTargetGameOdds = () => {
     const maxElapsedTime = 30000;
@@ -311,7 +346,6 @@ const App: React.FC = () => {
             }}
           />
         </div>
-
         <h1
           style={{
             position: "absolute",
