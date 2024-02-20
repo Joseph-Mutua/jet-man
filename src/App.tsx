@@ -63,19 +63,6 @@ const App: React.FC = () => {
   jetImage.src = JetImageSrc;
 
 
-  useEffect(() => {
-    const canvas = backgroundCanvasRef.current;
-    if (
-      canvas &&
-      backgroundImage.complete &&
-      roadImage.complete &&
-      jetImage.complete
-    ) {
-      canvas.width = window.innerWidth * 0.9;
-      canvas.height = window.innerHeight * 0.8;
-      draw();
-    }
-  }, [scrollOffset]);
 
   const draw = () => {
     const canvas = backgroundCanvasRef.current;
@@ -143,11 +130,6 @@ const App: React.FC = () => {
     requestRef.current = requestAnimationFrame(animate);
   };
 
-  useEffect(() => {
-    if (parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")) {
-      setIsRunning(false);
-    }
-  }, [currentGameOdds, targetGameOdds]);
 
   const startTimer = () => {
     const startTime = performance.now();
@@ -164,17 +146,6 @@ const App: React.FC = () => {
       setIsRunning(false);
     }
   };
-
-  useEffect(() => {
-    if (!isRunning) {
-      const canvas = spriteCanvasRef.current;
-      const context = canvas?.getContext("2d");
-      if (context && canvas) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-      }
-      setCurrentSprite(0);
-    }
-  }, [isRunning]);
 
   const handleStart = () => {
     if (isRunning) {
@@ -195,10 +166,30 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    const canvas = backgroundCanvasRef.current;
+    if (
+      canvas &&
+      backgroundImage.complete &&
+      roadImage.complete &&
+      jetImage.complete
+    ) {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.8;
+      draw();
+    }
+  }, [scrollOffset]);
+
+  useEffect(() => {
     if (isRunning) {
       startTimer();
       requestRef.current = requestAnimationFrame(animate);
     } else {
+      const canvas = spriteCanvasRef.current;
+      const context = canvas?.getContext("2d");
+      if (context && canvas) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      setCurrentSprite(0);
       setScrollOffset(0);
       stopTimer();
       if (requestRef.current) {
@@ -239,21 +230,6 @@ const App: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [currentSprite]);
-
-  useEffect(() => {
-    const canvas = backgroundCanvasRef.current;
-    if (
-      canvas &&
-      backgroundImage.complete &&
-      roadImage.complete &&
-      jetImage.complete &&
-      imageSrc.length === fireSprites.length
-    ) {
-      canvas.width = window.innerWidth * 0.9;
-      canvas.height = window.innerHeight * 0.8;
-      draw();
-    }
-  }, [elapsedTime, imageSrc.length]);
 
   useEffect(() => {
     if (spriteCanvasRef.current) {
@@ -312,6 +288,7 @@ const App: React.FC = () => {
       cancelAnimationFrame(animationId);
     };
   }, [imageSrc, json, isRunning]);
+
 
   const generateTargetGameOdds = () => {
     const maxElapsedTime = 30000;
