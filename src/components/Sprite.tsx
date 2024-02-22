@@ -24,6 +24,7 @@ interface SpriteProps {
 }
 
 const Sprite: React.FC<SpriteProps> = ({ imageSrc, json, isAnimating }) => {
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const image = new Image();
 
@@ -45,21 +46,21 @@ const Sprite: React.FC<SpriteProps> = ({ imageSrc, json, isAnimating }) => {
         const frameData = json.frames[`${spriteName}/${currentFrame}`]?.frame;
 
         if (frameData) {
-          // Calculate half the width and half the height
+     
           const halfWidth = frameData.w / 2;
           const halfHeight = frameData.h / 2;
 
-          // Draw the image at half its natural size
+         
           context.drawImage(
             image,
             frameData.x,
             frameData.y,
-            frameData.w, // Original width from the frame data
-            frameData.h, // Original height from the frame data
-            0, // dx - You can adjust this as needed
-            0, // dy - You can adjust this as needed
-            halfWidth, // dWidth - half of the original width
-            halfHeight // dHeight - half of the original height
+            frameData.w,
+            frameData.h,
+            0, 
+            0,
+            halfWidth, 
+            halfHeight 
           );
           currentFrame = (currentFrame % totalFrames) + 1;
         }
