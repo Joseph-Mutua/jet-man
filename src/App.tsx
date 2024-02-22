@@ -98,6 +98,7 @@ const App: React.FC = () => {
       canvas.width,
       roadImage.height
     );
+
     if (roadPosition < 0) {
       ctx.drawImage(
         roadImage,
@@ -108,11 +109,8 @@ const App: React.FC = () => {
       );
     }
 
-
     let jetX = jetImage.width + jetSpeed;
-
     let jetY = canvas.height - roadImage.height - jetImage.height;
-
 
     //   let centerX = jetX + jetImage.width / 2;
     //   let centerY = jetY + jetImage.height / 2;
@@ -137,34 +135,35 @@ const App: React.FC = () => {
 
     // }
 
+
     if (tilt) {
       let centerX = jetX + jetImage.width / 2;
       let centerY = jetY + jetImage.height / 2;
 
+
       ctx.translate(centerX, centerY);
       ctx.rotate((-45 * Math.PI) / 180);
       ctx.translate(-centerX, -centerY);
-      // Assuming angle is 60 degrees and converting to radians
-      const angle = 60 * (Math.PI / 180);
+       
 
-      setJetSpeed((prev) => prev + 4);
 
-      // Calculate the new positions based on the angle
-      jetX += jetSpeed * Math.cos(angle); // Adjust for horizontal movement
-      jetY -= jetSpeed * Math.sin(angle); // Adjust for vertical movement (canvas grows downwards)
+      const angle = 45 * (Math.PI / 180);
 
-      // Update jet position state to reposition the sprite canvas
+    //  setJetSpeed((prev) => prev + 4);
+
+      jetX += jetSpeed * Math.cos(angle);
+      jetY -= jetSpeed * Math.sin(angle);
       setJetPosition({ x: jetX, y: jetY });
-    } else {
-      // Your existing code for horizontal movement
 
-      jetX = jetImage.width + jetSpeed;
-      jetY = canvas.height - roadImage.height - jetImage.height;
+
+    } else {
+      // jetX = jetImage.width + jetSpeed;
+      // jetY = canvas.height - roadImage.height - jetImage.height;
       setJetSpeed((prev) => prev + 4);
       setJetPosition({ x: jetX, y: jetY });
     }
 
-    // // Always draw the jet at its current position
+    // Always draw the jet at its current position
     // ctx.drawImage(jetImage, jetX, jetY);
 
     ctx.drawImage(jetImage, jetX, jetY);
@@ -220,7 +219,7 @@ const App: React.FC = () => {
     setIsRunning(!isRunning);
     if (!isRunning) {
       setElapsedTime(0);
-      setTilt(false); // Ensure tilt is reset when restarting
+      setTilt(false);
       setTimeout(() => setTilt(true), 2000);
       const generatedOdds = generateTargetGameOdds();
       setTargetGameOdds(generatedOdds);
@@ -297,14 +296,28 @@ const App: React.FC = () => {
   useEffect(() => {
     if (spriteCanvasRef.current) {
       spriteCanvasRef.current.style.top = `${jetPosition.y}px`;
-
-      console.log("CANVAS REF X", jetPosition.x);
-
-      console.log("CANVAS REF Y", jetPosition.y);
-
       spriteCanvasRef.current.style.left = `${jetPosition.x}px`;
+
+      if (tilt) {
+        const angle = 45 * (Math.PI / 180);
+
+       let jetX = jetPosition.x - 2.5 * jetImage.width * Math.sin(angle);
+        
+       let jetY =  jetPosition.y - 1.2 * jetImage.height * Math.cos(angle);
+
+
+      // let jetY = jetPosition.y + 2 * Math.sin(angle) / jet
+
+
+        spriteCanvasRef.current.style.top = `${jetY}px`;
+        spriteCanvasRef.current.style.left = `${jetX }px`;
+
+      }
+
+
     }
   }, [jetPosition]);
+
 
   useEffect(() => {
     const image = new Image();
@@ -372,7 +385,7 @@ const App: React.FC = () => {
   }, [imageSrc, json, isRunning, tilt]); // Include 'tilt' in the dependency array
 
   const generateTargetGameOdds = () => {
-    const maxElapsedTime = 30000;
+    const maxElapsedTime = 80000;
     const randomElapsedTime = Math.random() * maxElapsedTime;
     return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
   };
@@ -387,6 +400,7 @@ const App: React.FC = () => {
             ref={spriteCanvasRef}
             style={{
               position: "absolute",
+              border: "1px solid red",
               // top: "80%",
               // left: "10%",
             }}
