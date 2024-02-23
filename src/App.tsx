@@ -304,17 +304,11 @@ const App: React.FC = () => {
        let jetX = jetPosition.x - 2.5 * jetImage.width * Math.sin(angle);
         
        let jetY =  jetPosition.y - 1.2 * jetImage.height * Math.cos(angle);
-
-
       // let jetY = jetPosition.y + 2 * Math.sin(angle) / jet
-
-
         spriteCanvasRef.current.style.top = `${jetY}px`;
         spriteCanvasRef.current.style.left = `${jetX }px`;
 
       }
-
-
     }
   }, [jetPosition]);
 
