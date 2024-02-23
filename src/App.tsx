@@ -112,61 +112,42 @@ const App: React.FC = () => {
     let jetX = jetImage.width + jetSpeed;
     let jetY = canvas.height - roadImage.height - jetImage.height;
 
-    //   let centerX = jetX + jetImage.width / 2;
-    //   let centerY = jetY + jetImage.height / 2;
-
-    //   ctx.translate(centerX, centerY);
-    //   ctx.rotate((-45 * Math.PI) / 180);
-    //   ctx.translate(-centerX, -centerY);
-    //   //setJetSpeed( );
-
-    //   jetX = jetImage.width + jetSpeed * Math.cos(Math.PI / 4);
-
-    //   jetY =
-    //     canvas.height -
-    //     roadImage.height -
-    //     jetImage.height -
-    //     jetSpeed * Math.sin(Math.PI / 4);
-
-    //   setJetPosition({
-    //     x: jetX ,
-    //     y: jetY ,
-    //   });
-
-    // }
-
-
     if (tilt) {
-      let centerX = jetX + jetImage.width / 2;
-      let centerY = jetY + jetImage.height / 2;
+      // Save the current context
+      ctx.save();
 
+      // Translate to the center of the jet
+      ctx.translate(jetX + jetImage.width / 2, jetY + jetImage.height / 2);
 
-      ctx.translate(centerX, centerY);
-      ctx.rotate((-45 * Math.PI) / 180);
-      ctx.translate(-centerX, -centerY);
-       
+      // Rotate the canvas to the specified angle
+      ctx.rotate(-Math.PI / 4);
 
+      // Draw the image
+      //ctx.drawImage(jetImage, -jetImage.width / 2, -jetImage.height / 2);
 
-      const angle = 45 * (Math.PI / 180);
+      // Restore the context
+     ctx.restore();
 
-    //  setJetSpeed((prev) => prev + 4);
-
-      jetX += jetSpeed * Math.cos(angle);
-      jetY -= jetSpeed * Math.sin(angle);
-      setJetPosition({ x: jetX, y: jetY });
+      // Update the jet's position for the upward motion at an angle of 60 degrees
+      setJetSpeed((prev) => prev + 4);
+      setJetPosition((prev) => {
+        return {
+          x: prev.x + 4 * Math.cos(Math.PI / 3),
+          y: prev.y - 4 * Math.sin(Math.PI / 3),
+        };
+      });
+      ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
 
 
     } else {
-      // jetX = jetImage.width + jetSpeed;
-      // jetY = canvas.height - roadImage.height - jetImage.height;
       setJetSpeed((prev) => prev + 4);
       setJetPosition({ x: jetX, y: jetY });
+      ctx.drawImage(jetImage, jetX, jetY);
     }
-
     // Always draw the jet at its current position
     // ctx.drawImage(jetImage, jetX, jetY);
 
-    ctx.drawImage(jetImage, jetX, jetY);
+    //ctx.restore();
   };
 
   const animate = () => {
@@ -186,7 +167,6 @@ const App: React.FC = () => {
     // }else{
     //   setJetSpeed(0)
     // }
-
     requestRef.current = requestAnimationFrame(animate);
   };
 
@@ -297,21 +277,8 @@ const App: React.FC = () => {
     if (spriteCanvasRef.current) {
       spriteCanvasRef.current.style.top = `${jetPosition.y}px`;
       spriteCanvasRef.current.style.left = `${jetPosition.x}px`;
-
-      if (tilt) {
-        const angle = 45 * (Math.PI / 180);
-
-       let jetX = jetPosition.x - 2.5 * jetImage.width * Math.sin(angle);
-        
-       let jetY =  jetPosition.y - 1.2 * jetImage.height * Math.cos(angle);
-      // let jetY = jetPosition.y + 2 * Math.sin(angle) / jet
-        spriteCanvasRef.current.style.top = `${jetY}px`;
-        spriteCanvasRef.current.style.left = `${jetX }px`;
-
-      }
     }
   }, [jetPosition]);
-
 
   useEffect(() => {
     const image = new Image();
@@ -328,6 +295,7 @@ const App: React.FC = () => {
 
     const animate = () => {
       if (context && canvas && json.frames && isRunning) {
+
         animationId = requestAnimationFrame(animate);
         context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -366,6 +334,7 @@ const App: React.FC = () => {
 
           currentFrame = (currentFrame % totalFrames) + 1;
         }
+        
       }
     };
 
