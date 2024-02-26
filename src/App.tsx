@@ -2,22 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import JetImageSrc from "./assets/images/jet.png";
 import RoadImageSrc from "./assets/images/Road.png";
 import BackgroundImageSrc from "./assets/images/canvas.jpg";
+import { JsonData } from "./components/types";
+
 import "./App.css";
-
-import Sprite from "./components/Sprite";
-import { Frame } from "./components/types";
-
-//Spriutes
-interface JsonData {
-  frames: Record<string, Frame>;
-  animations: any;
-  meta: any;
-}
-
-interface Position {
-  x: number;
-  y: number;
-}
 
 const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 
@@ -53,7 +40,7 @@ const App: React.FC = () => {
   const [jetSpeed, setJetSpeed] = useState(0);
 
   const [jetPosition, setJetPosition] = useState({ x: 0, y: 0 });
-  const [shouldMove, setShouldMove] = useState(true);
+  const [shouldMove, setShouldMove] = useState(false);
 
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
@@ -100,7 +87,7 @@ const App: React.FC = () => {
         jetPosition.x + jetImage.width / 2,
         jetPosition.y + jetImage.height / 2
       );
-      ctx.rotate(-Math.PI / 4); // Adjust if a different tilt angle is desired
+      ctx.rotate(-Math.PI / 4);
       ctx.translate(
         -jetPosition.x - jetImage.width / 2,
         -jetPosition.y - jetImage.height / 2
@@ -120,15 +107,17 @@ const App: React.FC = () => {
         jetPosition.x + jetImage.width / 2,
         jetPosition.y + jetImage.height / 2
       );
-      ctx.rotate(-Math.PI / 4); // Adjust if a different tilt angle is desired
+      ctx.rotate(-Math.PI / 4);
       ctx.translate(
         -jetPosition.x - jetImage.width / 2,
         -jetPosition.y - jetImage.height / 2
       );
       ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
-    } else {
+    } else if (!tilt) {
       setJetSpeed((prev) => prev + 4);
       setJetPosition({ x: jetX, y: jetY });
+      ctx.drawImage(jetImage, jetX, jetY);
+    } else {
       ctx.drawImage(jetImage, jetX, jetY);
     }
   };
@@ -185,8 +174,10 @@ const App: React.FC = () => {
       setTilt(false);
       const generatedOdds = generateTargetGameOdds();
       setTargetGameOdds(generatedOdds);
+
       setTimeout(() => {
         setTilt(true);
+        setShouldMove(true);
         setTimeout(() => {
           setShouldMove(false);
         }, 3000);
@@ -240,6 +231,8 @@ const App: React.FC = () => {
       parseFloat(currentGameOdds) >= parseFloat(targetGameOdds)
     ) {
       setIsRunning(false);
+      setTilt(false);
+      setShouldMove(false);
       stopTimer();
     }
   }, [currentGameOdds, targetGameOdds]);
