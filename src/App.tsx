@@ -21,14 +21,14 @@ interface Position {
 
 const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 
-const jetSprites = [
-  "Boom",
-  "Loader",
-  "Parachute0",
-  "Parachute1",
-  "Spaceman0",
-  "Spaceman1",
-];
+// const jetSprites = [
+//   "Boom",
+//   "Loader",
+//   "Parachute0",
+//   "Parachute1",
+//   "Spaceman0",
+//   "Spaceman1",
+// ];
 
 const App: React.FC = () => {
   const backgroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -53,6 +53,7 @@ const App: React.FC = () => {
   const [jetSpeed, setJetSpeed] = useState(0);
 
   const [jetPosition, setJetPosition] = useState({ x: 0, y: 0 });
+  const [shouldMove, setShouldMove] = useState(true);
 
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
@@ -63,81 +64,6 @@ const App: React.FC = () => {
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
 
-  // const draw = () => {
-  //   const canvas = backgroundCanvasRef.current;
-  //   const ctx = canvas?.getContext("2d");
-  //   if (!canvas || !ctx) return;
-
-  //   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  //   let backgroundPosition = scrollOffset % canvas.width;
-  //   let roadPosition = scrollOffset % canvas.width;
-
-  //   ctx.drawImage(
-  //     backgroundImage,
-  //     backgroundPosition,
-  //     0,
-  //     canvas.width,
-  //     canvas.height
-  //   );
-
-  //   if (backgroundPosition < 0) {
-  //     ctx.drawImage(
-  //       backgroundImage,
-  //       backgroundPosition + canvas.width,
-  //       0,
-  //       canvas.width,
-  //       canvas.height
-  //     );
-  //   }
-
-  //   ctx.drawImage(
-  //     roadImage,
-  //     roadPosition,
-  //     canvas.height - roadImage.height,
-  //     canvas.width,
-  //     roadImage.height
-  //   );
-
-  //   if (roadPosition < 0) {
-  //     ctx.drawImage(
-  //       roadImage,
-  //       roadPosition + canvas.width,
-  //       canvas.height - roadImage.height,
-  //       canvas.width,
-  //       roadImage.height
-  //     );
-  //   }
-
-  //   let jetX = jetImage.width + jetSpeed;
-  //   let jetY = canvas.height - roadImage.height - jetImage.height;
-
-  //   ctx.save();
-
-  //   if (tilt) {
-  //     ctx.translate(jetImage.width / 2, jetImage.height / 2);
-
-  //     ctx.rotate(-Math.PI / 4);
-
-  //     // Restore the context
-  //     ctx.restore();
-
-  //     setJetSpeed((prev) => prev + 4);
-  //     setJetPosition((prev) => {
-  //       return {
-  //         x: prev.x + 4 * Math.cos(Math.PI / 3),
-  //         y: prev.y - 4 * Math.sin(Math.PI / 3),
-  //       };
-  //     });
-  //     ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
-  //     ctx.restore();
-  //   } else {
-  //     setJetSpeed((prev) => prev + 4);
-  //     setJetPosition({ x: jetX, y: jetY });
-  //     ctx.drawImage(jetImage, jetX, jetY);
-  //   }
-  // };
-
   const draw = () => {
     const canvas = backgroundCanvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -146,7 +72,6 @@ const App: React.FC = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let backgroundPosition = scrollOffset % canvas.width;
-    let roadPosition = scrollOffset % canvas.width;
 
     ctx.drawImage(
       backgroundImage,
@@ -166,35 +91,16 @@ const App: React.FC = () => {
       );
     }
 
-    ctx.drawImage(
-      roadImage,
-      roadPosition,
-      canvas.height - roadImage.height,
-      canvas.width,
-      roadImage.height
-    );
-
-    if (roadPosition < 0) {
-      ctx.drawImage(
-        roadImage,
-        roadPosition + canvas.width,
-        canvas.height - roadImage.height,
-        canvas.width,
-        roadImage.height
-      );
-    }
-
     let jetX = jetImage.width + jetSpeed;
     let jetY = canvas.height - roadImage.height - jetImage.height;
 
     ctx.save();
-
-    if (tilt) {
+    if (tilt && shouldMove) {
       ctx.translate(
         jetPosition.x + jetImage.width / 2,
         jetPosition.y + jetImage.height / 2
       );
-      ctx.rotate(-Math.PI / 4);
+      ctx.rotate(-Math.PI / 4); // Adjust if a different tilt angle is desired
       ctx.translate(
         -jetPosition.x - jetImage.width / 2,
         -jetPosition.y - jetImage.height / 2
@@ -209,15 +115,17 @@ const App: React.FC = () => {
       });
       ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
       ctx.restore();
-
-      // if (spriteCanvasRef.current) {
-      //   spriteCanvasRef.current.style.top = `${
-      //     jetPosition.y - 400 * Math.sin(Math.PI / 3)
-      //   }px`;
-      //   spriteCanvasRef.current.style.left = `${
-      //     jetPosition.x - 400 * Math.cos(Math.PI / 3)
-      //   }px`;
-      // }
+    } else if (tilt && !shouldMove) {
+      ctx.translate(
+        jetPosition.x + jetImage.width / 2,
+        jetPosition.y + jetImage.height / 2
+      );
+      ctx.rotate(-Math.PI / 4); // Adjust if a different tilt angle is desired
+      ctx.translate(
+        -jetPosition.x - jetImage.width / 2,
+        -jetPosition.y - jetImage.height / 2
+      );
+      ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
     } else {
       setJetSpeed((prev) => prev + 4);
       setJetPosition({ x: jetX, y: jetY });
@@ -236,12 +144,11 @@ const App: React.FC = () => {
       return;
     }
 
-    setScrollOffset((prev) => prev - 3);
-    // if (!tilt) {
-    //   setJetSpeed((prev) => prev + 2);
-    // }else{
-    //   setJetSpeed(0)
-    // }
+    if (!tilt) {
+      setScrollOffset((prev) => prev - 3);
+    } else {
+      setScrollOffset(0);
+    }
     requestRef.current = requestAnimationFrame(animate);
   };
 
@@ -272,12 +179,18 @@ const App: React.FC = () => {
       setCurrentSprite(0);
     }
     setIsRunning(!isRunning);
+
     if (!isRunning) {
       setElapsedTime(0);
       setTilt(false);
-      setTimeout(() => setTilt(true), 2000);
       const generatedOdds = generateTargetGameOdds();
       setTargetGameOdds(generatedOdds);
+      setTimeout(() => {
+        setTilt(true);
+        setTimeout(() => {
+          setShouldMove(false);
+        }, 3000);
+      }, 3000);
     }
   };
 
@@ -359,8 +272,6 @@ const App: React.FC = () => {
         spriteCanvasRef.current.style.left = `${
           jetPosition.x + jetImage.width / 2.2
         }px`;
-
-
       }
     }
   }, [jetPosition, tilt]);
@@ -412,8 +323,6 @@ const App: React.FC = () => {
             halfWidth,
             halfHeight
           );
-
-          // Restore the context to its original state
           context.restore();
 
           currentFrame = (currentFrame % totalFrames) + 1;
@@ -428,7 +337,7 @@ const App: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [imageSrc, json, isRunning, tilt]); // Include 'tilt' in the dependency array
+  }, [imageSrc, json, isRunning, tilt]);
 
   const generateTargetGameOdds = () => {
     const maxElapsedTime = 80000;
@@ -446,9 +355,6 @@ const App: React.FC = () => {
             ref={spriteCanvasRef}
             style={{
               position: "absolute",
-              // border: "1px solid red",
-              // top: "80%",
-              // left: "10%",
             }}
           />
         </div>
