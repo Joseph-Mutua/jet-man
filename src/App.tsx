@@ -60,82 +60,65 @@ const App: React.FC = () => {
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
 
-  const draw = () => {
-    const canvas = backgroundCanvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+const draw = () => {
+  const canvas = backgroundCanvasRef.current;
+  const ctx = canvas?.getContext("2d");
+  if (!canvas || !ctx) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let backgroundPosition = scrollOffset % canvas.width;
+  const backgroundPosition = scrollOffset % canvas.width;
+  drawBackgroundImage(ctx, backgroundPosition, canvas);
+  if (backgroundPosition < 0) {
+    drawBackgroundImage(ctx, backgroundPosition + canvas.width, canvas);
+  }
 
-    ctx.drawImage(
-      backgroundImage,
-      backgroundPosition,
-      0,
-      canvas.width,
-      canvas.height
-    );
+  const jetX = jetImage.width + jetSpeed;
+  const jetY = canvas.height - roadImage.height - jetImage.height;
 
-    if (backgroundPosition < 0) {
-      ctx.drawImage(
-        backgroundImage,
-        backgroundPosition + canvas.width,
-        0,
-        canvas.width,
-        canvas.height
-      );
-    }
-
-    let jetX = jetImage.width + jetSpeed;
-    let jetY = canvas.height - roadImage.height - jetImage.height;
-
+  if (tilt) {
     ctx.save();
-    if (tilt && shouldMove) {
-      ctx.translate(
-        jetPosition.x + jetImage.width / 2,
-        jetPosition.y + jetImage.height / 2
-      );
-      ctx.rotate(-Math.PI / 4);
-      ctx.translate(
-        -jetPosition.x - jetImage.width / 2,
-        -jetPosition.y - jetImage.height / 2
-      );
-
-      setState((prevState) => ({
-        ...prevState,
-        jetSpeed: prevState.jetSpeed + 4,
-        jetPosition: {
-          x: prevState.jetPosition.x + 4 * Math.cos(Math.PI / 3),
-          y: prevState.jetPosition.y - 4 * Math.sin(Math.PI / 3),
-        },
-      }));
-
-      ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
-      ctx.restore();
-    } else if (tilt && !shouldMove) {
-      ctx.translate(
-        jetPosition.x + jetImage.width / 2,
-        jetPosition.y + jetImage.height / 2
-      );
-      ctx.rotate(-Math.PI / 4);
-      ctx.translate(
-        -jetPosition.x - jetImage.width / 2,
-        -jetPosition.y - jetImage.height / 2
-      );
-      ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
-    } else if (!tilt) {
-      setState((prevState) => ({
-        ...prevState,
-        jetSpeed: prevState.jetSpeed + 4,
-        jetPosition: { x: jetX, y: jetY },
-      }));
-
-      ctx.drawImage(jetImage, jetX, jetY);
-    } else {
-      ctx.drawImage(jetImage, jetX, jetY);
+    rotateContext(ctx, jetPosition, jetImage);
+    if (shouldMove) {
+      updateStateForMovingJet(jetX, jetY);
     }
-  };
+    ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
+    ctx.restore();
+  } else {
+    updateStateForNonTiltedJet(jetX, jetY);
+    ctx.drawImage(jetImage, jetX, jetY);
+  }
+};
+
+const drawBackgroundImage = (ctx: CanvasRenderingContext2D, position: number, canvas: HTMLCanvasElement) => {
+  ctx.drawImage(backgroundImage, position, 0, canvas.width, canvas.height);
+};
+
+const rotateContext = (ctx: CanvasRenderingContext2D, position: { x: any; y: any; }, image: HTMLImageElement) => {
+  ctx.translate(position.x + image.width / 2, position.y + image.height / 2);
+  ctx.rotate(-Math.PI / 4);
+  ctx.translate(-position.x - image.width / 2, -position.y - image.height / 2);
+};
+
+const updateStateForMovingJet = (jetX: number, jetY: number) => {
+  setState((prevState) => ({
+    ...prevState,
+    jetSpeed: prevState.jetSpeed + 4,
+    jetPosition: {
+      x: prevState.jetPosition.x + 4 * Math.cos(Math.PI / 3),
+      y: prevState.jetPosition.y - 4 * Math.sin(Math.PI / 3),
+    },
+  }));
+};
+
+const updateStateForNonTiltedJet = (jetX: number, jetY: number) => {
+  setState((prevState) => ({
+    ...prevState,
+    jetSpeed: prevState.jetSpeed + 4,
+    jetPosition: { x: jetX, y: jetY },
+  }));
+};
+
 
   const animate = () => {
     if (
