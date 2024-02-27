@@ -20,29 +20,38 @@ const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 const App: React.FC = () => {
   const backgroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const spriteCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [targetGameOdds, setTargetGameOdds] = useState<string | null>(null);
-
-  const [tilt, setTilt] = useState(false);
-  const jetPosXRef = useRef(0);
-  //const jetPosYRef = useRef(0);
   const requestRef = useRef<number>(0);
-
-  const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef<number | undefined>(undefined);
-  const startTimeRef = useRef<number | null>(null);
 
-  const [imageSrc, setImageSrc] = useState("");
-  const [json, setJson] = useState<JsonData | null>(null);
-  const [currentSprite, setCurrentSprite] = useState(0);
+  const [state, setState] = useState({
+    isRunning: false,
+    targetGameOdds: null as string | null,
+    tilt: false,
+    elapsedTime: 0,
+    scrollOffset: 0,
+    jetSpeed: 0,
+    jetPosition: { x: 0, y: 0 },
+    shouldMove: false,
+    currentSprite: 0,
+    imageSrc: "",
+    json: null as JsonData | null,
+  });
 
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const [jetSpeed, setJetSpeed] = useState(0);
+  const {
+    isRunning,
+    targetGameOdds,
+    tilt,
+    elapsedTime,
+    scrollOffset,
+    jetSpeed,
+    jetPosition,
+    shouldMove,
+    currentSprite,
+    imageSrc,
+    json,
+  } = state;
 
-  const [jetPosition, setJetPosition] = useState({ x: 0, y: 0 });
-  const [shouldMove, setShouldMove] = useState(false);
-
-  const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
+  const currentGameOdds = Math.exp(0.00006 * state.elapsedTime).toFixed(2);
 
   const backgroundImage = new Image();
   backgroundImage.src = BackgroundImageSrc;
@@ -93,13 +102,15 @@ const App: React.FC = () => {
         -jetPosition.y - jetImage.height / 2
       );
 
-      setJetSpeed((prev) => prev + 4);
-      setJetPosition((prev) => {
-        return {
-          x: prev.x + 4 * Math.cos(Math.PI / 3),
-          y: prev.y - 4 * Math.sin(Math.PI / 3),
-        };
-      });
+      setState((prevState) => ({
+        ...prevState,
+        jetSpeed: prevState.jetSpeed + 4,
+        jetPosition: {
+          x: prevState.jetPosition.x + 4 * Math.cos(Math.PI / 3),
+          y: prevState.jetPosition.y - 4 * Math.sin(Math.PI / 3),
+        },
+      }));
+
       ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
       ctx.restore();
     } else if (tilt && !shouldMove) {
@@ -114,8 +125,12 @@ const App: React.FC = () => {
       );
       ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
     } else if (!tilt) {
-      setJetSpeed((prev) => prev + 4);
-      setJetPosition({ x: jetX, y: jetY });
+      setState((prevState) => ({
+        ...prevState,
+        jetSpeed: prevState.jetSpeed + 4,
+        jetPosition: { x: jetX, y: jetY },
+      }));
+
       ctx.drawImage(jetImage, jetX, jetY);
     } else {
       ctx.drawImage(jetImage, jetX, jetY);
@@ -134,9 +149,15 @@ const App: React.FC = () => {
     }
 
     if (!tilt) {
-      setScrollOffset((prev) => prev - 3);
+      setState((prevState) => ({
+        ...prevState,
+        scrollOffset: prevState.scrollOffset - 3,
+      }));
     } else {
-      setScrollOffset(0);
+      setState((prevState) => ({
+        ...prevState,
+        scrollOffset: 0,
+      }));
     }
     requestRef.current = requestAnimationFrame(animate);
   };
@@ -145,7 +166,10 @@ const App: React.FC = () => {
     const startTime = performance.now();
     intervalRef.current = window.setInterval(() => {
       const newElapsedTime = performance.now() - startTime;
-      setElapsedTime(newElapsedTime);
+      setState((prevState) => ({
+        ...prevState,
+        elapsedTime: newElapsedTime,
+      }));
     }, 10);
   };
 
@@ -153,33 +177,54 @@ const App: React.FC = () => {
     if (intervalRef.current !== undefined) {
       clearInterval(intervalRef.current);
       intervalRef.current = undefined;
-      setIsRunning(false);
+      setState((prevState) => ({
+        ...prevState,
+        isRunning: false,
+      }));
     }
   };
 
   const handleStart = () => {
     if (isRunning) {
-      setTilt(false);
+      setState((prevState) => ({
+        ...prevState,
+        tilt: false,
+        currentSprite: 0,
+      }));
+
       const canvas = spriteCanvasRef.current;
       const context = canvas?.getContext("2d");
       if (context && canvas) {
         context.clearRect(0, 0, canvas.width, canvas.height);
       }
-      setCurrentSprite(0);
     }
-    setIsRunning(!isRunning);
+    setState((prevState) => ({
+      ...prevState,
+      isRunning: !prevState.isRunning,
+    }));
 
     if (!isRunning) {
-      setElapsedTime(0);
-      setTilt(false);
+      setState((prevState) => ({
+        ...prevState,
+        elapsedTime: 0,
+        tilt: false,
+        targetGameOdds: generatedOdds,
+      }));
+
       const generatedOdds = generateTargetGameOdds();
-      setTargetGameOdds(generatedOdds);
 
       setTimeout(() => {
-        setTilt(true);
-        setShouldMove(true);
+        setState((prevState) => ({
+          ...prevState,
+          tilt: true,
+          shouldMove: true,
+        }));
+
         setTimeout(() => {
-          setShouldMove(false);
+          setState((prevState) => ({
+            ...prevState,
+            shouldMove: false,
+          }));
         }, 3000);
       }, 3000);
     }
@@ -209,9 +254,13 @@ const App: React.FC = () => {
       if (context && canvas) {
         context.clearRect(0, 0, canvas.width, canvas.height);
       }
-      setCurrentSprite(0);
-      setScrollOffset(0);
-      setJetSpeed(0);
+      setState((prevState) => ({
+        ...prevState,
+        currentSprite: 0,
+        scrollOffset: 0,
+        jetSpeed: 0,
+      }));
+
       stopTimer();
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
@@ -230,9 +279,13 @@ const App: React.FC = () => {
       targetGameOdds &&
       parseFloat(currentGameOdds) >= parseFloat(targetGameOdds)
     ) {
-      setIsRunning(false);
-      setTilt(false);
-      setShouldMove(false);
+      setState((prevState) => ({
+        ...prevState,
+        isRunning: false,
+        tilt: false,
+        shouldMove: false,
+      }));
+
       stopTimer();
     }
   }, [currentGameOdds, targetGameOdds]);
@@ -241,14 +294,20 @@ const App: React.FC = () => {
     const loadSprite = async (spriteName: string) => {
       const image = await import(`./assets/images/${spriteName}.png`);
       const json = await import(`./assets/data/${spriteName}.json`);
-      setImageSrc(image.default);
-      setJson(json.default);
+      setState((prevState) => ({
+        ...prevState,
+        imageSrc: image.default,
+        json: json.default,
+      }));
     };
 
     loadSprite(fireSprites[currentSprite]);
 
     const interval = setInterval(() => {
-      setCurrentSprite((prevSprite) => (prevSprite + 1) % fireSprites.length);
+      setState((prevState) => ({
+        ...prevState,
+        currentSprite: (prevState.currentSprite + 1) % fireSprites.length,
+      }));
     }, 5000);
 
     return () => clearInterval(interval);
