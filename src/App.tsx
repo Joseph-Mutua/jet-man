@@ -35,6 +35,7 @@ const App: React.FC = () => {
     currentSprite: 0,
     imageSrc: "",
     json: null as JsonData | null,
+    verticalScrollOffset: 0,
   });
 
   const {
@@ -49,6 +50,7 @@ const App: React.FC = () => {
     currentSprite,
     imageSrc,
     json,
+    verticalScrollOffset,
   } = state;
 
   const currentGameOdds = Math.exp(0.00006 * state.elapsedTime).toFixed(2);
@@ -60,65 +62,115 @@ const App: React.FC = () => {
   const jetImage = new Image();
   jetImage.src = JetImageSrc;
 
-const draw = () => {
-  const canvas = backgroundCanvasRef.current;
-  const ctx = canvas?.getContext("2d");
-  if (!canvas || !ctx) return;
+  const draw = () => {
+    const canvas = backgroundCanvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const backgroundPosition = scrollOffset % canvas.width;
-  drawBackgroundImage(ctx, backgroundPosition, canvas);
-  if (backgroundPosition < 0) {
-    drawBackgroundImage(ctx, backgroundPosition + canvas.width, canvas);
-  }
+    // Determine if we should use vertical scrolling based on tilt
+    const isVerticalScroll = tilt;
+    const position = isVerticalScroll ? verticalScrollOffset : scrollOffset;
 
-  const jetX = jetImage.width + jetSpeed;
-  const jetY = canvas.height - roadImage.height - jetImage.height;
+    drawBackgroundImage(ctx, position, canvas, isVerticalScroll);
 
-  if (tilt) {
-    ctx.save();
-    rotateContext(ctx, jetPosition, jetImage);
-    if (shouldMove) {
-      updateStateForMovingJet(jetX, jetY);
+    //HORIZONTAL SCROLLING
+
+    // const backgroundPosition = scrollOffset % canvas.width;
+    // drawBackgroundImage(ctx, backgroundPosition, canvas);
+    // if (backgroundPosition < 0) {
+    //   drawBackgroundImage(ctx, backgroundPosition + canvas.width, canvas);
+    // }
+
+    const jetX = jetImage.width + jetSpeed;
+    const jetY = canvas.height - roadImage.height - jetImage.height;
+
+    if (tilt) {
+      ctx.save();
+      rotateContext(ctx, jetPosition, jetImage);
+      if (shouldMove) {
+        updateStateForMovingJet(jetX, jetY);
+      }
+      ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
+      ctx.restore();
+    } else {
+      updateStateForNonTiltedJet(jetX, jetY);
+      ctx.drawImage(jetImage, jetX, jetY);
     }
-    ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
-    ctx.restore();
-  } else {
-    updateStateForNonTiltedJet(jetX, jetY);
-    ctx.drawImage(jetImage, jetX, jetY);
-  }
-};
+  };
 
-const drawBackgroundImage = (ctx: CanvasRenderingContext2D, position: number, canvas: HTMLCanvasElement) => {
-  ctx.drawImage(backgroundImage, position, 0, canvas.width, canvas.height);
-};
+  const drawBackgroundImage = (
+    ctx: CanvasRenderingContext2D,
+    position: number,
+    canvas: HTMLCanvasElement,
+    isVerticalScroll = false // New parameter to indicate vertical scrolling
+  ) => {
+    if (!isVerticalScroll) {
+      ctx.drawImage(backgroundImage, position, 0, canvas.width, canvas.height);
+      if (position < 0) {
+        ctx.drawImage(
+          backgroundImage,
+          position + canvas.width,
+          0,
+          canvas.width,
+          canvas.height
+        );
+      }
+    } else {
+      // Logic for vertical scrolling
+      const verticalPosition = position % canvas.height;
+      ctx.drawImage(
+        backgroundImage,
+        0,
+        verticalPosition,
+        canvas.width,
+        canvas.height
+      );
+      if (verticalPosition < 0) {
+        ctx.drawImage(
+          backgroundImage,
+          0,
+          verticalPosition + canvas.height,
+          canvas.width,
+          canvas.height
+        );
+      }
+    }
+  };
 
-const rotateContext = (ctx: CanvasRenderingContext2D, position: { x: any; y: any; }, image: HTMLImageElement) => {
-  ctx.translate(position.x + image.width / 2, position.y + image.height / 2);
-  ctx.rotate(-Math.PI / 4);
-  ctx.translate(-position.x - image.width / 2, -position.y - image.height / 2);
-};
 
-const updateStateForMovingJet = (jetX: number, jetY: number) => {
-  setState((prevState) => ({
-    ...prevState,
-    jetSpeed: prevState.jetSpeed + 4,
-    jetPosition: {
-      x: prevState.jetPosition.x + 4 * Math.cos(Math.PI / 3),
-      y: prevState.jetPosition.y - 4 * Math.sin(Math.PI / 3),
-    },
-  }));
-};
+  const rotateContext = (
+    ctx: CanvasRenderingContext2D,
+    position: { x: any; y: any },
+    image: HTMLImageElement
+  ) => {
+    ctx.translate(position.x + image.width / 2, position.y + image.height / 2);
+    ctx.rotate(-Math.PI / 4);
+    ctx.translate(
+      -position.x - image.width / 2,
+      -position.y - image.height / 2
+    );
+  };
 
-const updateStateForNonTiltedJet = (jetX: number, jetY: number) => {
-  setState((prevState) => ({
-    ...prevState,
-    jetSpeed: prevState.jetSpeed + 4,
-    jetPosition: { x: jetX, y: jetY },
-  }));
-};
+  const updateStateForMovingJet = (jetX: number, jetY: number) => {
+    setState((prevState) => ({
+      ...prevState,
+      jetSpeed: prevState.jetSpeed + 4,
+      jetPosition: {
+        x: prevState.jetPosition.x + 4 * Math.cos(Math.PI / 3),
+        y: prevState.jetPosition.y - 4 * Math.sin(Math.PI / 3),
+      },
+    }));
+  };
 
+  const updateStateForNonTiltedJet = (jetX: number, jetY: number) => {
+    setState((prevState) => ({
+      ...prevState,
+      jetSpeed: prevState.jetSpeed + 4,
+      jetPosition: { x: jetX, y: jetY },
+    }));
+  };
 
   const animate = () => {
     if (
@@ -131,17 +183,32 @@ const updateStateForNonTiltedJet = (jetX: number, jetY: number) => {
       return;
     }
 
-    if (!tilt) {
+    // When the jet is not tilted, perform horizontal scrolling
+    // if (!tilt) {
+    //   setState((prevState) => ({
+    //     ...prevState,
+    //     scrollOffset: prevState.scrollOffset - 3,
+    //   }));
+    // } else {
+    //   // Once tilted, start vertical scrolling
+    //   setState((prevState) => ({
+    //     ...prevState,
+    //     verticalScrollOffset: prevState.verticalScrollOffset + 3,
+    //   }));
+    // }
+    // This part seems correctly implemented, just ensure it matches the tilt condition
+    if (tilt) {
       setState((prevState) => ({
         ...prevState,
-        scrollOffset: prevState.scrollOffset - 3,
+        verticalScrollOffset: prevState.verticalScrollOffset + 3, // Adjust speed as necessary
       }));
     } else {
       setState((prevState) => ({
         ...prevState,
-        scrollOffset: 0,
+        scrollOffset: prevState.scrollOffset - 3, // Adjust speed as necessary
       }));
     }
+
     requestRef.current = requestAnimationFrame(animate);
   };
 
