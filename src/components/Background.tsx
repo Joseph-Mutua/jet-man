@@ -41,9 +41,9 @@ const BackgroundCanvas: React.FC = () => {
     // Create a gradient that spans the diagonal length of the canvas
     const gradient = ctx.createLinearGradient(
       0,
-      0,
+      screenHeight,
       diagonalLength,
-      diagonalLength
+      screenHeight - diagonalLength
     );
     // Define gradient stops
     // gradient.addColorStop(0, '#F9B4C4');
@@ -68,8 +68,13 @@ const BackgroundCanvas: React.FC = () => {
 
     // Draw the gradient background at the current scroll position
     ctx.save();
-    ctx.translate(-offsetX, -offsetY);
-    ctx.fillRect(0, 0, diagonalLength, diagonalLength);
+    ctx.translate(-offsetX, offsetY);
+    ctx.fillRect(
+      0,
+      screenHeight,
+      diagonalLength,
+      screenHeight - diagonalLength
+    );
     //  ctx.fillRect(diagonalLength, diagonalLength, 0, 0);
     ctx.restore();
   }, [scrollPosition]);
