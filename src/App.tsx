@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import JetImageSrc from "./assets/images/jet.png";
 import RoadImageSrc from "./assets/images/Road.png";
 import BackgroundImageSrc from "./assets/images/canvas.jpg";
+import BackgroundCanvas from "./components/Background";
 import { JsonData } from "./components/types";
 
 import "./App.css";
@@ -17,11 +18,15 @@ const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 //   "Spaceman1",
 // ];
 
+
+
+
 const App: React.FC = () => {
   const backgroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const spriteCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const requestRef = useRef<number>(0);
   const intervalRef = useRef<number | undefined>(undefined);
+
 
   const [state, setState] = useState({
     isRunning: false,
@@ -36,6 +41,7 @@ const App: React.FC = () => {
     imageSrc: "",
     json: null as JsonData | null,
     verticalScrollOffset: 0,
+    isBackgroundScrolling: false
   });
 
   const {
@@ -51,6 +57,7 @@ const App: React.FC = () => {
     imageSrc,
     json,
     verticalScrollOffset,
+    isBackgroundScrolling,
   } = state;
 
   const currentGameOdds = Math.exp(0.00006 * state.elapsedTime).toFixed(2);
@@ -91,8 +98,10 @@ const App: React.FC = () => {
       rotateContext(ctx, jetPosition, jetImage);
       if (shouldMove) {
         updateStateForMovingJet(jetX, jetY);
+       // drawGradientBackground(ctx, canvas, elapsedTime); //-> For drawing a dynamic background based on the shouldmove state
       }
       ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
+          drawBackgroundImage(ctx, scrollOffset, canvas, tilt);    
       ctx.restore();
     } else {
       updateStateForNonTiltedJet(jetX, jetY);
@@ -104,7 +113,7 @@ const App: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     position: number,
     canvas: HTMLCanvasElement,
-    isVerticalScroll = false // New parameter to indicate vertical scrolling
+    isVerticalScroll = false 
   ) => {
     if (!isVerticalScroll) {
       ctx.drawImage(backgroundImage, position, 0, canvas.width, canvas.height);
@@ -118,7 +127,6 @@ const App: React.FC = () => {
         );
       }
     } else {
-      // Logic for vertical scrolling
       const verticalPosition = position % canvas.height;
       ctx.drawImage(
         backgroundImage,
@@ -138,6 +146,30 @@ const App: React.FC = () => {
       }
     }
   };
+
+
+
+  const drawGradientBackground = (ctx, canvas, elapsedTime) => {
+    // Create a linear gradient
+    // The gradient can be dynamic based on elapsedTime or any other factor
+    const gradient = ctx.createLinearGradient(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    // Add color stops to the gradient
+    gradient.addColorStop(0, "blue"); // Start color
+    gradient.addColorStop(1, "red"); // End color
+
+    // Use the gradient to fill the background
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+
+
 
 
   const rotateContext = (
@@ -259,6 +291,7 @@ const App: React.FC = () => {
         elapsedTime: 0,
         tilt: false,
         targetGameOdds: generatedOdds,
+        isBackgroundScrolling: false,
       }));
 
       const generatedOdds = generateTargetGameOdds();
@@ -268,7 +301,9 @@ const App: React.FC = () => {
           ...prevState,
           tilt: true,
           shouldMove: true,
+          isBackgroundScrolling: true,
         }));
+       // Start scrolling the background
 
         setTimeout(() => {
           setState((prevState) => ({
@@ -447,57 +482,59 @@ const App: React.FC = () => {
     return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
   };
 
-  return (
-    <div className="App">
-      <div style={{ position: "relative" }}>
-        <div>
-          {" "}
-          <canvas ref={backgroundCanvasRef} />
-          <canvas
-            ref={spriteCanvasRef}
-            style={{
-              position: "absolute",
-            }}
-          />
-        </div>
-        <h1
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            fontSize: "5rem",
-            transform: "translate(-50%, -50%)",
-            whiteSpace: "nowrap",
-            margin: 0,
-            padding: 0,
-            color:
-              parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
-                ? "red"
-                : "green",
-          }}
-        >
-          {currentGameOdds} X
-        </h1>
-        <h2
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "calc(50% + 4rem)",
-            fontSize: "2rem",
-            transform: "translate(-50%, -50%)",
-            whiteSpace: "nowrap",
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          {targetGameOdds !== null ? targetGameOdds : ""}
-        </h2>
-      </div>
+return (
+  <div className="App">
+    {/* <BackgroundCanvas isScrolling={isBackgroundScrolling} /> */}
+    <div style={{ position: "relative" }}>
       <div>
-        <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
+        <canvas ref={backgroundCanvasRef} />
+        <canvas
+          ref={spriteCanvasRef}
+          style={{
+            position: "absolute",
+          }}
+        />
       </div>
+
+      <h1
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          fontSize: "5rem",
+          transform: "translate(-50%, -50%)",
+          whiteSpace: "nowrap",
+          margin: 0,
+          padding: 0,
+          color:
+            parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
+              ? "red"
+              : "green",
+        }}
+      >
+        {currentGameOdds} X
+      </h1>
+      <h2
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "calc(50% + 4rem)",
+          fontSize: "2rem",
+          transform: "translate(-50%, -50%)",
+          whiteSpace: "nowrap",
+          margin: 0,
+          padding: 0,
+        }}
+      >
+        {targetGameOdds !== null ? targetGameOdds : ""}
+      </h2>
     </div>
-  );
+    <div>
+      <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
+    </div>
+  </div>
+);
+
 };
 
 export default App;
