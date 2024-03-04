@@ -26,3 +26,7 @@ export interface SpriteProps {
   imageSrc: string;
   json: SpriteJson;
 }
+
+export interface SpriteFrames {
+  [key: string]: Frame;
+}

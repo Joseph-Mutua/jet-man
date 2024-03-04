@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import JetImageSrc from "./assets/images/jet.png";
 import RoadImageSrc from "./assets/images/Road.png";
 import BackgroundImageSrc from "./assets/images/canvas.jpg";
-import BackgroundCanvas from "./components/Background";
 import { JsonData } from "./components/types";
 
 import "./App.css";
+import { generateTargetGameOdds } from "./utils/GenerateOdds";
+
+import GradientBackgroundCanvas from "./components/GradientBackground";
 
 const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 
@@ -18,15 +20,11 @@ const fireSprites = ["Fire1", "Fire2", "Fire3", "Fire4"];
 //   "Spaceman1",
 // ];
 
-
-
-
 const App: React.FC = () => {
   const backgroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const spriteCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const requestRef = useRef<number>(0);
   const intervalRef = useRef<number | undefined>(undefined);
-
 
   const [state, setState] = useState({
     isRunning: false,
@@ -37,11 +35,11 @@ const App: React.FC = () => {
     jetSpeed: 0,
     jetPosition: { x: 0, y: 0 },
     shouldMove: false,
+    shouldshowGradients: false,
     currentSprite: 0,
     imageSrc: "",
     json: null as JsonData | null,
     verticalScrollOffset: 0,
-    isBackgroundScrolling: false
   });
 
   const {
@@ -57,7 +55,7 @@ const App: React.FC = () => {
     imageSrc,
     json,
     verticalScrollOffset,
-    isBackgroundScrolling,
+    shouldshowGradients,
   } = state;
 
   const currentGameOdds = Math.exp(0.00006 * state.elapsedTime).toFixed(2);
@@ -80,15 +78,9 @@ const App: React.FC = () => {
     const isVerticalScroll = tilt;
     const position = isVerticalScroll ? verticalScrollOffset : scrollOffset;
 
+  
+
     drawBackgroundImage(ctx, position, canvas, isVerticalScroll);
-
-    //HORIZONTAL SCROLLING
-
-    // const backgroundPosition = scrollOffset % canvas.width;
-    // drawBackgroundImage(ctx, backgroundPosition, canvas);
-    // if (backgroundPosition < 0) {
-    //   drawBackgroundImage(ctx, backgroundPosition + canvas.width, canvas);
-    // }
 
     const jetX = jetImage.width + jetSpeed;
     const jetY = canvas.height - roadImage.height - jetImage.height;
@@ -98,10 +90,9 @@ const App: React.FC = () => {
       rotateContext(ctx, jetPosition, jetImage);
       if (shouldMove) {
         updateStateForMovingJet(jetX, jetY);
-       // drawGradientBackground(ctx, canvas, elapsedTime); //-> For drawing a dynamic background based on the shouldmove state
+        //set shouldShowGradinets
       }
       ctx.drawImage(jetImage, jetPosition.x, jetPosition.y);
-          drawBackgroundImage(ctx, scrollOffset, canvas, tilt);    
       ctx.restore();
     } else {
       updateStateForNonTiltedJet(jetX, jetY);
@@ -113,7 +104,7 @@ const App: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     position: number,
     canvas: HTMLCanvasElement,
-    isVerticalScroll = false 
+    isVerticalScroll = false
   ) => {
     if (!isVerticalScroll) {
       ctx.drawImage(backgroundImage, position, 0, canvas.width, canvas.height);
@@ -146,31 +137,6 @@ const App: React.FC = () => {
       }
     }
   };
-
-
-
-  const drawGradientBackground = (ctx, canvas, elapsedTime) => {
-    // Create a linear gradient
-    // The gradient can be dynamic based on elapsedTime or any other factor
-    const gradient = ctx.createLinearGradient(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    // Add color stops to the gradient
-    gradient.addColorStop(0, "blue"); // Start color
-    gradient.addColorStop(1, "red"); // End color
-
-    // Use the gradient to fill the background
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  };
-
-
-
-
 
   const rotateContext = (
     ctx: CanvasRenderingContext2D,
@@ -215,20 +181,6 @@ const App: React.FC = () => {
       return;
     }
 
-    // When the jet is not tilted, perform horizontal scrolling
-    // if (!tilt) {
-    //   setState((prevState) => ({
-    //     ...prevState,
-    //     scrollOffset: prevState.scrollOffset - 3,
-    //   }));
-    // } else {
-    //   // Once tilted, start vertical scrolling
-    //   setState((prevState) => ({
-    //     ...prevState,
-    //     verticalScrollOffset: prevState.verticalScrollOffset + 3,
-    //   }));
-    // }
-    // This part seems correctly implemented, just ensure it matches the tilt condition
     if (tilt) {
       setState((prevState) => ({
         ...prevState,
@@ -240,7 +192,6 @@ const App: React.FC = () => {
         scrollOffset: prevState.scrollOffset - 3, // Adjust speed as necessary
       }));
     }
-
     requestRef.current = requestAnimationFrame(animate);
   };
 
@@ -291,7 +242,6 @@ const App: React.FC = () => {
         elapsedTime: 0,
         tilt: false,
         targetGameOdds: generatedOdds,
-        isBackgroundScrolling: false,
       }));
 
       const generatedOdds = generateTargetGameOdds();
@@ -301,9 +251,7 @@ const App: React.FC = () => {
           ...prevState,
           tilt: true,
           shouldMove: true,
-          isBackgroundScrolling: true,
         }));
-       // Start scrolling the background
 
         setTimeout(() => {
           setState((prevState) => ({
@@ -476,65 +424,52 @@ const App: React.FC = () => {
     };
   }, [imageSrc, json, isRunning, tilt]);
 
-  const generateTargetGameOdds = () => {
-    const maxElapsedTime = 80000;
-    const randomElapsedTime = Math.random() * maxElapsedTime;
-    return Math.exp(0.00006 * randomElapsedTime).toFixed(2);
-  };
+  return (
+    <div className="App">
+      <div style={{ position: "relative" }}>
+        <div>
+          <canvas ref={backgroundCanvasRef} />
 
-return (
-  <div className="App">
-    {/* <BackgroundCanvas isScrolling={isBackgroundScrolling} /> */}
-    <div style={{ position: "relative" }}>
-      <div>
-        <canvas ref={backgroundCanvasRef} />
-        <canvas
-          ref={spriteCanvasRef}
+          <canvas ref={spriteCanvasRef} style={{ position: "absolute" }} />
+        </div>
+        <h1
           style={{
             position: "absolute",
+            left: "50%",
+            top: "50%",
+            fontSize: "5rem",
+            transform: "translate(-50%, -50%)",
+            whiteSpace: "nowrap",
+            margin: 0,
+            padding: 0,
+            color:
+              parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
+                ? "red"
+                : "green",
           }}
-        />
+        >
+          {currentGameOdds} X
+        </h1>
+        <h2
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "calc(50% + 4rem)",
+            fontSize: "2rem",
+            transform: "translate(-50%, -50%)",
+            whiteSpace: "nowrap",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {targetGameOdds !== null ? targetGameOdds : ""}
+        </h2>
       </div>
-
-      <h1
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          fontSize: "5rem",
-          transform: "translate(-50%, -50%)",
-          whiteSpace: "nowrap",
-          margin: 0,
-          padding: 0,
-          color:
-            parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
-              ? "red"
-              : "green",
-        }}
-      >
-        {currentGameOdds} X
-      </h1>
-      <h2
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "calc(50% + 4rem)",
-          fontSize: "2rem",
-          transform: "translate(-50%, -50%)",
-          whiteSpace: "nowrap",
-          margin: 0,
-          padding: 0,
-        }}
-      >
-        {targetGameOdds !== null ? targetGameOdds : ""}
-      </h2>
+      <div>
+        <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
+      </div>
     </div>
-    <div>
-      <button onClick={handleStart}>{isRunning ? "Stop" : "Start"}</button>
-    </div>
-  </div>
-);
-
+  );
 };
 
 export default App;
