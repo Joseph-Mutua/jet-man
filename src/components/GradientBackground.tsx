@@ -2,7 +2,9 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import MoonImage from "../assets/images/11.png";
 import BlueSpaceman from "../assets/images/Spaceman0.png";
 import BlueSpacemanJson from "../assets/data/Spaceman0.json";
-import SkyOne from "../assets/images/Clouds1.png";
+import SkyOne from "../assets/images/Clouds2.png";
+import ParachuteSprite from "../assets/images/Parachute1.png";
+import ParachuteSpriteJson from "../assets/data/Parachute1.json";
 import Airport from "../assets/images/Airport.png";
 import { SpriteFrames } from "./types";
 
@@ -22,12 +24,21 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 200,
       maxScroll: 900,
     },
+
     {
       url: MoonImage,
       x: 7900,
       y: -6500,
       minScroll: 6500,
       maxScroll: 7800,
+    },
+
+    {
+      url: SkyOne,
+      x: 7400,
+      y: -7000,
+      minScroll: 7000,
+      maxScroll: 9000,
     },
 
     // {
@@ -39,16 +50,28 @@ const BackgroundCanvas: React.FC = () => {
     // },
   ]);
 
-  // Include the spaceman sprite in the images array if needed, or handle separately
-  const spacemanSprite = {
-    url: BlueSpaceman,
-    frames: BlueSpacemanJson.frames as SpriteFrames,
-    animation: BlueSpacemanJson.animations.Spaceman0,
-    x: 600, // Example x position
-    y: 400, // Example y position
-    minScroll: 100, // Example min scroll position for animation start
-    maxScroll: 200, // Example max scroll position for animation end
-  };
+  const [sprites, setSprites] = useState([
+    {
+      url: BlueSpaceman,
+      frames: BlueSpacemanJson.frames as SpriteFrames,
+      animation: BlueSpacemanJson.animations.Spaceman0,
+      x: 600,
+      y: 400,
+      minScroll: 100,
+      maxScroll: 200,
+      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 300,
+      y: 100,
+      minScroll: 100,
+      maxScroll: 800,
+      currentFrameIndex: 0,
+    },
+  ]);
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
@@ -63,23 +86,24 @@ const BackgroundCanvas: React.FC = () => {
     setScrollPosition(0);
   };
 
-
   const animateSprite = useCallback(() => {
-    if (
-      scrollPosition >= spacemanSprite.minScroll &&
-      scrollPosition <= spacemanSprite.maxScroll
-    ) {
-      setCurrentFrameIndex(
-        (prevIndex) => (prevIndex + 1) % spacemanSprite.animation.length
-      );
-    }
+    setSprites((currentSprites) =>
+      currentSprites.map((sprite) => {
+        if (
+          scrollPosition >= sprite.minScroll &&
+          scrollPosition <= sprite.maxScroll
+        ) {
+          return {
+            ...sprite,
+            currentFrameIndex:
+              (sprite.currentFrameIndex + 1) % sprite.animation.length,
+          };
+        }
+        return sprite;
+      })
+    );
     animationRef.current = requestAnimationFrame(animateSprite);
-  }, [
-    scrollPosition,
-    spacemanSprite.minScroll,
-    spacemanSprite.maxScroll,
-    spacemanSprite.animation.length,
-  ]); // Add any dependencies here
+  }, [scrollPosition]);
 
   useEffect(() => {
     animationRef.current = requestAnimationFrame(animateSprite);
@@ -88,18 +112,17 @@ const BackgroundCanvas: React.FC = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [animateSprite]); 
+  }, [animateSprite]);
 
   useEffect(() => {
-    // Preload images and sprite sheet
-    [...images, spacemanSprite].forEach((img) => {
+    [...images, ...sprites].forEach((img) => {
       const image = new Image();
       image.src = img.url;
       image.onload = () => {
         imageObjects.current.set(img.url, image);
       };
     });
-  }, [images]);
+  }, [images, sprites]);
 
   useEffect(() => {
     if (isScrolling) {
@@ -113,7 +136,7 @@ const BackgroundCanvas: React.FC = () => {
 
           return prevPosition + 1;
         });
-      }, 5);
+      }, 1);
       return () => clearInterval(scrollInterval);
     }
   }, [isScrolling]);
@@ -127,10 +150,8 @@ const BackgroundCanvas: React.FC = () => {
     canvas.width = screenWidth;
     canvas.height = screenHeight;
 
-    // Clear the previous drawing
     ctx.clearRect(0, 0, screenWidth, screenHeight);
 
-    // Create a gradient that spans the diagonal length of the canvas
     const gradient = ctx.createLinearGradient(
       0,
       screenHeight,
@@ -181,54 +202,37 @@ const BackgroundCanvas: React.FC = () => {
     ctx.restore();
     images.forEach((img) => {
       if (scrollPosition >= img.minScroll && scrollPosition <= img.maxScroll) {
-        //console.log("🚀 ~ images.forEach ~ scrollPosition:", scrollPosition);
         const image = imageObjects.current.get(img.url);
         if (image) {
-          // console.log(
-          //   "img x",
-          //   img.x,
-          //   "offset x",
-          //   offsetX,
-          //   "img y",
-          //   img.y,
-          //   "offset y",
-          //   offsetY,
-          //   "scroll position",
-          //   scrollPosition,
-          //   "min scroll",
-          //   img.minScroll,
-          //   "Max Scroll",
-          //   img.maxScroll,
-          //   "Scroll Position",
-          //   scrollPosition
-          // );
           ctx.drawImage(image, img.x - offsetX, img.y + offsetY);
         }
       }
     });
 
-
-        // Draw the animated spaceman sprite
-    if (scrollPosition >= spacemanSprite.minScroll && scrollPosition <= spacemanSprite.maxScroll) {
-      const frameKey = spacemanSprite.animation[currentFrameIndex];
-      const frame = spacemanSprite.frames[frameKey].frame;
-      const spriteImage = imageObjects.current.get(spacemanSprite.url);
-      if (spriteImage) {
-        ctx.drawImage(
-          spriteImage,
-          frame.x,
-          frame.y,
-          frame.w,
-          frame.h,
-          spacemanSprite.x, // Adjust position as needed
-          spacemanSprite.y, // Adjust position as needed
-          frame.w,
-          frame.h
-        );
+    sprites.forEach((sprite) => {
+      if (
+        scrollPosition >= sprite.minScroll &&
+        scrollPosition <= sprite.maxScroll
+      ) {
+        const frameKey = sprite.animation[sprite.currentFrameIndex];
+        const frame = sprite.frames[frameKey].frame;
+        const spriteImage = imageObjects.current.get(sprite.url);
+        if (spriteImage) {
+          ctx.drawImage(
+            spriteImage,
+            frame.x,
+            frame.y,
+            frame.w,
+            frame.h,
+            sprite.x - offsetX, 
+            sprite.y + offsetY,
+            frame.w,
+            frame.h
+          );
+        }
       }
-    }
-  }, [scrollPosition, images, currentFrameIndex]);
-
+    });
+  }, [scrollPosition, images, sprites, currentFrameIndex]);
 
   return (
     <div>
