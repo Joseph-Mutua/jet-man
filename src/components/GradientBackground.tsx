@@ -14,6 +14,9 @@ import SatelliteTwo from "../assets/images/Satellite1.png";
 //sprites
 import ParachuteSprite from "../assets/images/Parachute1.png";
 import ParachuteSpriteJson from "../assets/data/Parachute1.json";
+
+import CommetSprite from "../assets/images/Comet.png";
+import CommetSpriteJson from "../assets/data/Comet.json";
 import { SpriteFrames } from "./types";
 
 const BackgroundCanvas: React.FC = () => {
@@ -103,22 +106,13 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 1350,
       maxScroll: 1750,
     },
-    // {
-    //   url: MoonImage,
-    //   x: 1000,
-    //   y: -200,
-    //   minScroll: 200,
-    //   maxScroll: 900,
-    // },
-
-    // {
-    //   url: MoonImage,
-    //   x: 7900,
-    //   y: -6500,
-    //   minScroll: 6500,
-    //   maxScroll: 7800,
-    // },
-
+    {
+      url: CloudsOne,
+      x: 0,
+      y: 300,
+      minScroll: 0,
+      maxScroll: 1000,
+    },
     {
       url: CloudsTwo,
       x: 2000,
@@ -134,11 +128,25 @@ const BackgroundCanvas: React.FC = () => {
       maxScroll: 3500,
     },
     {
-      url: CloudsTwo,
-      x: 3700,
-      y: -3500,
+      url: SatelliteOne,
+      x: 3500,
+      y: -3000,
+      minScroll: 3050,
+      maxScroll: 3500,
+    },
+    {
+      url: SatelliteOne,
+      x: 4500,
+      y: -3400,
       minScroll: 3500,
-      maxScroll: 4200,
+      maxScroll: 4000,
+    },
+    {
+      url: SatelliteTwo,
+      x: 4500,
+      y: -3600,
+      minScroll: 3700,
+      maxScroll: 3900,
     },
 
     // {
@@ -158,7 +166,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 800,
       y: 100,
       minScroll: 100,
-      maxScroll: 600,
+      maxScroll: 200,
       currentFrameIndex: 0,
     },
     {
@@ -168,7 +176,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1000,
       y: -300,
       minScroll: 300,
-      maxScroll: 800,
+      maxScroll: 400,
       currentFrameIndex: 0,
     },
     {
@@ -178,7 +186,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1400,
       y: -300,
       minScroll: 300,
-      maxScroll: 800,
+      maxScroll: 400,
       currentFrameIndex: 0,
     },
 
@@ -189,7 +197,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1400,
       y: -300,
       minScroll: 300,
-      maxScroll: 850,
+      maxScroll: 400,
       currentFrameIndex: 0,
     },
 
@@ -200,7 +208,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1800,
       y: -650,
       minScroll: 650,
-      maxScroll: 1200,
+      maxScroll: 750,
       currentFrameIndex: 0,
     },
     {
@@ -210,7 +218,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1800,
       y: -750,
       minScroll: 700,
-      maxScroll: 1300,
+      maxScroll: 800,
       currentFrameIndex: 0,
     },
 
@@ -221,7 +229,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2000,
       y: -650,
       minScroll: 700,
-      maxScroll: 1300,
+      maxScroll: 800,
       currentFrameIndex: 0,
     },
 
@@ -232,7 +240,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1200,
       y: -650,
       minScroll: 750,
-      maxScroll: 1250,
+      maxScroll: 850,
       currentFrameIndex: 0,
     },
     {
@@ -242,7 +250,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1800,
       y: -700,
       minScroll: 800,
-      maxScroll: 1350,
+      maxScroll: 900,
       currentFrameIndex: 0,
     },
     {
@@ -252,7 +260,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 1900,
       y: -700,
       minScroll: 800,
-      maxScroll: 1250,
+      maxScroll: 900,
       currentFrameIndex: 0,
     },
     {
@@ -262,7 +270,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2000,
       y: -800,
       minScroll: 900,
-      maxScroll: 1400,
+      maxScroll: 1000,
       currentFrameIndex: 0,
     },
     {
@@ -272,7 +280,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2000,
       y: -800,
       minScroll: 900,
-      maxScroll: 1400,
+      maxScroll: 1000,
       currentFrameIndex: 0,
     },
     {
@@ -282,7 +290,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2400,
       y: -800,
       minScroll: 900,
-      maxScroll: 1450,
+      maxScroll: 1000,
       currentFrameIndex: 0,
     },
     {
@@ -292,7 +300,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2300,
       y: -750,
       minScroll: 950,
-      maxScroll: 1550,
+      maxScroll: 1050,
       currentFrameIndex: 0,
     },
 
@@ -303,7 +311,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2300,
       y: -900,
       minScroll: 1000,
-      maxScroll: 1600,
+      maxScroll: 1100,
       currentFrameIndex: 0,
     },
     {
@@ -313,7 +321,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2300,
       y: -950,
       minScroll: 1100,
-      maxScroll: 1600,
+      maxScroll: 1200,
       currentFrameIndex: 0,
     },
     {
@@ -323,7 +331,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2400,
       y: -1000,
       minScroll: 1100,
-      maxScroll: 1600,
+      maxScroll: 1200,
       currentFrameIndex: 0,
     },
     {
@@ -333,7 +341,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2400,
       y: -1000,
       minScroll: 1150,
-      maxScroll: 1600,
+      maxScroll: 1250,
       currentFrameIndex: 0,
     },
     {
@@ -343,7 +351,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2400,
       y: -1000,
       minScroll: 1150,
-      maxScroll: 1600,
+      maxScroll: 1250,
       currentFrameIndex: 0,
     },
     {
@@ -364,7 +372,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2550,
       y: -1250,
       minScroll: 1300,
-      maxScroll: 1650,
+      maxScroll: 1400,
       currentFrameIndex: 0,
     },
     {
@@ -374,7 +382,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2600,
       y: -1250,
       minScroll: 1300,
-      maxScroll: 1650,
+      maxScroll: 1550,
       currentFrameIndex: 0,
     },
     {
@@ -384,7 +392,7 @@ const BackgroundCanvas: React.FC = () => {
       x: 2650,
       y: -1300,
       minScroll: 1350,
-      maxScroll: 1700,
+      maxScroll: 1500,
       currentFrameIndex: 0,
     },
     {
@@ -442,34 +450,140 @@ const BackgroundCanvas: React.FC = () => {
       frames: ParachuteSpriteJson.frames as SpriteFrames,
       animation: ParachuteSpriteJson.animations.Parachute1,
       x: 3950,
-      y: -2950,
-      minScroll: 3050,
-      maxScroll: 3250,
+      y: -3450,
+      minScroll: 3500,
+      maxScroll: 3750,
       currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
       frames: ParachuteSpriteJson.frames as SpriteFrames,
       animation: ParachuteSpriteJson.animations.Parachute1,
-      x: 4800,
+      x: 3950,
+      y: -3450,
+      minScroll: 3550,
+      maxScroll: 3700,
+      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 4050,
+      y: -3600,
+      minScroll: 3650,
+      maxScroll: 3700,
+      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 4900,
       y: -3900,
       minScroll: 4000,
       maxScroll: 4200,
       currentFrameIndex: 0,
     },
-    // {
-    //   url: BlueSpaceman,
-    //   frames: BlueSpacemanJson.frames as SpriteFrames,
-    //   animation: BlueSpacemanJson.animations.Spaceman0,
-    //   x: 600,
-    //   y: 400,
-    //   minScroll: 100,
-    //   maxScroll: 200,
-    //   currentFrameIndex: 0,
-    // },
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 4900,
+      y: -3900,
+      minScroll: 4000,
+      maxScroll: 4200,
+      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 4950,
+      y: -3950,
+      minScroll: 4050,
+      maxScroll: 4250,
+      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 5000,
+      y: -4000,
+      minScroll: 4100,
+      maxScroll: 4300,
+      currentFrameIndex: 0,
+    },
+
+    {
+      url: ParachuteSprite,
+      frames: ParachuteSpriteJson.frames as SpriteFrames,
+      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 5100,
+      y: -4100,
+      minScroll: 4200,
+      maxScroll: 4700,
+      currentFrameIndex: 0,
+    },
+
+    {
+      url: CommetSprite,
+      frames: CommetSpriteJson.frames as SpriteFrames,
+      animation: CommetSpriteJson.animations.Comet,
+      x: 5300,
+      y: -4500,
+      minScroll: 4600,
+      maxScroll: 4800,
+      currentFrameIndex: 0,
+    },
+
+    {
+      url: CommetSprite,
+      frames: CommetSpriteJson.frames as SpriteFrames,
+      animation: CommetSpriteJson.animations.Comet,
+      x: 4300,
+      y: -4500,
+      minScroll: 4600,
+      maxScroll: 4800,
+      currentFrameIndex: 0,
+    },
+
+    {
+      url: CommetSprite,
+      frames: CommetSpriteJson.frames as SpriteFrames,
+      animation: CommetSpriteJson.animations.Comet,
+      x: 5000,
+      y: -4550,
+      minScroll: 4650,
+      maxScroll: 4900,
+      currentFrameIndex: 0,
+    },
+
+    {
+      url: CommetSprite,
+      frames: CommetSpriteJson.frames as SpriteFrames,
+      animation: CommetSpriteJson.animations.Comet,
+      x: 5200,
+      y: -4600,
+      minScroll: 4700,
+      maxScroll: 5000,
+      currentFrameIndex: 0,
+    },
+
+    {
+      url: CommetSprite,
+      frames: CommetSpriteJson.frames as SpriteFrames,
+      animation: CommetSpriteJson.animations.Comet,
+      x: 5500,
+      y: -4900,
+      minScroll: 5000,
+      maxScroll: 5800,
+      currentFrameIndex: 0,
+    },
   ]);
 
-  const screenWidth = window.innerWidth *0.8;
+  const screenWidth = window.innerWidth * 0.8;
   const screenHeight = window.innerHeight * 0.8;
   const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
 
@@ -556,27 +670,15 @@ const BackgroundCanvas: React.FC = () => {
     );
 
     gradient.addColorStop(0, "#A1757F");
-    // gradient.addColorStop(0.05, "#A58BAA");
-    // gradient.addColorStop(0.1, "#806279");
-    // gradient.addColorStop(0.15, "#6D79B6");
+
     gradient.addColorStop(0.2, "#4860A3");
-    // gradient.addColorStop(0.25, "#436AB5");
-    //gradient.addColorStop(0.3, "#4262A8");
 
-    // gradient.addColorStop(0.35, "#5373B7");
     gradient.addColorStop(0.4, "#293F6A");
-    // gradient.addColorStop(0.45, "#395B9E");
-    //gradient.addColorStop(0.5, "#1E3764");
-    // gradient.addColorStop(0.55, "#37518A");
-    gradient.addColorStop(0.6, "#162144");
-    // gradient.addColorStop(0.65, "#1B2D56");
 
-   // gradient.addColorStop(0.7, "#182247");
-    // gradient.addColorStop(0.75, "#191D39");
+    gradient.addColorStop(0.6, "#162144");
+
     gradient.addColorStop(0.8, "#151523");
-    // gradient.addColorStop(0.85, "#2A3045");
-    //gradient.addColorStop(0.9, "#161B33");
-    //gradient.addColorStop(0.95, "#121526");
+
     gradient.addColorStop(1.0, "#151523");
 
     ctx.fillStyle = gradient;
