@@ -10,6 +10,8 @@ import StarsImage from "../assets/images/Stars.png";
 
 import MoonImageTwo from "../assets/images/16.png";
 
+import AirportImage from "../assets/images/canvas.jpg";
+//import AirportImageTwo from "../assets/images/"
 
 import CloudsOne from "../assets/images/Clouds1.png";
 import CloudsTwo from "../assets/images/Clouds2.png";
@@ -40,19 +42,21 @@ const BackgroundCanvas: React.FC = () => {
 
   const [images, setImages] = useState([
     {
-      url: CloudsOne,
+      url: AirportImage,
       x: 0,
-      y: 300,
+      y: 550,
       minScroll: 0,
-      maxScroll: 1000,
+      maxScroll: 3000,
     },
+
     {
       url: CloudsOne,
       x: 0,
-      y: 300,
+      y: 170,
       minScroll: 0,
-      maxScroll: 1000,
+      maxScroll: 3000,
     },
+
     {
       url: AirBalloonOne,
       x: 700,
@@ -117,13 +121,7 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 1350,
       maxScroll: 1750,
     },
-    {
-      url: CloudsOne,
-      x: 0,
-      y: 300,
-      minScroll: 0,
-      maxScroll: 1000,
-    },
+
     {
       url: CloudsTwo,
       x: 2000,
@@ -619,13 +617,11 @@ const BackgroundCanvas: React.FC = () => {
       maxScroll: 5200,
       currentFrameIndex: 0,
     },
-
-
   ]);
 
   const screenWidth = window.innerWidth * 0.8;
   const screenHeight = window.innerHeight * 0.9;
-  const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
+  const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 7;
 
   const startScrolling = () => {
     setIsScrolling(true);
@@ -709,20 +705,31 @@ const BackgroundCanvas: React.FC = () => {
       screenHeight - diagonalLength
     );
 
-    gradient.addColorStop(0, "#A1757F");
-    gradient.addColorStop(0.2, "#4860A3");
-    gradient.addColorStop(0.4, "#293F6A");
-    gradient.addColorStop(0.6, "#162144");
-    gradient.addColorStop(0.8, "#151523");
-    gradient.addColorStop(1.0, "#151523"); 
+
+  gradient.addColorStop(0, "#c4a3b4");
+  gradient.addColorStop(0.05, "#c4a3b4");
+  gradient.addColorStop(0.1, "#c4a3b4");
+  gradient.addColorStop(0.2, "#c4a3b4");
+  gradient.addColorStop(0.4, "#c4a3b4");
+  gradient.addColorStop(0.6, "#162144");
+  gradient.addColorStop(0.8, "#151523");
+  gradient.addColorStop(1.0, "#151523");
+
+    // gradient.addColorStop(0, "#A1757F");
+    // gradient.addColorStop(0.05, "#A58BAA");
+    // gradient.addColorStop(0.1, "#806279");
+    // gradient.addColorStop(0.2, "#4860A3");
+    // gradient.addColorStop(0.4, "#293F6A");
+    // gradient.addColorStop(0.6, "#162144");
+    // gradient.addColorStop(0.8, "#151523");
+    // gradient.addColorStop(1.0, "#151523");
 
     ctx.fillStyle = gradient;
-
     const offsetX = scrollPosition % diagonalLength;
-
     const offsetY = scrollPosition % diagonalLength;
 
     ctx.save();
+
 
     ctx.translate(-offsetX, offsetY);
     ctx.fillRect(
