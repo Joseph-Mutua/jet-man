@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 
+import "../App.css";
+
 //images
 import PlanetImageOne from "../assets/images/13.png";
 import PlanetImageTwo from "../assets/images/16.png";
@@ -10,7 +12,10 @@ import StarsImage from "../assets/images/Stars.png";
 
 import MoonImageTwo from "../assets/images/16.png";
 
-import AirportImage from "../assets/images/canvas.jpg";
+import AirportImage from "../assets/images/Airport.png";
+import RoadImage from "../assets/images/Road.png";
+
+import JetImage from "../assets/images/jet.png";
 //import AirportImageTwo from "../assets/images/"
 
 import CloudsOne from "../assets/images/Clouds1.png";
@@ -30,7 +35,8 @@ import CommetSpriteJson from "../assets/data/Comet.json";
 import BlueSpaceman from "../assets/images/Spaceman0.png";
 import BlueSpacemanJson from "../assets/data/Spaceman0.json";
 
-import { SpriteFrames } from "./types";
+import { ImageSprite, SpriteFrames } from "./types";
+import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
 const BackgroundCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -40,19 +46,42 @@ const BackgroundCanvas: React.FC = () => {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const animationRef = useRef<number>();
 
-  const [images, setImages] = useState([
+  const dimensions = useWindowDimensions();
+  const { screenWidth, screenHeight, scale } = dimensions;
+  const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
+  const defaultZIndex = 1;
+
+  const [images, setImages] = useState<ImageSprite[]>([
     {
-      url: AirportImage,
+      url: RoadImage,
       x: 0,
-      y: 550,
+      y: 720,
       minScroll: 0,
       maxScroll: 3000,
+      zIndex: 1,
+    },
+
+    {
+      url: JetImage,
+      x: 100,
+      y: 750,
+      minScroll: 0,
+      maxScroll: 3000,
+      zIndex: 100,
+    },
+    {
+      url: AirportImage,
+      x: 10,
+      y: 450,
+      minScroll: 0,
+      maxScroll: 3000,
+      zIndex: 10,
     },
 
     {
       url: CloudsOne,
       x: 0,
-      y: 170,
+      y: 360,
       minScroll: 0,
       maxScroll: 3000,
     },
@@ -619,10 +648,6 @@ const BackgroundCanvas: React.FC = () => {
     },
   ]);
 
-  const screenWidth = window.innerWidth * 0.8;
-  const screenHeight = window.innerHeight * 0.9;
-  const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 7;
-
   const startScrolling = () => {
     setIsScrolling(true);
   };
@@ -674,7 +699,6 @@ const BackgroundCanvas: React.FC = () => {
     if (isScrolling) {
       const scrollInterval = setInterval(() => {
         setScrollPosition((prevPosition) => {
-          // Stop incrementing scroll position when the last color comes into view
           if (prevPosition >= diagonalLength * 0.6) {
             clearInterval(scrollInterval);
             return prevPosition;
@@ -705,31 +729,18 @@ const BackgroundCanvas: React.FC = () => {
       screenHeight - diagonalLength
     );
 
-
-  gradient.addColorStop(0, "#c4a3b4");
-  gradient.addColorStop(0.05, "#c4a3b4");
-  gradient.addColorStop(0.1, "#c4a3b4");
-  gradient.addColorStop(0.2, "#c4a3b4");
-  gradient.addColorStop(0.4, "#c4a3b4");
-  gradient.addColorStop(0.6, "#162144");
-  gradient.addColorStop(0.8, "#151523");
-  gradient.addColorStop(1.0, "#151523");
-
-    // gradient.addColorStop(0, "#A1757F");
-    // gradient.addColorStop(0.05, "#A58BAA");
-    // gradient.addColorStop(0.1, "#806279");
-    // gradient.addColorStop(0.2, "#4860A3");
-    // gradient.addColorStop(0.4, "#293F6A");
-    // gradient.addColorStop(0.6, "#162144");
-    // gradient.addColorStop(0.8, "#151523");
-    // gradient.addColorStop(1.0, "#151523");
+    gradient.addColorStop(0, "#A1757F");
+    gradient.addColorStop(0.2, "#4860A3");
+    gradient.addColorStop(0.4, "#293F6A");
+    gradient.addColorStop(0.6, "#162144");
+    gradient.addColorStop(0.8, "#151523");
+    gradient.addColorStop(1.0, "#151523");
 
     ctx.fillStyle = gradient;
     const offsetX = scrollPosition % diagonalLength;
     const offsetY = scrollPosition % diagonalLength;
 
     ctx.save();
-
 
     ctx.translate(-offsetX, offsetY);
     ctx.fillRect(
@@ -740,11 +751,22 @@ const BackgroundCanvas: React.FC = () => {
     );
 
     ctx.restore();
-    images.forEach((img) => {
-      if (scrollPosition >= img.minScroll && scrollPosition <= img.maxScroll) {
-        const image = imageObjects.current.get(img.url);
+
+    const drawableObjects = [...images].sort(
+      (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
+    );
+
+    drawableObjects.forEach((obj) => {
+      if (scrollPosition >= obj.minScroll && scrollPosition <= obj.maxScroll) {
+        const image = imageObjects.current.get(obj.url);
         if (image) {
-          ctx.drawImage(image, img.x - offsetX, img.y + offsetY);
+          // Scale positions and sizes
+          const scaledX = (obj.x - offsetX) * scale;
+          const scaledY = (obj.y + offsetY) * scale;
+          const scaledWidth = image.width * scale;
+          const scaledHeight = image.height * scale;
+
+          ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
         }
       }
     });
@@ -758,16 +780,22 @@ const BackgroundCanvas: React.FC = () => {
         const frame = sprite.frames[frameKey].frame;
         const spriteImage = imageObjects.current.get(sprite.url);
         if (spriteImage) {
+          // Scale positions and frame dimensions
+          const scaledX = (sprite.x - offsetX) * scale;
+          const scaledY = (sprite.y + offsetY) * scale;
+          const scaledFrameWidth = frame.w * scale;
+          const scaledFrameHeight = frame.h * scale;
+
           ctx.drawImage(
             spriteImage,
             frame.x,
             frame.y,
             frame.w,
             frame.h,
-            sprite.x - offsetX,
-            sprite.y + offsetY,
-            frame.w,
-            frame.h
+            scaledX,
+            scaledY,
+            scaledFrameWidth,
+            scaledFrameHeight
           );
         }
       }
@@ -775,14 +803,18 @@ const BackgroundCanvas: React.FC = () => {
   }, [scrollPosition, images, sprites, currentFrameIndex]);
 
   return (
-    <div>
+    <div className="App">
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={screenWidth}
+        height={screenHeight}
+        style={{ maxWidth: "100%" }}
       />
-      <button onClick={startScrolling}>Start</button>
-      <button onClick={stopScrolling}>Stop</button>
+      <div>
+        {" "}
+        <button onClick={startScrolling}>Start</button>
+        <button onClick={stopScrolling}>Stop</button>
+      </div>
     </div>
   );
 };

@@ -7,5 +7,6 @@ export interface Frame {
 }
 
 export interface SpriteJson {
-  frames: { [key: string]: Frame }; // Index signature added here
+  frames: { [key: string]: Frame }; 
+  zIndex?: number;
 }

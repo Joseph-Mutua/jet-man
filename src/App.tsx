@@ -221,12 +221,13 @@ const App: React.FC = () => {
     }
   };
 
+
   const updateAnimation = () => {
     if (!isRunning) return;
 
     const now = Date.now();
     const elapsedTime = (now - startAnimationTime.current) / 1000;
-    console.log("🚀 ~ updateAnimation ~ elapsedTime:", elapsedTime);
+    // console.log("🚀 ~ updateAnimation ~ elapsedTime:", elapsedTime);
 
     // After 2 seconds, change the background to 'gradient'
     if (elapsedTime > 2) {
@@ -256,10 +257,6 @@ const App: React.FC = () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      // Reset to initial background when stopping the animation
-      // setBackgroundType("initial");
-      // setIsGradientScrolling(false);
-      // setGradientScrollPosition(0); // Reset scroll position to stop the gradient background from scrolling
     }
     return () => {
       if (animationRef.current !== null) {
@@ -280,7 +277,7 @@ const App: React.FC = () => {
 
           return prevPosition + 1;
         });
-      }, 100);
+      }, 5);
       return () => clearInterval(scrollInterval);
     }
   }, [isGradientScrolling]);

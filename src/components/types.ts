@@ -12,7 +12,6 @@ export interface JsonData {
   meta: any;
 }
 
-
 export interface SpriteJson {
   frames: Record<string, Frame>;
   meta: {
@@ -20,6 +19,7 @@ export interface SpriteJson {
     scale: string;
     size: { w: number; h: number };
   };
+  zIndex?: number;
 }
 
 export interface SpriteProps {
@@ -29,4 +29,13 @@ export interface SpriteProps {
 
 export interface SpriteFrames {
   [key: string]: Frame;
+}
+
+export interface ImageSprite {
+  url: string;
+  x: number;
+  y: number;
+  minScroll: number;
+  maxScroll: number;
+  zIndex?: number;
 }
