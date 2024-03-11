@@ -53,6 +53,17 @@ const BackgroundCanvas: React.FC = () => {
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
   const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
+
+  const moveJetIntervalRef = useRef();
+  const tiltJetTimeoutRef = useRef();
+
+  const moveJetRef = useRef<number | null>(null);
+  const moveJetAngledRef = useRef<number | null>(null);
+  //const moveJetAngledRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const angleTimeoutRef = useRef<number | null>(null);
+  const [angledMovementPhase, setAngledMovementPhase] = useState(false);
+  const [jetFinalPosition, setJetFinalPosition] = useState({ x: 0, y: 0 });
+
   const defaultZIndex = 1;
 
   const [images, setImages] = useState<ImageSprite[]>([
@@ -668,12 +679,15 @@ const BackgroundCanvas: React.FC = () => {
   ]);
 
   const startScrolling = () => {
-    // Assuming you have a way to identify the jet among your images,
-    // e.g., by a unique property or directly by its index if it's fixed.
     let jetIndex = images.findIndex((img) => img.url === JetImage);
 
-    let moveJet = setInterval(() => {
-      // Update jet's horizontal position before tilt
+    // Clear previous intervals and timeouts if any
+    if (moveJetRef.current) clearInterval(moveJetRef.current);
+    if (moveJetAngledRef.current) clearInterval(moveJetAngledRef.current);
+    if (angleTimeoutRef.current) clearTimeout(angleTimeoutRef.current);
+
+    // Start moving the jet horizontally
+    moveJetRef.current = setInterval(() => {
       setImages((currentImages) =>
         currentImages.map((img, index) => {
           if (index === jetIndex) {
@@ -682,33 +696,70 @@ const BackgroundCanvas: React.FC = () => {
           return img;
         })
       );
-    }, 10); // Adjust interval as needed for smooth animation
+    }, 10) as unknown as number;
 
-    setTimeout(() => {
-      clearInterval(moveJet); // Stop jet's horizontal movement
-      setIsScrolling(true); // Start background scrolling if needed
+    // After 2 seconds, start moving the jet at a 45-degree angle
+    // After 2 seconds, start moving the jet at a 45-degree angle
+    angleTimeoutRef.current = setTimeout(() => {
+      if (moveJetRef.current !== null) {
+        clearInterval(moveJetRef.current);
+      }
+      moveJetRef.current = null; // Clear the horizontal movement interval
 
-      setJetPhase("angled");
-      // Change the jet's behavior to move upwards at a 45-degree angle
-      moveJet = setInterval(() => {
-        setImages((currentImages) =>
-          currentImages.map((img, index) => {
-            if (index === jetIndex) {
-              // Adjust `x` and `y` to move in a 45-degree angle
-              let newX = img.x + Math.cos(Math.PI / 4) * 5;
-              let newY = img.y - Math.sin(Math.PI / 4) * 5; // Assuming positive Y is down
-              return { ...img, x: newX, y: newY };
-            }
-            return img;
-          })
-        );
-      }, 10);
-    }, 2000);
+      // Fetch the current position of the jet
+      const jetIndex = images.findIndex((img) => img.url === JetImage);
+      const jet = images[jetIndex];
+
+      // Set the jet's final position before starting angled movement
+      setJetFinalPosition({
+        x: jet.x + scrollPosition,
+        y: jet.y - scrollPosition,
+      });
+
+      setJetPhase("angled"); // Update jet phase to angled
+      setIsScrolling(true); // Begin scrolling background
+
+      // The rest of your angled movement setup
+      moveJetAngledRef.current = setInterval(() => {
+        // Your angled movement code here
+      }, 10) as unknown as number;
+
+      // After an additional 2 seconds, stop the jet
+      setTimeout(() => {
+        if (moveJetAngledRef.current !== null) {
+          clearInterval(moveJetAngledRef.current);
+          moveJetAngledRef.current = null;
+        }
+
+        setAngledMovementPhase(true); // Marks the jet should now remain static
+      }, 2000) as unknown as number;
+    }, 2000) as unknown as number;
   };
-
   const stopScrolling = () => {
     setIsScrolling(false);
+    setJetPhase("horizontal");
     setScrollPosition(0);
+
+    const jetIndex = images.findIndex((img) => img.url === JetImage);
+
+    setImages((currentImages) =>
+      currentImages.map((img, index) => {
+        if (index === jetIndex) {
+          return { ...img, x: 100, y: 1000 };
+        }
+        return img;
+      })
+    );
+
+    // Clear the intervals and timeouts
+    clearInterval(moveJetIntervalRef.current);
+    clearTimeout(tiltJetTimeoutRef.current);
+
+    // Optionally reset refs to null
+    moveJetIntervalRef.current = undefined;
+
+    tiltJetTimeoutRef.current = undefined;
+    setAngledMovementPhase(false);
   };
 
   const animateSprite = useCallback(() => {
@@ -814,14 +865,30 @@ const BackgroundCanvas: React.FC = () => {
       if (scrollPosition >= obj.minScroll && scrollPosition <= obj.maxScroll) {
         const image = imageObjects.current.get(obj.url);
         if (image) {
-          let scaledX, scaledY;
-          scaledX = (obj.x - offsetX) * scale;
+          let scaledX, scaledY, scaledWidth, scaledHeight;
 
-          scaledY = (obj.y + offsetY) * scale;
-          const scaledWidth = image.width * scale;
-          const scaledHeight = image.height * scale;
-
-          ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+          if (image.src === JetImage && jetPhase === "angled") {
+            if (angledMovementPhase) {
+              console.log("OFFSET X", offsetX);
+              // Use jetFinalPosition after angled movement starts
+              scaledX = obj.x * scale;
+              scaledY = obj.y * scale;
+            } else {
+              // Continue updating position normally until angled movement starts
+              scaledX = (obj.x + offsetX) * scale;
+              scaledY = (obj.y - offsetY) * scale;
+            }
+            scaledWidth = image.width * scale;
+            scaledHeight = image.height * scale;
+            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+          } else {
+            // Logic for other images remains unchanged
+            scaledX = (obj.x - (angledMovementPhase ? 0 : offsetX)) * scale;
+            scaledY = (obj.y + (angledMovementPhase ? 0 : offsetY)) * scale;
+            scaledWidth = image.width * scale;
+            scaledHeight = image.height * scale;
+            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+          }
         }
       }
     });
