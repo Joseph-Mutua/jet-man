@@ -281,6 +281,7 @@ const App: React.FC = () => {
       return () => clearInterval(scrollInterval);
     }
   }, [isGradientScrolling]);
+  
 
   const toggleAnimation = () => {
     setIsRunning(!isRunning);

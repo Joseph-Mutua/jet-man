@@ -6,7 +6,6 @@ export const useWindowDimensions = () => {
   const maxWidth = window.innerWidth * 0.9;
   const aspectRatio = 16 / 9;
 
-  // Initialize dimensions with scale
   const [dimensions, setDimensions] = useState({
     screenWidth: window.innerWidth,
     screenHeight: window.innerWidth / aspectRatio,
@@ -14,7 +13,7 @@ export const useWindowDimensions = () => {
     scale: Math.min(
       window.innerWidth / baseWidth,
       window.innerWidth / aspectRatio / baseHeight
-    ), // Uniform scaling factor
+    ), 
   });
 
   useEffect(() => {
@@ -24,15 +23,11 @@ export const useWindowDimensions = () => {
       const scale = Math.min(
         screenWidth / baseWidth,
         screenHeight / baseHeight
-      ); // Recalculate uniform scaling factor
+      );
 
       setDimensions({ screenWidth, screenHeight, aspectRatio, scale });
     };
-
-    // A slight delay in applying resize might not be necessary unless you have a specific reason for it.
     window.addEventListener("resize", handleResize);
-
-    // Initial resize adjustment
     handleResize();
 
     return () => window.removeEventListener("resize", handleResize);

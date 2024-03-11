@@ -3,6 +3,13 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import "../App.css";
 
 //images
+
+import AirportImage from "../assets/images/Airport.png";
+import RoadImage from "../assets/images/Road.png";
+import JetImage from "../assets/images/jet.png";
+import Fence from "../assets/images/Fence.png";
+import GarageImage from "../assets/images/Garage.png";
+
 import PlanetImageOne from "../assets/images/13.png";
 import PlanetImageTwo from "../assets/images/16.png";
 import PlanetImageThree from "../assets/images/21.png";
@@ -12,10 +19,6 @@ import StarsImage from "../assets/images/Stars.png";
 
 import MoonImageTwo from "../assets/images/16.png";
 
-import AirportImage from "../assets/images/Airport.png";
-import RoadImage from "../assets/images/Road.png";
-
-import JetImage from "../assets/images/jet.png";
 //import AirportImageTwo from "../assets/images/"
 
 import CloudsOne from "../assets/images/Clouds1.png";
@@ -45,6 +48,7 @@ const BackgroundCanvas: React.FC = () => {
   const imageObjects = useRef(new Map());
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const animationRef = useRef<number>();
+  const [jetPhase, setJetPhase] = useState("horizontal"); // 'horizontal' or 'angled'
 
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
@@ -55,16 +59,15 @@ const BackgroundCanvas: React.FC = () => {
     {
       url: RoadImage,
       x: 0,
-      y: 720,
+      y: 960,
       minScroll: 0,
       maxScroll: 3000,
       zIndex: 1,
     },
-
     {
       url: JetImage,
       x: 100,
-      y: 750,
+      y: 1000,
       minScroll: 0,
       maxScroll: 3000,
       zIndex: 100,
@@ -72,7 +75,7 @@ const BackgroundCanvas: React.FC = () => {
     {
       url: AirportImage,
       x: 10,
-      y: 450,
+      y: 660,
       minScroll: 0,
       maxScroll: 3000,
       zIndex: 10,
@@ -81,7 +84,23 @@ const BackgroundCanvas: React.FC = () => {
     {
       url: CloudsOne,
       x: 0,
-      y: 360,
+      y: 630,
+      minScroll: 0,
+      maxScroll: 3000,
+    },
+
+    {
+      url: Fence,
+      x: 0,
+      y: 880,
+      minScroll: 0,
+      maxScroll: 3000,
+    },
+
+    {
+      url: GarageImage,
+      x: 1100,
+      y: 880,
       minScroll: 0,
       maxScroll: 3000,
     },
@@ -649,7 +668,42 @@ const BackgroundCanvas: React.FC = () => {
   ]);
 
   const startScrolling = () => {
-    setIsScrolling(true);
+    // Assuming you have a way to identify the jet among your images,
+    // e.g., by a unique property or directly by its index if it's fixed.
+    let jetIndex = images.findIndex((img) => img.url === JetImage);
+
+    let moveJet = setInterval(() => {
+      // Update jet's horizontal position before tilt
+      setImages((currentImages) =>
+        currentImages.map((img, index) => {
+          if (index === jetIndex) {
+            return { ...img, x: img.x + 5 }; // Move horizontally
+          }
+          return img;
+        })
+      );
+    }, 10); // Adjust interval as needed for smooth animation
+
+    setTimeout(() => {
+      clearInterval(moveJet); // Stop jet's horizontal movement
+      setIsScrolling(true); // Start background scrolling if needed
+
+      setJetPhase("angled");
+      // Change the jet's behavior to move upwards at a 45-degree angle
+      moveJet = setInterval(() => {
+        setImages((currentImages) =>
+          currentImages.map((img, index) => {
+            if (index === jetIndex) {
+              // Adjust `x` and `y` to move in a 45-degree angle
+              let newX = img.x + Math.cos(Math.PI / 4) * 5;
+              let newY = img.y - Math.sin(Math.PI / 4) * 5; // Assuming positive Y is down
+              return { ...img, x: newX, y: newY };
+            }
+            return img;
+          })
+        );
+      }, 10);
+    }, 2000);
   };
 
   const stopScrolling = () => {
@@ -760,9 +814,10 @@ const BackgroundCanvas: React.FC = () => {
       if (scrollPosition >= obj.minScroll && scrollPosition <= obj.maxScroll) {
         const image = imageObjects.current.get(obj.url);
         if (image) {
-          // Scale positions and sizes
-          const scaledX = (obj.x - offsetX) * scale;
-          const scaledY = (obj.y + offsetY) * scale;
+          let scaledX, scaledY;
+          scaledX = (obj.x - offsetX) * scale;
+
+          scaledY = (obj.y + offsetY) * scale;
           const scaledWidth = image.width * scale;
           const scaledHeight = image.height * scale;
 
