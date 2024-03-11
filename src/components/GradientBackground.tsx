@@ -61,8 +61,6 @@ const BackgroundCanvas: React.FC = () => {
   const moveJetAngledRef = useRef<number | null>(null);
   //const moveJetAngledRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const angleTimeoutRef = useRef<number | null>(null);
-  const [angledMovementPhase, setAngledMovementPhase] = useState(false);
-  const [jetFinalPosition, setJetFinalPosition] = useState({ x: 0, y: 0 });
 
   const defaultZIndex = 1;
 
@@ -710,9 +708,6 @@ const BackgroundCanvas: React.FC = () => {
       const jetIndex = images.findIndex((img) => img.url === JetImage);
       const jet = images[jetIndex];
 
-      // Set the jet's final position before starting angled movement
-      setJetFinalPosition({ x: jet.x + scrollPosition, y: jet.y });
-
       setJetPhase("angled"); // Update jet phase to angled
       setIsScrolling(true); // Begin scrolling background
 
@@ -727,8 +722,6 @@ const BackgroundCanvas: React.FC = () => {
           clearInterval(moveJetAngledRef.current);
           moveJetAngledRef.current = null;
         }
-
-        setAngledMovementPhase(true); // Marks the jet should now remain static
       }, 1500) as unknown as number;
     }, 1500) as unknown as number;
   };
@@ -756,7 +749,6 @@ const BackgroundCanvas: React.FC = () => {
     moveJetIntervalRef.current = undefined;
 
     tiltJetTimeoutRef.current = undefined;
-    setAngledMovementPhase(false);
   };
 
   const animateSprite = useCallback(() => {
@@ -867,26 +859,41 @@ const BackgroundCanvas: React.FC = () => {
         let scaledX, scaledY;
 
         if (image.src === JetImage) {
+          // Calculate scaled dimensions and positions
           scaledX = (obj.x + offsetX) * scale;
           scaledY = (obj.y - offsetY) * scale;
+
+          // Adjust position if needed
           if (scaledY <= screenHeight * 0.25) {
-            scaledX = screenWidth * 0.8;
+            scaledX = screenWidth * 0.78;
             scaledY = screenHeight * 0.25;
-          } else {
-            scaledX = (obj.x + offsetX) * scale;
-            scaledY = (obj.y - offsetY) * scale;
           }
 
-          ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+          ctx.save(); // Save the current context state
+
+          // Translate to the center of the image for rotation
+          ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
+
+          // Check if jetPhase is "angled" and apply rotation
+          if (jetPhase === "angled") {
+            ctx.rotate(-(45 * Math.PI) / 180); // Rotate by 45 degrees
+          }
+
+          ctx.drawImage(
+            image,
+            -scaledWidth / 2,
+            -scaledHeight / 2,
+            scaledWidth,
+            scaledHeight
+          );
+
+          ctx.restore();
         } else if (
           scrollPosition >= obj.minScroll &&
           scrollPosition <= obj.maxScroll
         ) {
-          // Logic for other images remains unchanged
           scaledX = (obj.x - offsetX) * scale;
           scaledY = (obj.y + offsetY) * scale;
-          scaledWidth = image.width * scale;
-          scaledHeight = image.height * scale;
           ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
         }
       }
