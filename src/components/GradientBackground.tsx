@@ -711,10 +711,7 @@ const BackgroundCanvas: React.FC = () => {
       const jet = images[jetIndex];
 
       // Set the jet's final position before starting angled movement
-      setJetFinalPosition({
-        x: jet.x + scrollPosition,
-        y: jet.y - scrollPosition,
-      });
+      setJetFinalPosition({ x: jet.x + scrollPosition, y: jet.y });
 
       setJetPhase("angled"); // Update jet phase to angled
       setIsScrolling(true); // Begin scrolling background
@@ -732,8 +729,8 @@ const BackgroundCanvas: React.FC = () => {
         }
 
         setAngledMovementPhase(true); // Marks the jet should now remain static
-      }, 2000) as unknown as number;
-    }, 2000) as unknown as number;
+      }, 1500) as unknown as number;
+    }, 1500) as unknown as number;
   };
   const stopScrolling = () => {
     setIsScrolling(false);
@@ -860,35 +857,37 @@ const BackgroundCanvas: React.FC = () => {
     const drawableObjects = [...images].sort(
       (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
     );
-
     drawableObjects.forEach((obj) => {
-      if (scrollPosition >= obj.minScroll && scrollPosition <= obj.maxScroll) {
-        const image = imageObjects.current.get(obj.url);
-        if (image) {
-          let scaledX, scaledY, scaledWidth, scaledHeight;
+      const image = imageObjects.current.get(obj.url);
 
-          if (image.src === JetImage && jetPhase === "angled") {
-            if (angledMovementPhase) {
-              console.log("OFFSET X", offsetX);
-              // Use jetFinalPosition after angled movement starts
-              scaledX = obj.x * scale;
-              scaledY = obj.y * scale;
-            } else {
-              // Continue updating position normally until angled movement starts
-              scaledX = (obj.x + offsetX) * scale;
-              scaledY = (obj.y - offsetY) * scale;
-            }
-            scaledWidth = image.width * scale;
-            scaledHeight = image.height * scale;
-            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+      //const image = imageObjects.current.get(obj.url);
+      if (image) {
+        let scaledWidth = image.width * scale;
+        let scaledHeight = image.height * scale;
+        let scaledX, scaledY;
+
+        if (image.src === JetImage) {
+          scaledX = (obj.x + offsetX) * scale;
+          scaledY = (obj.y - offsetY) * scale;
+          if (scaledY <= screenHeight * 0.25) {
+            scaledX = screenWidth * 0.8;
+            scaledY = screenHeight * 0.25;
           } else {
-            // Logic for other images remains unchanged
-            scaledX = (obj.x - (angledMovementPhase ? 0 : offsetX)) * scale;
-            scaledY = (obj.y + (angledMovementPhase ? 0 : offsetY)) * scale;
-            scaledWidth = image.width * scale;
-            scaledHeight = image.height * scale;
-            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+            scaledX = (obj.x + offsetX) * scale;
+            scaledY = (obj.y - offsetY) * scale;
           }
+
+          ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+        } else if (
+          scrollPosition >= obj.minScroll &&
+          scrollPosition <= obj.maxScroll
+        ) {
+          // Logic for other images remains unchanged
+          scaledX = (obj.x - offsetX) * scale;
+          scaledY = (obj.y + offsetY) * scale;
+          scaledWidth = image.width * scale;
+          scaledHeight = image.height * scale;
+          ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
         }
       }
     });
