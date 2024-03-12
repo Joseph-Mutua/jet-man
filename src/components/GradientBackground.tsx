@@ -49,11 +49,14 @@ const BackgroundCanvas: React.FC = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const imageObjects = useRef(new Map());
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
+  const [rotationAngle, setRotationAngle] = useState<number>(0);
+  const [rotateJet, setRotateJet] = useState(false);
   const animationRef = useRef<number>();
   const [jetPhase, setJetPhase] = useState("horizontal");
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
-  const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
+  const diagonalLength =
+    Math.sqrt((screenWidth) ** 2 + (screenHeight) ** 2) * 5;
 
   const moveJetIntervalRef = useRef();
   const tiltJetTimeoutRef = useRef();
@@ -189,13 +192,6 @@ const BackgroundCanvas: React.FC = () => {
 
     {
       url: CloudsTwo,
-      x: 2000,
-      y: -1700,
-      minScroll: 2000,
-      maxScroll: 2500,
-    },
-    {
-      url: CloudsTwo,
       x: 2200,
       y: -2100,
       minScroll: 3000,
@@ -264,10 +260,10 @@ const BackgroundCanvas: React.FC = () => {
       url: ParachuteSprite,
       frames: ParachuteSpriteJson.frames as SpriteFrames,
       animation: ParachuteSpriteJson.animations.Parachute1,
-      x: 1800,
-      y: 0,
-      minScroll: 500,
-      maxScroll: 600,
+      x: 800,
+      y: 100,
+      minScroll: 100,
+      maxScroll: 500,
       currentFrameIndex: 0,
     },
   ]);
@@ -275,287 +271,397 @@ const BackgroundCanvas: React.FC = () => {
   const [parachutes, setParachutes] = useState([
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 1800,
       y: 0,
       minScroll: 500,
       maxScroll: 600,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 1850,
       y: 0,
       minScroll: 500,
       maxScroll: 600,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 1850,
       y: -100,
       minScroll: 550,
       maxScroll: 650,
-      currentFrameIndex: 0,
     },
 
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 1900,
       y: -150,
       minScroll: 550,
       maxScroll: 650,
-      currentFrameIndex: 0,
     },
 
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 1950,
       y: -150,
       minScroll: 600,
       maxScroll: 700,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2000,
       y: -150,
       minScroll: 600,
       maxScroll: 700,
-      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      x: 2050,
+      y: -200,
+      minScroll: 700,
+      maxScroll: 800,
     },
 
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
-      x: 2500,
-      y: -700,
+      x: 2100,
+      y: -250,
+      minScroll: 800,
+      maxScroll: 900,
+    },
+
+    {
+      url: ParachuteSprite,
+      x: 2150,
+      y: -300,
+      minScroll: 900,
+      maxScroll: 1000,
+    },
+
+    {
+      url: ParachuteSprite,
+      x: 2200,
+      y: -350,
       minScroll: 1000,
       maxScroll: 1100,
-      currentFrameIndex: 0,
     },
-
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
+      x: 2250,
+      y: -400,
+      minScroll: 1100,
+      maxScroll: 1200,
+    },
+    {
+      url: ParachuteSprite,
+      x: 2300,
+      y: -450,
+      minScroll: 1200,
+      maxScroll: 1300,
+    },
+    {
+      url: ParachuteSprite,
+      x: 2350,
+      y: -500,
+      minScroll: 1300,
+      maxScroll: 1350,
+    },
+    {
+      url: ParachuteSprite,
+      x: 2400,
+      y: -550,
+      minScroll: 1400,
+      maxScroll: 1450,
+    },
+    {
+      url: ParachuteSprite,
+      x: 2450,
+      y: -600,
+      minScroll: 800,
+      maxScroll: 900,
+    },
+    {
+      url: ParachuteSprite,
+      x: 2500,
+      y: -650,
+      minScroll: 900,
+      maxScroll: 1000,
+    },
+    {
+      url: ParachuteSprite,
       x: 2550,
       y: -700,
       minScroll: 1000,
       maxScroll: 1100,
-      currentFrameIndex: 0,
     },
+
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
-      x: 2600,
-      y: -700,
-      minScroll: 1000,
-      maxScroll: 1100,
-      currentFrameIndex: 0,
-    },
-    {
-      url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
-      x: 2600,
-      y: -700,
-      minScroll: 1000,
-      maxScroll: 1100,
-      currentFrameIndex: 0,
-    },
-    {
-      url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2600,
       y: -750,
       minScroll: 1100,
       maxScroll: 1200,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2600,
       y: -800,
       minScroll: 1100,
       maxScroll: 1200,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2600,
       y: -800,
       minScroll: 1150,
       maxScroll: 1250,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2550,
       y: -800,
       minScroll: 1150,
       maxScroll: 1250,
-      currentFrameIndex: 0,
     },
 
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2570,
       y: -820,
       minScroll: 1170,
       maxScroll: 1250,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2590,
       y: -820,
       minScroll: 1170,
       maxScroll: 1270,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2600,
       y: -840,
       minScroll: 1200,
       maxScroll: 1300,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2800,
       y: -950,
       minScroll: 1300,
       maxScroll: 1400,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2820,
       y: -950,
       minScroll: 1300,
       maxScroll: 1400,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2850,
       y: -980,
       minScroll: 1300,
       maxScroll: 1400,
-      currentFrameIndex: 0,
     },
 
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2870,
       y: -1000,
       minScroll: 1300,
       maxScroll: 1400,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2900,
       y: -1000,
       minScroll: 1350,
       maxScroll: 1450,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2920,
       y: -1000,
       minScroll: 1350,
       maxScroll: 1450,
-      currentFrameIndex: 0,
     },
 
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2980,
       y: -1080,
       minScroll: 1400,
       maxScroll: 1500,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 2980,
       y: -1100,
       minScroll: 1450,
       maxScroll: 1550,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 3000,
       y: -1140,
       minScroll: 1450,
       maxScroll: 1550,
-      currentFrameIndex: 0,
     },
     {
       url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
       x: 3050,
       y: -1190,
       minScroll: 1500,
       maxScroll: 1650,
-      currentFrameIndex: 0,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3100,
+      y: -1240,
+      minScroll: 1550,
+      maxScroll: 1700,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3150,
+      y: -1290,
+      minScroll: 1600,
+      maxScroll: 1750,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3200,
+      y: -1340,
+      minScroll: 1650,
+      maxScroll: 1800,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3250,
+      y: -1390,
+      minScroll: 1700,
+      maxScroll: 1850,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3300,
+      y: -1440,
+      minScroll: 1750,
+      maxScroll: 1900,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3350,
+      y: -1490,
+      minScroll: 1800,
+      maxScroll: 1950,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3400,
+      y: -1540,
+      minScroll: 1850,
+      maxScroll: 2000,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3450,
+      y: -1590,
+      minScroll: 1900,
+      maxScroll: 2050,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3500,
+      y: -1640,
+      minScroll: 1950,
+      maxScroll: 2100,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3550,
+      y: -1690,
+      minScroll: 2000,
+      maxScroll: 2150,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3600,
+      y: -1740,
+      minScroll: 2050,
+      maxScroll: 2200,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3650,
+      y: -1790,
+      minScroll: 2100,
+      maxScroll: 2250,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3700,
+      y: -1840,
+      minScroll: 2150,
+      maxScroll: 2300,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3750,
+      y: -1890,
+      minScroll: 2200,
+      maxScroll: 2350,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3800,
+      y: -1940,
+      minScroll: 2250,
+      maxScroll: 2400,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3850,
+      y: -1990,
+      minScroll: 2300,
+      maxScroll: 2450,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3900,
+      y: -2040,
+      minScroll: 2350,
+      maxScroll: 2500,
+    },
+    {
+      url: ParachuteSprite,
+      x: 3950,
+      y: -2090,
+      minScroll: 2400,
+      maxScroll: 2550,
+    },
+    {
+      url: ParachuteSprite,
+      x: 4000,
+      y: -2140,
+      minScroll: 2450,
+      maxScroll: 2600,
+    },
+    {
+      url: ParachuteSprite,
+      x: 4050,
+      y: -2190,
+      minScroll: 2500,
+      maxScroll: 2650,
     },
   ]);
 
-  // Assume this function is triggered to add more sprites
-  // const generateSprites = (currentSprites: AnimatedSprite[]) => {
-  //   const newSprites = [...currentSprites];
-  //   let lastSprite = currentSprites[currentSprites.length - 1];
+  // //Assume this function is triggered to add more sprites
+  // const generateSprites = (currentParachutes: ImageSprite[]) => {
+  //   const newSprites = [...currentParachutes];
+  //   let lastSprite = currentParachutes[currentParachutes.length - 1];
 
   //   // Example increments identified from the pattern
   //   const xIncrement = 50; // Adjust based on actual pattern
@@ -563,7 +669,7 @@ const BackgroundCanvas: React.FC = () => {
   //   const scrollIncrement = 50; // Adjust based on actual pattern
 
   //   // Generate 10 new sprites for example
-  //   for (let i = 0; i < 100; i++) {
+  //   for (let i = 0; i < 20; i++) {
   //     const newX = lastSprite.x + xIncrement;
   //     const newY = lastSprite.y + yIncrement;
   //     const newMinScroll = lastSprite.minScroll + scrollIncrement;
@@ -571,23 +677,20 @@ const BackgroundCanvas: React.FC = () => {
 
   //     const newSprite = {
   //       url: ParachuteSprite,
-  //       frames: ParachuteSpriteJson.frames,
-  //       animation: ParachuteSpriteJson.animations.Parachute1,
   //       x: newX,
   //       y: newY,
   //       minScroll: newMinScroll,
   //       maxScroll: newMaxScroll,
-  //       currentFrameIndex: 0,
   //     };
 
   //     newSprites.push(newSprite);
   //     lastSprite = newSprite;
   //   }
-  //   setSprites(newSprites);
+  //   console.log(newSprites);
   // };
 
   // useEffect(() => {
-  //   generateSprites(sprites);
+  //   generateSprites(parachutes);
   // }, []);
 
   const startScrolling = () => {
@@ -670,6 +773,27 @@ const BackgroundCanvas: React.FC = () => {
     animationRef.current = requestAnimationFrame(animateSprite);
   }, [scrollPosition]);
 
+
+  useEffect(() => {
+    let rotationInterval: string | number | NodeJS.Timer ; 
+
+    if (jetPhase === "angled" && !rotateJet) {
+      setRotateJet(true);
+      rotationInterval = setInterval(() => {
+        setRotationAngle((prevAngle) => {
+          const newAngle = prevAngle + 5; // Increment by 1 degree per interval
+          if (newAngle >= 45) {
+            clearInterval(rotationInterval);
+            return 45; // Ensure the angle doesn't exceed 45 degrees
+          }
+          return newAngle;
+        });
+      }, 20); // Adjust the interval to control the speed of rotation
+    }
+
+    return () => clearInterval(rotationInterval);
+  }, [jetPhase, rotateJet]);
+
   useEffect(() => {
     animationRef.current = requestAnimationFrame(animateSprite);
     return () => {
@@ -703,7 +827,7 @@ const BackgroundCanvas: React.FC = () => {
       }, 5);
       return () => clearInterval(scrollInterval);
     }
-  }, [isScrolling]);
+  }, [diagonalLength, isScrolling]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -769,7 +893,7 @@ const BackgroundCanvas: React.FC = () => {
             scaledY = screenHeight * 0.25;
           }
 
-          ctx.save(); // Save the current context state
+          ctx.save(); 
 
           // Translate to the center of the image for rotation
           ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
@@ -853,7 +977,20 @@ const BackgroundCanvas: React.FC = () => {
         }
       }
     });
-  }, [scrollPosition, images, parachutes, sprites, currentFrameIndex]);
+  }, [
+    scrollPosition,
+    images,
+    parachutes,
+    sprites,
+    currentFrameIndex,
+    screenWidth,
+    screenHeight,
+    diagonalLength,
+    scale,
+    jetPhase,
+  ]);
+
+
 
   return (
     <div className="App">
