@@ -38,4 +38,20 @@ export interface ImageSprite {
   minScroll: number;
   maxScroll: number;
   zIndex?: number;
+  frames?: SpriteFrames; 
+  animation?: string[];
+  currentFrameIndex?: number;
+}
+
+
+export interface AnimatedSprite {
+  url: string;
+  x: number;
+  y: number;
+  minScroll: number;
+  maxScroll: number;
+
+  frames: SpriteFrames;
+  animation: string[];
+  currentFrameIndex: number;
 }
