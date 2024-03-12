@@ -16,8 +16,6 @@ import PlanetImageThree from "../assets/images/21.png";
 import GalaxyImageOne from "../assets/images/18.png";
 import StarsImage from "../assets/images/Stars.png";
 
-import MoonImageTwo from "../assets/images/16.png";
-
 //import AirportImageTwo from "../assets/images/"
 
 import CloudsOne from "../assets/images/Clouds1.png";
@@ -28,20 +26,13 @@ import SatelliteOne from "../assets/images/Satellite0.png";
 import SatelliteTwo from "../assets/images/Satellite1.png";
 
 //sprites
+import FireOneSprite from "../assets/images/Fire1.png";
+import FireOneSpriteJson from "../assets/data/Fire1.json";
+
 import ParachuteSprite from "../assets/images/Parachute2.png";
-import ParachuteSpriteJson from "../assets/data/Parachute1.json";
-
-import CommetSprite from "../assets/images/Comet.png";
-import CommetSpriteJson from "../assets/data/Comet.json";
-
-import BlueSpaceman from "../assets/images/Spaceman0.png";
-import BlueSpacemanJson from "../assets/data/Spaceman0.json";
-
-import { AnimatedSprite, ImageSprite, SpriteFrames } from "./types";
+import { ImageSprite, SpriteFrames } from "./types";
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
-//import animated sprites
-import { animatedSpriteData } from "../components/config/sprites";
 
 const BackgroundCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,10 +44,10 @@ const BackgroundCanvas: React.FC = () => {
   const [rotateJet, setRotateJet] = useState(false);
   const animationRef = useRef<number>();
   const [jetPhase, setJetPhase] = useState("horizontal");
+  const [isRunning, setIsRunning] = useState(false);
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
-  const diagonalLength =
-    Math.sqrt((screenWidth) ** 2 + (screenHeight) ** 2) * 5;
+  const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
 
   const moveJetIntervalRef = useRef();
   const tiltJetTimeoutRef = useRef();
@@ -257,12 +248,12 @@ const BackgroundCanvas: React.FC = () => {
 
   const [sprites, setSprites] = useState([
     {
-      url: ParachuteSprite,
-      frames: ParachuteSpriteJson.frames as SpriteFrames,
-      animation: ParachuteSpriteJson.animations.Parachute1,
+      url: FireOneSprite,
+      frames: FireOneSpriteJson.frames as SpriteFrames,
+      animation: FireOneSpriteJson.animations.Fire1,
       x: 800,
       y: 100,
-      minScroll: 100,
+      minScroll: 20,
       maxScroll: 500,
       currentFrameIndex: 0,
     },
@@ -658,6 +649,7 @@ const BackgroundCanvas: React.FC = () => {
     },
   ]);
 
+
   // //Assume this function is triggered to add more sprites
   // const generateSprites = (currentParachutes: ImageSprite[]) => {
   //   const newSprites = [...currentParachutes];
@@ -694,6 +686,8 @@ const BackgroundCanvas: React.FC = () => {
   // }, []);
 
   const startScrolling = () => {
+    setIsRunning(true);
+
     let jetIndex = images.findIndex((img) => img.url === JetImage);
 
     if (moveJetRef.current) clearInterval(moveJetRef.current);
@@ -733,6 +727,7 @@ const BackgroundCanvas: React.FC = () => {
     }, 1500) as unknown as number;
   };
   const stopScrolling = () => {
+    setIsRunning(false);
     setIsScrolling(false);
     setJetPhase("horizontal");
     setScrollPosition(0);
@@ -757,10 +752,7 @@ const BackgroundCanvas: React.FC = () => {
   const animateSprite = useCallback(() => {
     setSprites((currentSprites) =>
       currentSprites.map((sprite) => {
-        if (
-          scrollPosition >= sprite.minScroll &&
-          scrollPosition <= sprite.maxScroll
-        ) {
+        if (isRunning) {
           return {
             ...sprite,
             currentFrameIndex:
@@ -771,24 +763,23 @@ const BackgroundCanvas: React.FC = () => {
       })
     );
     animationRef.current = requestAnimationFrame(animateSprite);
-  }, [scrollPosition]);
-
+  }, [isRunning]);
 
   useEffect(() => {
-    let rotationInterval: string | number | NodeJS.Timer ; 
+    let rotationInterval: string | number | NodeJS.Timer;
 
     if (jetPhase === "angled" && !rotateJet) {
       setRotateJet(true);
       rotationInterval = setInterval(() => {
         setRotationAngle((prevAngle) => {
-          const newAngle = prevAngle + 5; // Increment by 1 degree per interval
+          const newAngle = prevAngle + 5; 
           if (newAngle >= 45) {
             clearInterval(rotationInterval);
-            return 45; // Ensure the angle doesn't exceed 45 degrees
+            return 45; 
           }
           return newAngle;
         });
-      }, 20); // Adjust the interval to control the speed of rotation
+      }, 20); 
     }
 
     return () => clearInterval(rotationInterval);
@@ -875,30 +866,81 @@ const BackgroundCanvas: React.FC = () => {
     );
     drawableObjects.forEach((obj) => {
       const image = imageObjects.current.get(obj.url);
-
-      //const image = imageObjects.current.get(obj.url);
       if (image) {
         let scaledWidth = image.width * scale;
         let scaledHeight = image.height * scale;
-        let scaledX, scaledY;
+        let scaledX: number, scaledY: number;
 
         if (image.src === JetImage) {
-          // Calculate scaled dimensions and positions
           scaledX = (obj.x + offsetX) * scale;
           scaledY = (obj.y - offsetY) * scale;
 
-          // Adjust position if needed
+          sprites.forEach((sprite) => {
+            const frameKey = sprite.animation[sprite.currentFrameIndex];
+            const frame = sprite.frames[frameKey].frame;
+            const spriteImage = imageObjects.current.get(sprite.url);
+            if (spriteImage && isRunning) {
+              let spriteX: number = 0,
+                spriteY: number = 0;
+              let angle = 0;
+
+              if (jetPhase === "horizontal") {
+                spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
+                spriteY = (obj.y - offsetY) * scale;
+              } else if (
+                jetPhase === "angled" &&
+                scaledY > screenHeight * 0.25
+              ) {
+                spriteX = (obj.x + offsetX - image.width / 2) * scale;
+                spriteY = (obj.y - offsetY + image.height * 2) * scale;
+                angle = (-45 * Math.PI) / 180;
+              } else if (
+                jetPhase === "angled" &&
+                scaledY <= screenHeight * 0.25
+              ) {
+                spriteX = screenWidth * 0.75;
+                spriteY = screenHeight * 0.35;
+                angle = (-45 * Math.PI) / 180;
+              }
+
+              const scaledFrameWidth = frame.w * scale;
+              const scaledFrameHeight = frame.h * scale;
+
+              ctx.save(); 
+
+              if (jetPhase === "angled") {
+                ctx.translate(
+                  spriteX + scaledFrameWidth / 2,
+                  spriteY + scaledFrameHeight / 2
+                );
+                ctx.rotate(angle);
+                spriteX = spriteY = 0;
+              }
+
+              ctx.drawImage(
+                spriteImage,
+                frame.x,
+                frame.y,
+                frame.w,
+                frame.h,
+                spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
+                spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
+                scaledFrameWidth,
+                scaledFrameHeight
+              );
+
+              ctx.restore(); 
+            }
+          });
           if (scaledY <= screenHeight * 0.25) {
-            scaledX = screenWidth * 0.78;
+            scaledX = screenWidth * 0.8;
             scaledY = screenHeight * 0.25;
+
           }
 
-          ctx.save(); 
-
-          // Translate to the center of the image for rotation
+          ctx.save();
           ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
 
-          // Check if jetPhase is "angled" and apply rotation
           if (jetPhase === "angled") {
             ctx.rotate(-(45 * Math.PI) / 180);
           }
@@ -989,8 +1031,6 @@ const BackgroundCanvas: React.FC = () => {
     scale,
     jetPhase,
   ]);
-
-
 
   return (
     <div className="App">
