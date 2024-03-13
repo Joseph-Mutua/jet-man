@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import "../App.css";
 
-//images
+//background images
 
 import AirportImage from "../assets/images/Airport.png";
 import RoadImage from "../assets/images/Road.png";
@@ -25,14 +25,23 @@ import AirBalloonTwo from "../assets/images/AirBalloon2.png";
 import SatelliteOne from "../assets/images/Satellite0.png";
 import SatelliteTwo from "../assets/images/Satellite1.png";
 
-//sprites
+//fire sprites
 import FireOneSprite from "../assets/images/Fire1.png";
 import FireOneSpriteJson from "../assets/data/Fire1.json";
+
+import FireTwoSprite from "../assets/images/Fire2.png";
+import FireTwoSpriteJson from "../assets/data/Fire2.json";
+
+import FireThreeSprite from "../assets/images/Fire3.png";
+import FireThreeSpriteJson from "../assets/data/Fire3.json";
+
+import FireFourSprite from "../assets/images/Fire4.png";
+import FireFourSpriteJson from "../assets/data/Fire4.json";
 
 import ParachuteSprite from "../assets/images/Parachute2.png";
 import { ImageSprite, SpriteFrames } from "./types";
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
-
+import { generateTargetGameOdds } from "../utils/GenerateOdds";
 
 const BackgroundCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -45,18 +54,29 @@ const BackgroundCanvas: React.FC = () => {
   const animationRef = useRef<number>();
   const [jetPhase, setJetPhase] = useState("horizontal");
   const [isRunning, setIsRunning] = useState(false);
+
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
+
   const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
 
   const moveJetIntervalRef = useRef();
   const tiltJetTimeoutRef = useRef();
+
+  const capturedXRef = useRef<number | null>(null);
 
   const moveJetRef = useRef<number | null>(null);
   const moveJetAngledRef = useRef<number | null>(null);
   const angleTimeoutRef = useRef<number | null>(null);
 
   const defaultZIndex = 1;
+
+  //Timer States
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const intervalRef = useRef<number | undefined>(undefined);
+  const startTimeRef = useRef<number | null>(null);
+  const [targetGameOdds, setTargetGameOdds] = useState<string | null>(null);
+  const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
   const [images, setImages] = useState<ImageSprite[]>([
     {
@@ -251,6 +271,36 @@ const BackgroundCanvas: React.FC = () => {
       url: FireOneSprite,
       frames: FireOneSpriteJson.frames as SpriteFrames,
       animation: FireOneSpriteJson.animations.Fire1,
+      x: 800,
+      y: 100,
+      minScroll: 20,
+      maxScroll: 500,
+      currentFrameIndex: 0,
+    },
+    {
+      url: FireTwoSprite,
+      frames: FireTwoSpriteJson.frames as SpriteFrames,
+      animation: FireTwoSpriteJson.animations.Fire2,
+      x: 800,
+      y: 100,
+      minScroll: 20,
+      maxScroll: 500,
+      currentFrameIndex: 0,
+    },
+    {
+      url: FireThreeSprite,
+      frames: FireThreeSpriteJson.frames as SpriteFrames,
+      animation: FireThreeSpriteJson.animations.Fire3,
+      x: 800,
+      y: 100,
+      minScroll: 20,
+      maxScroll: 500,
+      currentFrameIndex: 0,
+    },
+    {
+      url: FireFourSprite,
+      frames: FireFourSpriteJson.frames as SpriteFrames,
+      animation: FireFourSpriteJson.animations.Fire4,
       x: 800,
       y: 100,
       minScroll: 20,
@@ -495,160 +545,159 @@ const BackgroundCanvas: React.FC = () => {
     },
     {
       url: ParachuteSprite,
-      x: 3000,
+      x: 3050,
       y: -1140,
       minScroll: 1450,
       maxScroll: 1550,
     },
     {
       url: ParachuteSprite,
-      x: 3050,
+      x: 3100,
       y: -1190,
       minScroll: 1500,
       maxScroll: 1650,
     },
     {
       url: ParachuteSprite,
-      x: 3100,
+      x: 3150,
       y: -1240,
       minScroll: 1550,
       maxScroll: 1700,
     },
     {
       url: ParachuteSprite,
-      x: 3150,
+      x: 3200,
       y: -1290,
       minScroll: 1600,
       maxScroll: 1750,
     },
     {
       url: ParachuteSprite,
-      x: 3200,
+      x: 3250,
       y: -1340,
       minScroll: 1650,
       maxScroll: 1800,
     },
     {
       url: ParachuteSprite,
-      x: 3250,
+      x: 3300,
       y: -1390,
       minScroll: 1700,
       maxScroll: 1850,
     },
     {
       url: ParachuteSprite,
-      x: 3300,
+      x: 3350,
       y: -1440,
       minScroll: 1750,
       maxScroll: 1900,
     },
     {
       url: ParachuteSprite,
-      x: 3350,
+      x: 3400,
       y: -1490,
       minScroll: 1800,
       maxScroll: 1950,
     },
     {
       url: ParachuteSprite,
-      x: 3400,
+      x: 3450,
       y: -1540,
       minScroll: 1850,
       maxScroll: 2000,
     },
     {
       url: ParachuteSprite,
-      x: 3450,
+      x: 3500,
       y: -1590,
       minScroll: 1900,
       maxScroll: 2050,
     },
     {
       url: ParachuteSprite,
-      x: 3500,
+      x: 3550,
       y: -1640,
       minScroll: 1950,
       maxScroll: 2100,
     },
     {
       url: ParachuteSprite,
-      x: 3550,
+      x: 3600,
       y: -1690,
       minScroll: 2000,
       maxScroll: 2150,
     },
     {
       url: ParachuteSprite,
-      x: 3600,
+      x: 3650,
       y: -1740,
       minScroll: 2050,
       maxScroll: 2200,
     },
     {
       url: ParachuteSprite,
-      x: 3650,
+      x: 3700,
       y: -1790,
       minScroll: 2100,
       maxScroll: 2250,
     },
     {
       url: ParachuteSprite,
-      x: 3700,
+      x: 3750,
       y: -1840,
       minScroll: 2150,
       maxScroll: 2300,
     },
     {
       url: ParachuteSprite,
-      x: 3750,
+      x: 3800,
       y: -1890,
       minScroll: 2200,
       maxScroll: 2350,
     },
     {
       url: ParachuteSprite,
-      x: 3800,
+      x: 3850,
       y: -1940,
       minScroll: 2250,
       maxScroll: 2400,
     },
     {
       url: ParachuteSprite,
-      x: 3850,
+      x: 3900,
       y: -1990,
       minScroll: 2300,
       maxScroll: 2450,
     },
     {
       url: ParachuteSprite,
-      x: 3900,
+      x: 3950,
       y: -2040,
       minScroll: 2350,
       maxScroll: 2500,
     },
     {
       url: ParachuteSprite,
-      x: 3950,
+      x: 4000,
       y: -2090,
       minScroll: 2400,
       maxScroll: 2550,
     },
     {
       url: ParachuteSprite,
-      x: 4000,
+      x: 4050,
       y: -2140,
       minScroll: 2450,
       maxScroll: 2600,
     },
     {
       url: ParachuteSprite,
-      x: 4050,
+      x: 4100,
       y: -2190,
       minScroll: 2500,
       maxScroll: 2650,
     },
   ]);
-
 
   // //Assume this function is triggered to add more sprites
   // const generateSprites = (currentParachutes: ImageSprite[]) => {
@@ -688,6 +737,10 @@ const BackgroundCanvas: React.FC = () => {
   const startScrolling = () => {
     setIsRunning(true);
 
+    startTimer();
+    const generatedOdds = generateTargetGameOdds();
+    setTargetGameOdds(generatedOdds);
+
     let jetIndex = images.findIndex((img) => img.url === JetImage);
 
     if (moveJetRef.current) clearInterval(moveJetRef.current);
@@ -716,8 +769,6 @@ const BackgroundCanvas: React.FC = () => {
 
       setJetPhase("angled");
       setIsScrolling(true);
-
-      // After an additional 2 seconds, stop the jet
       setTimeout(() => {
         if (moveJetAngledRef.current !== null) {
           clearInterval(moveJetAngledRef.current);
@@ -726,8 +777,10 @@ const BackgroundCanvas: React.FC = () => {
       }, 1500) as unknown as number;
     }, 1500) as unknown as number;
   };
-  const stopScrolling = () => {
+  const stopScrolling = useCallback(() => {
     setIsRunning(false);
+    stopTimer();
+
     setIsScrolling(false);
     setJetPhase("horizontal");
     setScrollPosition(0);
@@ -742,12 +795,15 @@ const BackgroundCanvas: React.FC = () => {
         return img;
       })
     );
-
+    if (moveJetRef.current !== null) {
+      clearInterval(moveJetRef.current);
+      moveJetRef.current = null;
+    }
     clearInterval(moveJetIntervalRef.current);
     clearTimeout(tiltJetTimeoutRef.current);
     moveJetIntervalRef.current = undefined;
     tiltJetTimeoutRef.current = undefined;
-  };
+  }, [images]);
 
   const animateSprite = useCallback(() => {
     setSprites((currentSprites) =>
@@ -772,14 +828,14 @@ const BackgroundCanvas: React.FC = () => {
       setRotateJet(true);
       rotationInterval = setInterval(() => {
         setRotationAngle((prevAngle) => {
-          const newAngle = prevAngle + 5; 
+          const newAngle = prevAngle + 5;
           if (newAngle >= 45) {
             clearInterval(rotationInterval);
-            return 45; 
+            return 45;
           }
           return newAngle;
         });
-      }, 20); 
+      }, 20);
     }
 
     return () => clearInterval(rotationInterval);
@@ -812,7 +868,6 @@ const BackgroundCanvas: React.FC = () => {
             clearInterval(scrollInterval);
             return prevPosition;
           }
-
           return prevPosition + 1;
         });
       }, 5);
@@ -864,8 +919,10 @@ const BackgroundCanvas: React.FC = () => {
     const drawableObjects = [...images].sort(
       (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
     );
+
     drawableObjects.forEach((obj) => {
       const image = imageObjects.current.get(obj.url);
+
       if (image) {
         let scaledWidth = image.width * scale;
         let scaledHeight = image.height * scale;
@@ -876,9 +933,20 @@ const BackgroundCanvas: React.FC = () => {
           scaledY = (obj.y - offsetY) * scale;
 
           sprites.forEach((sprite) => {
+            if (elapsedTime < 5000) {
+              sprite.url = FireOneSprite;
+            } else if (elapsedTime < 12000) {
+              sprite.url = FireTwoSprite;
+            } else if (elapsedTime < 20000) {
+              sprite.url = FireThreeSprite;
+            } else {
+              sprite.url = FireFourSprite;
+            }
+
             const frameKey = sprite.animation[sprite.currentFrameIndex];
             const frame = sprite.frames[frameKey].frame;
             const spriteImage = imageObjects.current.get(sprite.url);
+
             if (spriteImage && isRunning) {
               let spriteX: number = 0,
                 spriteY: number = 0;
@@ -898,7 +966,9 @@ const BackgroundCanvas: React.FC = () => {
                 jetPhase === "angled" &&
                 scaledY <= screenHeight * 0.25
               ) {
-                spriteX = screenWidth * 0.75;
+
+
+                spriteX = screenWidth * 0.73;
                 spriteY = screenHeight * 0.35;
                 angle = (-45 * Math.PI) / 180;
               }
@@ -906,7 +976,7 @@ const BackgroundCanvas: React.FC = () => {
               const scaledFrameWidth = frame.w * scale;
               const scaledFrameHeight = frame.h * scale;
 
-              ctx.save(); 
+              ctx.save();
 
               if (jetPhase === "angled") {
                 ctx.translate(
@@ -928,14 +998,19 @@ const BackgroundCanvas: React.FC = () => {
                 scaledFrameWidth,
                 scaledFrameHeight
               );
-
-              ctx.restore(); 
+              ctx.restore();
             }
           });
           if (scaledY <= screenHeight * 0.25) {
-            scaledX = screenWidth * 0.8;
-            scaledY = screenHeight * 0.25;
+            scaledY = screenHeight * 0.25; 
 
+            if (capturedXRef.current === null) {
+              capturedXRef.current = scaledX;
+            }
+
+            scaledX = capturedXRef.current;
+          } else {
+            capturedXRef.current = null;
           }
 
           ctx.save();
@@ -964,36 +1039,6 @@ const BackgroundCanvas: React.FC = () => {
         }
       }
     });
-
-    // sprites.forEach((sprite) => {
-    //   if (
-    //     scrollPosition >= sprite.minScroll &&
-    //     scrollPosition <= sprite.maxScroll
-    //   ) {
-    //     const frameKey = sprite.animation[sprite.currentFrameIndex];
-    //     const frame = sprite.frames[frameKey].frame;
-    //     const spriteImage = imageObjects.current.get(sprite.url);
-    //     if (spriteImage) {
-    //       // Scale positions and frame dimensions
-    //       const scaledX = (sprite.x ) * scale;
-    //       const scaledY = (sprite.y ) * scale;
-    //       const scaledFrameWidth = frame.w * scale;
-    //       const scaledFrameHeight = frame.h * scale;
-
-    //       ctx.drawImage(
-    //         spriteImage,
-    //         frame.x,
-    //         frame.y,
-    //         frame.w,
-    //         frame.h,
-    //         scaledX,
-    //         scaledY,
-    //         scaledFrameWidth,
-    //         scaledFrameHeight
-    //       );
-    //     }
-    //   }
-    // });
 
     parachutes.forEach((obj) => {
       const parachuteImage = imageObjects.current.get(obj.url);
@@ -1030,20 +1075,94 @@ const BackgroundCanvas: React.FC = () => {
     diagonalLength,
     scale,
     jetPhase,
+    isRunning,
+    elapsedTime,
   ]);
+
+  const toggleScrolling = () => {
+    if (!isScrolling) {
+      startScrolling();
+    } else {
+      stopScrolling();
+    }
+  };
+
+  //Timer Functions
+  const startTimer = () => {
+    const startTime = performance.now();
+    intervalRef.current = window.setInterval(() => {
+      const newElapsedTime = performance.now() - startTime;
+      setElapsedTime(newElapsedTime);
+    }, 10);
+  };
+
+  const stopTimer = () => {
+    if (intervalRef.current !== undefined) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = undefined;
+      setIsRunning(false);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      targetGameOdds &&
+      parseFloat(currentGameOdds) >= parseFloat(targetGameOdds)
+    ) {
+      if (isRunning) {
+        stopScrolling();
+      }
+    }
+  }, [currentGameOdds, isRunning, stopScrolling, targetGameOdds]);
 
   return (
     <div className="App">
-      <canvas
-        ref={canvasRef}
-        width={screenWidth}
-        height={screenHeight}
-        style={{ maxWidth: "100%" }}
-      />
+      <div style={{ position: "relative" }}>
+        <div></div>
+        <canvas
+          ref={canvasRef}
+          width={screenWidth}
+          height={screenHeight}
+          style={{ maxWidth: "100%" }}
+        />
+        <h1
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            fontSize: "calc(max(max(16px, 5vw), 22px))",
+            transform: "translate(-50%, -50%)",
+            whiteSpace: "nowrap",
+            margin: 0,
+            padding: 0,
+            color:
+              parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
+                ? "red"
+                : "green",
+          }}
+        >
+          {currentGameOdds} X
+        </h1>
+        <h2
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "calc(50% + 4rem)",
+            fontSize: "calc(max(max(16px, 2vw), 16px))",
+            transform: "translate(-50%, -50%)",
+            whiteSpace: "nowrap",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {targetGameOdds !== null ? targetGameOdds : ""}
+        </h2>
+      </div>
+
       <div>
-        {" "}
-        <button onClick={startScrolling}>Start</button>
-        <button onClick={stopScrolling}>Stop</button>
+        <button onClick={toggleScrolling}>
+          {isRunning ? "Stop" : "Start"}
+        </button>
       </div>
     </div>
   );

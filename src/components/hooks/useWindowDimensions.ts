@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 export const useWindowDimensions = () => {
-  const baseWidth = 1920; // Base design width
-  const baseHeight = 1080; // Base design height
+  const baseWidth = 1920; 
+  const baseHeight = 1080; 
   const maxWidth = window.innerWidth * 0.9;
   const aspectRatio = 16 / 9;
 
