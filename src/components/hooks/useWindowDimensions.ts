@@ -31,7 +31,7 @@ export const useWindowDimensions = () => {
     handleResize();
 
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [aspectRatio, maxWidth]);
 
   return dimensions;
 };
