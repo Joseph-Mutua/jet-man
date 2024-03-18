@@ -12,8 +12,8 @@ export const useWindowDimensions = () => {
     aspectRatio: 16 / 9,
     scale: Math.min(
       window.innerWidth / baseWidth,
-      window.innerWidth / aspectRatio / baseHeight
-    ), 
+       window.innerWidth / aspectRatio / baseHeight
+    ),
   });
 
   useEffect(() => {
