@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import "../App.css";
 
@@ -46,8 +48,35 @@ import { ImageSprite, SpriteFrames } from "./types";
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 import { generateTargetGameOdds } from "../utils/GenerateOdds";
 
+//Canvases
+import MultiplierCanvas from "./MultiplierCanvas";
+
+//css
+import { css } from "@emotion/react";
+
+const AppStyle = css({
+  position: "relative",
+  textAlign: "center",
+  maxWidth: "1500px",
+  margin: "0 auto",
+  border: "1px solid red",
+  overflowY: "hidden",
+});
+
+const CanvasStyle = css({
+  maxwidth: "100%",
+});
+const CenteredDivStyle = css({
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  transform: "translate(-50%, -50%)",
+});
+
 const BackgroundCanvas: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
+  const multiplierCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const imageObjects = useRef(new Map());
 
   const [isScrolling, setIsScrolling] = useState(false);
@@ -1121,11 +1150,10 @@ const BackgroundCanvas: React.FC = () => {
   }, [diagonalLength, isScrolling]);
 
   useEffect(() => {
-    const ctx = canvasRef.current?.getContext("2d");
+    const ctx = backgroundCanvasRef.current?.getContext("2d");
     if (!ctx) return;
 
     ctx.clearRect(0, 0, screenWidth, screenHeight);
-
     drawGradientBackground(ctx);
     drawStillImageObjects(ctx, drawableObjects);
     drawJetAndFlameSprites(ctx, drawableObjects);
@@ -1179,46 +1207,21 @@ const BackgroundCanvas: React.FC = () => {
   }, [currentGameOdds, isRunning, stopScrolling, targetGameOdds]);
 
   return (
-    <div className="App">
-      <div style={{ position: "relative" }}>
-        <canvas
-          ref={canvasRef}
-          width={screenWidth}
-          height={screenHeight}
-          style={{ maxWidth: "100%" }}
+    <div css={AppStyle}>
+      <canvas
+        ref={backgroundCanvasRef}
+        width={screenWidth}
+        height={screenHeight}
+        css={CanvasStyle}
+      />
+
+      <div css={CenteredDivStyle}>
+        <MultiplierCanvas
+          currentGameOdds={currentGameOdds}
+          targetGameOdds={targetGameOdds}
+          screenWidth={screenWidth}
+          screenHeight={screenHeight}
         />
-        <h1
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            fontSize: "calc(max(max(16px, 5vw), 22px))",
-            transform: "translate(-50%, -50%)",
-            whiteSpace: "nowrap",
-            margin: 0,
-            padding: 0,
-            color:
-              parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
-                ? "red"
-                : "green",
-          }}
-        >
-          {currentGameOdds} X
-        </h1>
-        <h2
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "calc(50% + 4rem)",
-            fontSize: "calc(max(max(16px, 2vw), 16px))",
-            transform: "translate(-50%, -50%)",
-            whiteSpace: "nowrap",
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          {targetGameOdds !== null ? targetGameOdds : ""}
-        </h2>
       </div>
 
       <div>
@@ -1231,4 +1234,3 @@ const BackgroundCanvas: React.FC = () => {
 };
 
 export default BackgroundCanvas;
-//The component is being re-rendered on every tick
