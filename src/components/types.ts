@@ -55,3 +55,10 @@ export interface AnimatedSprite {
   animation: string[];
   currentFrameIndex: number;
 }
+
+
+export interface JetStateUpdate {
+  phase?: string;
+  position?: { x: number; y: number };
+  speed?: number;
+}

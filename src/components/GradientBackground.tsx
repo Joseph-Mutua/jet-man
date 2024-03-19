@@ -1,464 +1,7 @@
-//   const createGradient = (
-//     ctx: CanvasRenderingContext2D,
-//     screenWidth: number,
-//     screenHeight: number,
-//     diagonalLength: number
-//   ) => {
-//     const gradient = ctx.createLinearGradient(
-//       0,
-//       screenHeight,
-//       diagonalLength,
-//       screenHeight - diagonalLength
-//     );
-//     gradient.addColorStop(0, "#A1757F");
-//     gradient.addColorStop(0.2, "#4860A3");
-//     gradient.addColorStop(0.4, "#293F6A");
-//     gradient.addColorStop(0.6, "#162144");
-//     gradient.addColorStop(0.8, "#151523");
-//     gradient.addColorStop(1.0, "#151523");
-//     return gradient;
-//   };
-
-//   const drawImage = (
-//     ctx: CanvasRenderingContext2D,
-//     image: HTMLImageElement,
-//     x: number,
-//     y: number,
-//     scale: number
-//   ) => {
-//     if (!image) return;
-
-//     const scaledWidth = image.width * scale;
-//     const scaledHeight = image.height * scale;
-//     const scaledX = x * scale;
-//     const scaledY = y * scale;
-
-//     ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
-//   };
-
-//   const handleJetDrawing = useCallback(
-//     (
-//       ctx: CanvasRenderingContext2D,
-//       jetImage: HTMLImageElement | null,
-//       obj: { x: number; y: number },
-//       offsetX: number,
-//       offsetY: number,
-//       scale: number,
-//       jetPhase: string,
-//       angle: number
-//     ) => {
-//       if (!jetImage) return;
-
-//       let scaledWidth = jetImage.width * scale;
-//       let scaledHeight = jetImage.height * scale;
-//       let scaledX = (obj.x + offsetX) * scale;
-//       let scaledY = (obj.y - offsetY) * scale;
-
-//       if (jetPhase === "angled" && scaledY > screenHeight * 0.25) {
-//         scaledX = (obj.x + offsetX - jetImage.width / 2) * scale;
-//         scaledY = (obj.y - offsetY + jetImage.height * 2) * scale;
-//       } else if (jetPhase === "angled" && scaledY <= screenHeight * 0.25) {
-//         scaledX = screenWidth * 0.73;
-//         scaledY = screenHeight * 0.35;
-//       }
-
-//       if (scaledY <= screenHeight * 0.25) {
-//         scaledY = screenHeight * 0.25;
-
-//         if (capturedXRef.current === null) {
-//           capturedXRef.current = scaledX;
-//         }
-//         scaledX = capturedXRef.current;
-//       } else {
-//         capturedXRef.current = null;
-//       }
-
-//       ctx.save();
-//       ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
-
-//       if (jetPhase === "angled") {
-//         ctx.rotate(angle);
-//       }
-
-//       ctx.drawImage(
-//         jetImage,
-//         -scaledWidth / 2,
-//         -scaledHeight / 2,
-//         scaledWidth,
-//         scaledHeight
-//       );
-//       ctx.restore();
-//     },
-//     [screenHeight, screenWidth]
-//   );
-
-//   const handleSpriteDrawing = useCallback(
-//     (
-//       ctx: CanvasRenderingContext2D,
-//       spriteImage: HTMLImageElement | null,
-//       sprite: {
-//         x: number;
-//         y: number;
-//         currentFrameIndex: number;
-//         animation: string[];
-//         frames: any;
-//       },
-//       offsetX: number,
-//       offsetY: number,
-//       scale: number,
-//       jetPhase: string,
-
-//       jetImage: HTMLImageElement,
-//       angle: number
-//     ) => {
-//       if (!spriteImage || !isRunning || !jetImage) return;
-
-//       const frameKey = sprite.animation[sprite.currentFrameIndex];
-//       const frame = sprite.frames[frameKey].frame;
-
-//       let scaledFrameWidth = frame.w * scale;
-//       let scaledFrameHeight = frame.h * scale;
-//       let spriteX = 0;
-//       let spriteY = 0;
-
-//       if (jetPhase === "horizontal") {
-//         spriteX = (sprite.x - offsetX - jetImage.width / 1.2) * scale;
-//         spriteY = (sprite.y - offsetY) * scale;
-//       } else if (jetPhase === "angled") {
-//         spriteX = (sprite.x - offsetX - jetImage.width / 2) * scale;
-//         spriteY = (sprite.y - offsetY + jetImage.height * 2) * scale;
-//       }
-
-//       ctx.save();
-//       if (jetPhase === "angled") {
-//         ctx.translate(
-//           spriteX + scaledFrameWidth / 2,
-//           spriteY + scaledFrameHeight / 2
-//         );
-//         ctx.rotate(angle);
-//         spriteX = spriteY = 0;
-//       }
-
-//       ctx.drawImage(
-//         spriteImage,
-//         frame.x,
-//         frame.y,
-//         frame.w,
-//         frame.h,
-//         spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
-//         spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
-//         scaledFrameWidth,
-//         scaledFrameHeight
-//       );
-
-//       ctx.restore();
-//     },
-//     [isRunning]
-//   );
-
-//   useEffect(() => {
-//     const canvas = canvasRef.current;
-//     if (!canvas) return;
-
-//     const ctx = canvas.getContext("2d");
-//     if (!ctx) return;
-
-//     canvas.width = screenWidth;
-//     canvas.height = screenHeight;
-//     ctx.clearRect(0, 0, screenWidth, screenHeight);
-//     const gradient = createGradient(
-//       ctx,
-//       screenWidth,
-//       screenHeight,
-//       diagonalLength
-//     );
-//     ctx.fillStyle = gradient;
-
-//     const offsetX = scrollPosition % diagonalLength;
-//     const offsetY = scrollPosition % diagonalLength;
-//     ctx.save();
-//     ctx.translate(-offsetX, offsetY);
-//     ctx.fillRect(
-//       0,
-//       screenHeight,
-//       diagonalLength,
-//       screenHeight - diagonalLength
-//     );
-//     ctx.restore();
-
-//     images.forEach((obj) => {
-//       const image = imageObjects.current.get(obj.url);
-//       if (obj.url === JetImage) {
-//         handleJetDrawing(
-//           ctx,
-//           image,
-//           obj,
-//           offsetX,
-//           offsetY,
-//           scale,
-//           jetPhase,
-//           (-45 * Math.PI) / 180
-//         );
-//       } else if (
-//         scrollPosition >= obj.minScroll &&
-//         scrollPosition <= obj.maxScroll
-//       ) {
-//         drawImage(ctx, image, obj.x, obj.y, scale);
-//       }
-//     });
-
-//     sprites.forEach((sprite) => {
-//       // const jetImage = imageObjects.current.get(obj.url === JetImage);
-//       const jetImage = imageObjects.current.get("jet.png");
-//       const spriteImage = imageObjects.current.get(sprite.url);
-//       handleSpriteDrawing(
-//         ctx,
-//         spriteImage,
-//         sprite,
-//         offsetX,
-//         offsetY,
-//         scale,
-//         jetPhase,
-//         jetImage,
-//         (-45 * Math.PI) / 180
-//       );
-//     });
-
-//     parachutes.forEach((obj) => {
-//       const parachuteImage = imageObjects.current.get(obj.url);
-//       if (scrollPosition >= obj.minScroll && scrollPosition <= obj.maxScroll) {
-//         drawImage(ctx, parachuteImage, obj.x, obj.y, 0.2 * scale);
-//       }
-//     });
-//   }, [
-//     scrollPosition,
-//     screenWidth,
-//     screenHeight,
-//     jetPhase,
-//     scale,
-//     images,
-//     sprites,
-//     parachutes,
-//     imageObjects,
-//     diagonalLength,
-//     canvasRef,
-//     handleJetDrawing,
-//     handleSpriteDrawing,
-//   ]);
-
-//   useEffect(() => {
-//     const canvas = canvasRef.current;
-//     if (!canvas) return;
-//     const ctx = canvas.getContext("2d");
-//     if (!ctx) return;
-
-//     canvas.width = screenWidth;
-//     canvas.height = screenHeight;
-
-//     ctx.clearRect(0, 0, screenWidth, screenHeight);
-
-//     const gradient = ctx.createLinearGradient(
-//       0,
-//       screenHeight,
-//       diagonalLength,
-//       screenHeight - diagonalLength
-//     );
-
-//     gradient.addColorStop(0, "#A1757F");
-//     gradient.addColorStop(0.2, "#4860A3");
-//     gradient.addColorStop(0.4, "#293F6A");
-//     gradient.addColorStop(0.6, "#162144");
-//     gradient.addColorStop(0.8, "#151523");
-//     gradient.addColorStop(1.0, "#151523");
-
-//     ctx.fillStyle = gradient;
-
-//     const offsetX = scrollPosition % diagonalLength;
-//     const offsetY = scrollPosition % diagonalLength;
-
-//     ctx.save();
-
-//     ctx.translate(-offsetX, offsetY);
-//     ctx.fillRect(
-//       0,
-//       screenHeight,
-//       diagonalLength,
-//       screenHeight - diagonalLength
-//     );
-
-//     ctx.restore();
-
-//     const drawableObjects = [...images].sort(
-//       (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
-//     );
-
-//     drawableObjects.forEach((obj) => {
-//       const image = imageObjects.current.get(obj.url);
-
-//       if (image) {
-//         let scaledWidth = image.width * scale;
-//         let scaledHeight = image.height * scale;
-//         let scaledX: number, scaledY: number;
-
-//         if (image.src === JetImage) {
-//           scaledX = (obj.x + offsetX) * scale;
-//           scaledY = (obj.y - offsetY) * scale;
-
-//           sprites.forEach((sprite) => {
-//             if (elapsedTime < 5000) {
-//               sprite.url = FireOneSprite;
-//             } else if (elapsedTime < 12000) {
-//               sprite.url = FireTwoSprite;
-//             } else if (elapsedTime < 20000) {
-//               sprite.url = FireThreeSprite;
-//             } else {
-//               sprite.url = FireFourSprite;
-//             }
-
-//             const frameKey = sprite.animation[sprite.currentFrameIndex];
-//             const frame = sprite.frames[frameKey].frame;
-//             const spriteImage = imageObjects.current.get(sprite.url);
-
-//             if (spriteImage && isRunning) {
-//               let spriteX: number = 0,
-//                 spriteY: number = 0;
-//               let angle: number = 0;
-
-//               if (jetPhase === "horizontal") {
-//                 spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
-//                 spriteY = (obj.y - offsetY) * scale;
-//               } else if (
-//                 jetPhase === "angled" &&
-//                 scaledY > screenHeight * 0.25
-//               ) {
-//                 spriteX = (obj.x + offsetX - image.width / 2) * scale;
-//                 spriteY = (obj.y - offsetY + image.height * 2) * scale;
-//                 angle = (-45 * Math.PI) / 180;
-//               } else if (
-//                 jetPhase === "angled" &&
-//                 scaledY <= screenHeight * 0.25
-//               ) {
-//                 scaledY = screenHeight * 0.25;
-
-//                 if (spriteXCapturedXRef.current === null) {
-//                   spriteXCapturedXRef.current = spriteX;
-//                 }
-//                 scaledX = spriteXCapturedXRef.current;
-//               }
-
-//               const scaledFrameWidth = frame.w * scale;
-//               const scaledFrameHeight = frame.h * scale;
-
-//               ctx.save();
-
-//               if (jetPhase === "angled") {
-//                 ctx.translate(
-//                   spriteX + scaledFrameWidth / 2,
-//                   spriteY + scaledFrameHeight / 2
-//                 );
-//                 ctx.rotate(angle);
-//                 spriteX = spriteY = 0;
-//               }
-
-//               ctx.drawImage(
-//                 spriteImage,
-//                 frame.x,
-//                 frame.y,
-//                 frame.w,
-//                 frame.h,
-//                 spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
-//                 spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
-//                 scaledFrameWidth,
-//                 scaledFrameHeight
-//               );
-//               ctx.restore();
-//             }
-//           });
-
-//           if (scaledY <= screenHeight * 0.25) {
-//             scaledY = screenHeight * 0.25;
-
-//             if (capturedXRef.current === null) {
-//               capturedXRef.current = scaledX;
-//             }
-//             scaledX = capturedXRef.current;
-//           } else {
-//             capturedXRef.current = null;
-//           }
-
-//           ctx.save();
-//           ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
-
-//           if (jetPhase === "angled") {
-//             ctx.rotate(-(45 * Math.PI) / 180);
-//           }
-
-//           ctx.drawImage(
-//             image,
-//             -scaledWidth / 2,
-//             -scaledHeight / 2,
-//             scaledWidth,
-//             scaledHeight
-//           );
-
-//           ctx.restore();
-
-//         } else if (
-//           scrollPosition >= obj.minScroll &&
-//           scrollPosition <= obj.maxScroll
-//         ) {
-//           scaledX = (obj.x - offsetX) * scale;
-//           scaledY = (obj.y + offsetY) * scale;
-//           ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
-//         }
-//       }
-//     });
-
-//     parachutes.forEach((obj) => {
-//       const parachuteImage = imageObjects.current.get(obj.url);
-
-//       if (parachuteImage) {
-//         let scaledWidth = parachuteImage.width * 0.2 * scale;
-//         let scaledHeight = parachuteImage.height * 0.2 * scale;
-//         let scaledX, scaledY;
-
-//         if (
-//           scrollPosition >= obj.minScroll &&
-//           scrollPosition <= obj.maxScroll
-//         ) {
-//           scaledX = (obj.x - offsetX) * scale;
-//           scaledY = (obj.y + offsetY) * scale;
-//           ctx.drawImage(
-//             parachuteImage,
-//             scaledX,
-//             scaledY,
-//             scaledWidth,
-//             scaledHeight
-//           );
-//         }
-//       }
-//     });
-//   }, [
-//     scrollPosition,
-//     images,
-//     parachutes,
-//     sprites,
-//     currentFrameIndex,
-//     screenWidth,
-//     screenHeight,
-//     diagonalLength,
-//     scale,
-//     jetPhase,
-//     isRunning,
-//     elapsedTime,
-//   ]);
-
-// export default BackgroundCanvas;
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import "../App.css";
 
 //background images
-
 import AirportImage from "../assets/images/Airport.png";
 import RoadImage from "../assets/images/Road.png";
 import JetImage from "../assets/images/jet.png";
@@ -513,7 +56,9 @@ const BackgroundCanvas: React.FC = () => {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const [rotationAngle, setRotationAngle] = useState<number>(0);
   const [rotateJet, setRotateJet] = useState(false);
+
   const animationRef = useRef<number>();
+
   const [jetPhase, setJetPhase] = useState("horizontal");
   const [isRunning, setIsRunning] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
@@ -1175,6 +720,8 @@ const BackgroundCanvas: React.FC = () => {
     },
   ]);
 
+  // console.log(window)
+
   // //Assume this function is triggered to add more sprites
   // const generateSprites = (currentParachutes: ImageSprite[]) => {
   //   const newSprites = [...currentParachutes];
@@ -1214,175 +761,224 @@ const BackgroundCanvas: React.FC = () => {
     (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
   );
 
-  const drawGradientBackground = (ctx: CanvasRenderingContext2D) => {
-    const gradient = ctx.createLinearGradient(
-      0,
-      screenHeight,
-      diagonalLength,
-      screenHeight - diagonalLength
-    );
+  const drawGradientBackground = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
+      const gradient = ctx.createLinearGradient(
+        0,
+        screenHeight,
+        diagonalLength,
+        screenHeight - diagonalLength
+      );
 
-    gradient.addColorStop(0, "#A1757F");
-    gradient.addColorStop(0.2, "#4860A3");
-    gradient.addColorStop(0.4, "#293F6A");
-    gradient.addColorStop(0.6, "#162144");
-    gradient.addColorStop(0.8, "#151523");
-    gradient.addColorStop(1.0, "#151523");
+      gradient.addColorStop(0, "#A1757F");
+      gradient.addColorStop(0.2, "#4860A3");
+      gradient.addColorStop(0.4, "#293F6A");
+      gradient.addColorStop(0.6, "#162144");
+      gradient.addColorStop(0.8, "#151523");
+      gradient.addColorStop(1.0, "#151523");
 
-    ctx.fillStyle = gradient;
+      ctx.fillStyle = gradient;
 
-    ctx.save();
+      ctx.save();
 
-    ctx.translate(-offsetX, offsetY);
-    ctx.fillRect(
-      0,
-      screenHeight,
-      diagonalLength,
-      screenHeight - diagonalLength
-    );
+      ctx.translate(-offsetX, offsetY);
+      ctx.fillRect(
+        0,
+        screenHeight,
+        diagonalLength,
+        screenHeight - diagonalLength
+      );
 
-    ctx.restore();
-  };
+      ctx.restore();
+    },
+    [diagonalLength, offsetX, offsetY, screenHeight]
+  );
 
-  const drawJetAndFlameSprites = (
-    ctx: CanvasRenderingContext2D,
-    drawableObjects: ImageSprite[]
-  ) => {
-    drawableObjects.forEach((obj) => {
-      const image = imageObjects.current.get(obj.url);
-      if (image) {
-        let scaledWidth = image.width * scale;
-        let scaledHeight = image.height * scale;
-        let scaledX: number, scaledY: number;
-        if (image.src === JetImage) {
-          scaledX = (obj.x + offsetX) * scale;
-          scaledY = (obj.y - offsetY) * scale;
-          sprites.forEach((sprite) => {
-            if (elapsedTime < 5000) {
-              sprite.url = FireOneSprite;
-            } else if (elapsedTime < 12000) {
-              sprite.url = FireTwoSprite;
-            } else if (elapsedTime < 20000) {
-              sprite.url = FireThreeSprite;
-            } else {
-              sprite.url = FireFourSprite;
-            }
-            const frameKey = sprite.animation[sprite.currentFrameIndex];
-            const frame = sprite.frames[frameKey].frame;
-            const spriteImage = imageObjects.current.get(sprite.url);
-            if (spriteImage && isRunning) {
-              let spriteX: number = 0,
-                spriteY: number = 0;
-              let angle = 0;
-              if (jetPhase === "horizontal") {
-                spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
-                spriteY = (obj.y - offsetY) * scale;
-              } else if (
-                jetPhase === "angled" &&
-                scaledY > screenHeight * 0.25
-              ) {
-                spriteX = (obj.x + offsetX - image.width / 2) * scale;
-                spriteY = (obj.y - offsetY + image.height * 2) * scale;
-                angle = (-45 * Math.PI) / 180;
-              } else if (
-                jetPhase === "angled" &&
-                scaledY <= screenHeight * 0.25
-              ) {
-                spriteX = screenWidth * 0.73;
-                spriteY = screenHeight * 0.35;
-                angle = (-45 * Math.PI) / 180;
+  const drawJetAndFlameSprites = useCallback(
+    (ctx: CanvasRenderingContext2D, drawableObjects: ImageSprite[]) => {
+      // const jetImage = imageObjects.current.get(obj.url === JetImage)
+
+      drawableObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url);
+        if (image) {
+          let scaledWidth = image.width * scale;
+          let scaledHeight = image.height * scale;
+          let scaledX: number, scaledY: number;
+
+          if (image.src === JetImage) {
+            scaledX = (obj.x + offsetX) * scale;
+            scaledY = (obj.y - offsetY) * scale;
+
+            sprites.forEach((sprite) => {
+              if (elapsedTime < 5000) {
+                sprite.url = FireOneSprite;
+              } else if (elapsedTime < 12000) {
+                sprite.url = FireTwoSprite;
+              } else if (elapsedTime < 20000) {
+                sprite.url = FireThreeSprite;
+              } else {
+                sprite.url = FireFourSprite;
               }
-              const scaledFrameWidth = frame.w * scale;
-              const scaledFrameHeight = frame.h * scale;
-              ctx.save();
-              if (jetPhase === "angled") {
-                ctx.translate(
-                  spriteX + scaledFrameWidth / 2,
-                  spriteY + scaledFrameHeight / 2
+
+              const frameKey = sprite.animation[sprite.currentFrameIndex];
+              const frame = sprite.frames[frameKey].frame;
+              const spriteImage = imageObjects.current.get(sprite.url);
+
+              if (spriteImage && isRunning) {
+                let spriteX: number = 0,
+                  spriteY: number = 0;
+                let angle = 0;
+
+                if (jetPhase === "horizontal") {
+                  spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
+                  spriteY = (obj.y - offsetY) * scale;
+                } else if (
+                  jetPhase === "angled" &&
+                  scaledY > screenHeight * 0.25
+                ) {
+                  spriteX = (obj.x + offsetX - image.width / 2) * scale;
+                  spriteY = (obj.y - offsetY + image.height * 2) * scale;
+                  angle = (-45 * Math.PI) / 180;
+                } else if (
+                  jetPhase === "angled" &&
+                  scaledY <= screenHeight * 0.25
+                ) {
+                  spriteX = screenWidth * 0.73;
+                  spriteY = screenHeight * 0.35;
+                  angle = (-45 * Math.PI) / 180;
+                }
+
+                const scaledFrameWidth = frame.w * scale;
+                const scaledFrameHeight = frame.h * scale;
+
+                ctx.save();
+
+                if (jetPhase === "angled") {
+                  ctx.translate(
+                    spriteX + scaledFrameWidth / 2,
+                    spriteY + scaledFrameHeight / 2
+                  );
+                  ctx.rotate(angle);
+                  spriteX = spriteY = 0;
+                }
+
+                ctx.drawImage(
+                  spriteImage,
+                  frame.x,
+                  frame.y,
+                  frame.w,
+                  frame.h,
+                  spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
+                  spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
+                  scaledFrameWidth,
+                  scaledFrameHeight
                 );
-                ctx.rotate(angle);
-                spriteX = spriteY = 0;
+                ctx.restore();
               }
-              ctx.drawImage(
-                spriteImage,
-                frame.x,
-                frame.y,
-                frame.w,
-                frame.h,
-                spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
-                spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
-                scaledFrameWidth,
-                scaledFrameHeight
-              );
-              ctx.restore();
+            });
+
+            if (scaledY <= screenHeight * 0.25) {
+              scaledY = screenHeight * 0.25;
+
+              if (capturedXRef.current === null) {
+                capturedXRef.current = scaledX;
+              }
+              scaledX = capturedXRef.current;
+            } else {
+              capturedXRef.current = null;
             }
-          });
-          if (scaledY <= screenHeight * 0.25) {
-            scaledY = screenHeight * 0.25;
-            if (capturedXRef.current === null) {
-              capturedXRef.current = scaledX;
+
+            ctx.save();
+            ctx.translate(
+              scaledX + scaledWidth / 2,
+              scaledY + scaledHeight / 2
+            );
+
+            if (jetPhase === "angled") {
+              ctx.rotate(-(45 * Math.PI) / 180);
             }
-            scaledX = capturedXRef.current;
-          } else {
-            capturedXRef.current = null;
+
+            ctx.drawImage(
+              image,
+              -scaledWidth / 2,
+              -scaledHeight / 2,
+              scaledWidth,
+              scaledHeight
+            );
+
+            ctx.restore();
           }
-          ctx.save();
-          ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
-          if (jetPhase === "angled") {
-            ctx.rotate(-(45 * Math.PI) / 180);
+        }
+      });
+    },
+    [
+      elapsedTime,
+      isRunning,
+      jetPhase,
+      offsetX,
+      offsetY,
+      scale,
+      screenHeight,
+      screenWidth,
+      sprites,
+    ]
+  );
+
+  const drawStillImageObjects = useCallback(
+    (ctx: CanvasRenderingContext2D, drawableObjects: ImageSprite[]) => {
+      drawableObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url);
+
+        if (image && image.src !== JetImage) {
+          let scaledWidth = image.width * scale;
+          let scaledHeight = image.height * scale;
+          let scaledX: number, scaledY: number;
+          if (
+            scrollPosition >= obj.minScroll &&
+            scrollPosition <= obj.maxScroll
+          ) {
+            scaledX = (obj.x - offsetX) * scale;
+            scaledY = (obj.y + offsetY) * scale;
+            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
           }
-          ctx.drawImage(
-            image,
-            -scaledWidth / 2,
-            -scaledHeight / 2,
-            scaledWidth,
-            scaledHeight
-          );
-          ctx.restore();
         }
-      }
-    });
-  };
+      });
+    },
+    [offsetX, offsetY, scale, scrollPosition]
+  );
 
-  const drawObjects = (
-    ctx: CanvasRenderingContext2D,
-    drawableObjects: ImageSprite[]
-  ) => {
-    drawableObjects.forEach((obj) => {
-      const image = imageObjects.current.get(obj.url);
+  const drawParachutes = useCallback(
+    (ctx: CanvasRenderingContext2D, parachutes: ImageSprite[]) => {
+      parachutes.forEach((obj) => {
+        const parachuteImage = imageObjects.current.get(obj.url);
 
-      if (image && image.url !== JetImage) {
-        let scaledWidth = image.width * scale;
-        let scaledHeight = image.height * scale;
-        let scaledX: number, scaledY: number;
+        if (parachuteImage) {
+          let scaledWidth = parachuteImage.width * 0.2 * scale;
+          let scaledHeight = parachuteImage.height * 0.2 * scale;
+          let scaledX, scaledY;
 
-        if (
-          scrollPosition >= obj.minScroll &&
-          scrollPosition <= obj.maxScroll
-        ) {
-          scaledX = (obj.x - offsetX) * scale;
-          scaledY = (obj.y + offsetY) * scale;
-          ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+          if (
+            scrollPosition >= obj.minScroll &&
+            scrollPosition <= obj.maxScroll
+          ) {
+            scaledX = (obj.x - offsetX) * scale;
+            scaledY = (obj.y + offsetY) * scale;
+            ctx.drawImage(
+              parachuteImage,
+              scaledX,
+              scaledY,
+              scaledWidth,
+              scaledHeight
+            );
+          }
         }
-      }
-    });
-  };
-
-  const drawImage = (
-    ctx: CanvasRenderingContext2D,
-    image: HTMLImageElement,
-    x: number,
-    y: number,
-    scale: number
-  ) => {
-    const scaledWidth = image.width * scale;
-    const scaledHeight = image.height * scale;
-    ctx.drawImage(image, x, y, scaledWidth, scaledHeight);
-  };
+      });
+    },
+    [offsetX, offsetY, scale, scrollPosition]
+  );
 
   const startScrolling = () => {
     setIsRunning(true);
-
     startTimer();
     const generatedOdds = generateTargetGameOdds();
     setTargetGameOdds(generatedOdds);
@@ -1497,6 +1093,7 @@ const BackgroundCanvas: React.FC = () => {
     };
   }, [animateSprite]);
 
+  //Load images
   useEffect(() => {
     [...images, ...sprites, ...parachutes].forEach((img) => {
       const image = new Image();
@@ -1524,174 +1121,24 @@ const BackgroundCanvas: React.FC = () => {
   }, [diagonalLength, isScrolling]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
 
     ctx.clearRect(0, 0, screenWidth, screenHeight);
 
     drawGradientBackground(ctx);
+    drawStillImageObjects(ctx, drawableObjects);
     drawJetAndFlameSprites(ctx, drawableObjects);
-    drawObjects(ctx, drawableObjects);
-
-    // drawableObjects.forEach((obj) => {
-    //   const image = imageObjects.current.get(obj.url);
-
-    //   if (image) {
-    //     let scaledWidth = image.width * scale;
-    //     let scaledHeight = image.height * scale;
-    //     let scaledX: number, scaledY: number;
-
-    //     if (image.src === JetImage) {
-    //       scaledX = (obj.x + offsetX) * scale;
-    //       scaledY = (obj.y - offsetY) * scale;
-
-    //       sprites.forEach((sprite) => {
-    //         if (elapsedTime < 5000) {
-    //           sprite.url = FireOneSprite;
-    //         } else if (elapsedTime < 12000) {
-    //           sprite.url = FireTwoSprite;
-    //         } else if (elapsedTime < 20000) {
-    //           sprite.url = FireThreeSprite;
-    //         } else {
-    //           sprite.url = FireFourSprite;
-    //         }
-
-    //         const frameKey = sprite.animation[sprite.currentFrameIndex];
-    //         const frame = sprite.frames[frameKey].frame;
-    //         const spriteImage = imageObjects.current.get(sprite.url);
-
-    //         if (spriteImage && isRunning) {
-    //           let spriteX: number = 0,
-    //             spriteY: number = 0;
-    //           let angle = 0;
-
-    //           if (jetPhase === "horizontal") {
-    //             spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
-    //             spriteY = (obj.y - offsetY) * scale;
-    //           } else if (
-    //             jetPhase === "angled" &&
-    //             scaledY > screenHeight * 0.25
-    //           ) {
-    //             spriteX = (obj.x + offsetX - image.width / 2) * scale;
-    //             spriteY = (obj.y - offsetY + image.height * 2) * scale;
-    //             angle = (-45 * Math.PI) / 180;
-    //           } else if (
-    //             jetPhase === "angled" &&
-    //             scaledY <= screenHeight * 0.25
-    //           ) {
-    //             spriteX = screenWidth * 0.73;
-    //             spriteY = screenHeight * 0.35;
-    //             angle = (-45 * Math.PI) / 180;
-    //           }
-
-    //           const scaledFrameWidth = frame.w * scale;
-    //           const scaledFrameHeight = frame.h * scale;
-
-    //           ctx.save();
-
-    //           if (jetPhase === "angled") {
-    //             ctx.translate(
-    //               spriteX + scaledFrameWidth / 2,
-    //               spriteY + scaledFrameHeight / 2
-    //             );
-    //             ctx.rotate(angle);
-    //             spriteX = spriteY = 0;
-    //           }
-
-    //           ctx.drawImage(
-    //             spriteImage,
-    //             frame.x,
-    //             frame.y,
-    //             frame.w,
-    //             frame.h,
-    //             spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
-    //             spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
-    //             scaledFrameWidth,
-    //             scaledFrameHeight
-    //           );
-    //           ctx.restore();
-    //         }
-    //       });
-
-    //       if (scaledY <= screenHeight * 0.25) {
-    //         scaledY = screenHeight * 0.25;
-
-    //         if (capturedXRef.current === null) {
-    //           capturedXRef.current = scaledX;
-    //         }
-
-    //         scaledX = capturedXRef.current;
-    //       } else {
-    //         capturedXRef.current = null;
-    //       }
-
-    //       ctx.save();
-    //       ctx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
-
-    //       if (jetPhase === "angled") {
-    //         ctx.rotate(-(45 * Math.PI) / 180);
-    //       }
-
-    //       ctx.drawImage(
-    //         image,
-    //         -scaledWidth / 2,
-    //         -scaledHeight / 2,
-    //         scaledWidth,
-    //         scaledHeight
-    //       );
-
-    //       ctx.restore();
-    //     } else if (
-    //       scrollPosition >= obj.minScroll &&
-    //       scrollPosition <= obj.maxScroll
-    //     ) {
-    //       scaledX = (obj.x - offsetX) * scale;
-    //       scaledY = (obj.y + offsetY) * scale;
-    //       ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
-    //     }
-
-    //   }
-    // });
-
-    parachutes.forEach((obj) => {
-      const parachuteImage = imageObjects.current.get(obj.url);
-
-      if (parachuteImage) {
-        let scaledWidth = parachuteImage.width * 0.2 * scale;
-        let scaledHeight = parachuteImage.height * 0.2 * scale;
-        let scaledX, scaledY;
-
-        if (
-          scrollPosition >= obj.minScroll &&
-          scrollPosition <= obj.maxScroll
-        ) {
-          scaledX = (obj.x - offsetX) * scale;
-          scaledY = (obj.y + offsetY) * scale;
-          ctx.drawImage(
-            parachuteImage,
-            scaledX,
-            scaledY,
-            scaledWidth,
-            scaledHeight
-          );
-        }
-      }
-    });
+    drawParachutes(ctx, parachutes);
   }, [
-    scrollPosition,
-    images,
+    drawGradientBackground,
+    drawJetAndFlameSprites,
+    drawParachutes,
+    drawStillImageObjects,
+    drawableObjects,
     parachutes,
-    sprites,
-    currentFrameIndex,
-    screenWidth,
     screenHeight,
-    diagonalLength,
-    scale,
-    jetPhase,
-    isRunning,
-    elapsedTime,
+    screenWidth,
   ]);
 
   const toggleScrolling = () => {
@@ -1734,7 +1181,6 @@ const BackgroundCanvas: React.FC = () => {
   return (
     <div className="App">
       <div style={{ position: "relative" }}>
-        <div></div>
         <canvas
           ref={canvasRef}
           width={screenWidth}
