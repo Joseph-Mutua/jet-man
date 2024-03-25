@@ -72,8 +72,6 @@ const BackgroundCanvas: React.FC = () => {
 
   const [jetPhase, setJetPhase] = useState("horizontal");
   const [isRunning, setIsRunning] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
-  const [isEnded, setIsEnded] = useState(false);
 
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
@@ -94,13 +92,15 @@ const BackgroundCanvas: React.FC = () => {
 
   //Timer Statest
   const [gameState, setGameState] = useState<IGameState>(WAITING);
-  const [now, setNow] = useState(Date.now());
-  const [startTime, setStartTime] = useState<number | null>(Date.now());
+  //const [now, setSxtarttime] = useState(Date.now());
+
+  const [startTime, setStartTime] = useState<number>(Date.now());
+  const [currentTime, setCurrentTime] = useState<number>(Date.now());
 
   const [elapsedTime, setElapsedTime] = useState(0);
-  const intervalRef = useRef<number | undefined>(undefined);
-  const startTimeRef = useRef<number | null>(null);
+
   const [targetGameOdds, setTargetGameOdds] = useState<string | null>(null);
+
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
   const [images, setImages] = useState<ImageSprite[]>([
@@ -750,293 +750,6 @@ const BackgroundCanvas: React.FC = () => {
     (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
   );
 
-  const drawGradientBackground = useCallback(
-    (ctx: CanvasRenderingContext2D) => {
-      const gradient = ctx.createLinearGradient(
-        0,
-        screenHeight,
-        diagonalLength,
-        screenHeight - diagonalLength
-      );
-
-      gradient.addColorStop(0, "#A1757F");
-      gradient.addColorStop(0.2, "#4860A3");
-      gradient.addColorStop(0.4, "#293F6A");
-      gradient.addColorStop(0.6, "#162144");
-      gradient.addColorStop(0.8, "#151523");
-      gradient.addColorStop(1.0, "#151523");
-
-      ctx.fillStyle = gradient;
-
-      ctx.save();
-
-      ctx.translate(-offsetX, offsetY);
-      ctx.fillRect(
-        0,
-        screenHeight,
-        diagonalLength,
-        screenHeight - diagonalLength
-      );
-
-      ctx.restore();
-    },
-    [diagonalLength, offsetX, offsetY, screenHeight]
-  );
-
-  const drawJetAndFlameSprites = useCallback(
-    (ctx: CanvasRenderingContext2D, drawableObjects: ImageSprite[]) => {
-      // const jetImage = imageObjects.current.get(obj.url === JetImage)
-
-      drawableObjects.forEach((obj) => {
-        const image = imageObjects.current.get(obj.url);
-        if (image) {
-          let scaledWidth = image.width * scale;
-          let scaledHeight = image.height * scale;
-          let scaledX: number, scaledY: number;
-
-          if (image.src === JetImage) {
-            scaledX = (obj.x + offsetX) * scale;
-            scaledY = (obj.y - offsetY) * scale;
-
-            sprites.forEach((sprite) => {
-              if (elapsedTime < 5000) {
-                sprite.url = FireOneSprite;
-              } else if (elapsedTime < 12000) {
-                sprite.url = FireTwoSprite;
-              } else if (elapsedTime < 20000) {
-                sprite.url = FireThreeSprite;
-              } else {
-                sprite.url = FireFourSprite;
-              }
-
-              const frameKey = sprite.animation[sprite.currentFrameIndex];
-              const frame = sprite.frames[frameKey].frame;
-              const spriteImage = imageObjects.current.get(sprite.url);
-
-              if (spriteImage && isRunning) {
-                let spriteX: number = 0,
-                  spriteY: number = 0;
-                let angle = 0;
-
-                if (jetPhase === "horizontal") {
-                  spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
-                  spriteY = (obj.y - offsetY) * scale;
-                } else if (
-                  jetPhase === "angled" &&
-                  scaledY > screenHeight * 0.25
-                ) {
-                  spriteX = (obj.x + offsetX - image.width / 2) * scale;
-                  spriteY = (obj.y - offsetY + image.height * 2) * scale;
-                  angle = (-45 * Math.PI) / 180;
-                } else if (
-                  jetPhase === "angled" &&
-                  scaledY <= screenHeight * 0.25
-                ) {
-                  spriteX = screenWidth * 0.73;
-                  spriteY = screenHeight * 0.35;
-                  angle = (-45 * Math.PI) / 180;
-                }
-
-                const scaledFrameWidth = frame.w * scale;
-                const scaledFrameHeight = frame.h * scale;
-
-                ctx.save();
-
-                if (jetPhase === "angled") {
-                  ctx.translate(
-                    spriteX + scaledFrameWidth / 2,
-                    spriteY + scaledFrameHeight / 2
-                  );
-                  ctx.rotate(angle);
-                  spriteX = spriteY = 0;
-                }
-
-                ctx.drawImage(
-                  spriteImage,
-                  frame.x,
-                  frame.y,
-                  frame.w,
-                  frame.h,
-                  spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
-                  spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
-                  scaledFrameWidth,
-                  scaledFrameHeight
-                );
-                ctx.restore();
-              }
-            });
-
-            if (scaledY <= screenHeight * 0.25) {
-              scaledY = screenHeight * 0.25;
-
-              if (capturedXRef.current === null) {
-                capturedXRef.current = scaledX;
-              }
-              scaledX = capturedXRef.current;
-            } else {
-              capturedXRef.current = null;
-            }
-
-            ctx.save();
-            ctx.translate(
-              scaledX + scaledWidth / 2,
-              scaledY + scaledHeight / 2
-            );
-
-            if (jetPhase === "angled") {
-              ctx.rotate(-(45 * Math.PI) / 180);
-            }
-
-            ctx.drawImage(
-              image,
-              -scaledWidth / 2,
-              -scaledHeight / 2,
-              scaledWidth,
-              scaledHeight
-            );
-
-            ctx.restore();
-          }
-        }
-      });
-    },
-    [
-      elapsedTime,
-      isRunning,
-      jetPhase,
-      offsetX,
-      offsetY,
-      scale,
-      screenHeight,
-      screenWidth,
-      sprites,
-    ]
-  );
-
-  const drawStillImageObjects = useCallback(
-    (ctx: CanvasRenderingContext2D, drawableObjects: ImageSprite[]) => {
-      drawableObjects.forEach((obj) => {
-        const image = imageObjects.current.get(obj.url);
-
-        if (image && image.src !== JetImage) {
-          let scaledWidth = image.width * scale;
-          let scaledHeight = image.height * scale;
-          let scaledX: number, scaledY: number;
-          if (
-            scrollPosition >= obj.minScroll &&
-            scrollPosition <= obj.maxScroll
-          ) {
-            scaledX = (obj.x - offsetX) * scale;
-            scaledY = (obj.y + offsetY) * scale;
-            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
-          }
-        }
-      });
-    },
-    [offsetX, offsetY, scale, scrollPosition]
-  );
-
-  const drawParachutes = useCallback(
-    (ctx: CanvasRenderingContext2D, parachutes: ImageSprite[]) => {
-      parachutes.forEach((obj) => {
-        const parachuteImage = imageObjects.current.get(obj.url);
-
-        if (parachuteImage) {
-          let scaledWidth = parachuteImage.width * 0.2 * scale;
-          let scaledHeight = parachuteImage.height * 0.2 * scale;
-          let scaledX, scaledY;
-
-          if (
-            scrollPosition >= obj.minScroll &&
-            scrollPosition <= obj.maxScroll
-          ) {
-            scaledX = (obj.x - offsetX) * scale;
-            scaledY = (obj.y + offsetY) * scale;
-            ctx.drawImage(
-              parachuteImage,
-              scaledX,
-              scaledY,
-              scaledWidth,
-              scaledHeight
-            );
-          }
-        }
-      });
-    },
-    [offsetX, offsetY, scale, scrollPosition]
-  );
-
-  const drawLoading = useCallback(() => {
-    const canvas = waitingCanvasRef.current;
-    if (!canvas || gameState !== WAITING) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const loaderSpriteData = sprites.find(
-      (sprite) => sprite.url === LoaderSprite
-    );
-    if (!loaderSpriteData) return;
-
-    // Loader sprite image
-    const image = new Image();
-    image.src = loaderSpriteData.url;
-
-    // Transform the frames object into an array for easier access
-    const frames = Object.values(loaderSpriteData.frames).map((frameData) => ({
-      ...frameData,
-      frame: {
-        x: frameData.frame.x,
-        y: frameData.frame.y,
-        width: frameData.frame.w,
-        height: frameData.frame.h,
-      },
-    }));
-
-    let lastTime = 0;
-    let currentFrameIndex = 0;
-
-    const animate = (time: number) => {
-      if (!lastTime) lastTime = time;
-      const deltaTime = time - lastTime;
-
-      // Frame update rate (100ms per frame for example, adjust as needed)
-      if (deltaTime > 100) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for the new frame
-
-        const frame = frames[currentFrameIndex % frames.length];
-        const spriteImage = image; // Already loaded image object
-        const scaledWidth = frame.frame.width * scale; // Adjust scaling factor as needed
-        const scaledHeight = frame.frame.height * scale;
-        const scaledX = (screenWidth - scaledWidth) / 2;
-        const scaledY = (screenHeight - scaledHeight) / 2;
-
-        ctx.drawImage(
-          spriteImage,
-          frame.frame.x,
-          frame.frame.y,
-          frame.frame.width,
-          frame.frame.height,
-          scaledX,
-          scaledY,
-          scaledWidth,
-          scaledHeight
-        );
-
-        currentFrameIndex++;
-        lastTime = time;
-      }
-      requestRef.current = requestAnimationFrame(animate);
-    };
-
-    image.onload = () => {
-      requestRef.current = requestAnimationFrame(animate);
-    };
-
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, [gameState, sprites, scale, screenWidth, screenHeight]);
-
   // useEffect(() => {
   //   const canvas = waitingCanvasRef.current;
   //   if (!canvas) return;
@@ -1125,29 +838,313 @@ const BackgroundCanvas: React.FC = () => {
     const ctx = bgCanvasRef.current?.getContext("2d");
     if (!ctx) return;
 
-    drawGradientBackground(ctx);
+    const drawGradientBackground = () => {
+      const gradient = ctx.createLinearGradient(
+        0,
+        screenHeight,
+        diagonalLength,
+        screenHeight - diagonalLength
+      );
+
+      gradient.addColorStop(0, "#A1757F");
+      gradient.addColorStop(0.2, "#4860A3");
+      gradient.addColorStop(0.4, "#293F6A");
+      gradient.addColorStop(0.6, "#162144");
+      gradient.addColorStop(0.8, "#151523");
+      gradient.addColorStop(1.0, "#151523");
+
+      ctx.fillStyle = gradient;
+
+      ctx.save();
+
+      ctx.translate(-offsetX, offsetY);
+      ctx.fillRect(
+        0,
+        screenHeight,
+        diagonalLength,
+        screenHeight - diagonalLength
+      );
+
+      ctx.restore();
+    };
+
+    const drawJetAndFlameSprites = () => {
+      // const jetImage = imageObjects.current.get(obj.url === JetImage)
+
+      drawableObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url);
+        if (image) {
+          let scaledWidth = image.width * scale;
+          let scaledHeight = image.height * scale;
+          let scaledX: number, scaledY: number;
+
+          if (image.src === JetImage) {
+            scaledX = (obj.x + offsetX) * scale;
+            scaledY = (obj.y - offsetY) * scale;
+
+            sprites.forEach((sprite) => {
+              if (elapsedTime < 5000) {
+                sprite.url = FireOneSprite;
+              } else if (elapsedTime < 12000) {
+                sprite.url = FireTwoSprite;
+              } else if (elapsedTime < 20000) {
+                sprite.url = FireThreeSprite;
+              } else {
+                sprite.url = FireFourSprite;
+              }
+
+              const frameKey = sprite.animation[sprite.currentFrameIndex];
+              const frame = sprite.frames[frameKey].frame;
+              const spriteImage = imageObjects.current.get(sprite.url);
+
+              if (spriteImage && isRunning) {
+                let spriteX: number = 0,
+                  spriteY: number = 0;
+                let angle = 0;
+
+                if (jetPhase === "horizontal") {
+                  spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
+                  spriteY = (obj.y - offsetY) * scale;
+                } else if (
+                  jetPhase === "angled" &&
+                  scaledY > screenHeight * 0.25
+                ) {
+                  spriteX = (obj.x + offsetX - image.width / 2) * scale;
+                  spriteY = (obj.y - offsetY + image.height * 2) * scale;
+                  angle = (-45 * Math.PI) / 180;
+                } else if (
+                  jetPhase === "angled" &&
+                  scaledY <= screenHeight * 0.25
+                ) {
+                  spriteX = screenWidth * 0.73;
+                  spriteY = screenHeight * 0.35;
+                  angle = (-45 * Math.PI) / 180;
+                }
+
+                const scaledFrameWidth = frame.w * scale;
+                const scaledFrameHeight = frame.h * scale;
+
+                ctx.save();
+
+                if (jetPhase === "angled") {
+                  ctx.translate(
+                    spriteX + scaledFrameWidth / 2,
+                    spriteY + scaledFrameHeight / 2
+                  );
+                  ctx.rotate(angle);
+                  spriteX = spriteY = 0;
+                }
+
+                if (gameState === "WAITING") {
+                  ctx.globalAlpha = 0.5;
+                }
+
+                ctx.drawImage(
+                  spriteImage,
+                  frame.x,
+                  frame.y,
+                  frame.w,
+                  frame.h,
+                  spriteX - (jetPhase === "angled" ? scaledFrameWidth / 2 : 0),
+                  spriteY - (jetPhase === "angled" ? scaledFrameHeight / 2 : 0),
+                  scaledFrameWidth,
+                  scaledFrameHeight
+                );
+                ctx.restore();
+              }
+            });
+
+            if (scaledY <= screenHeight * 0.25) {
+              scaledY = screenHeight * 0.25;
+
+              if (capturedXRef.current === null) {
+                capturedXRef.current = scaledX;
+              }
+              scaledX = capturedXRef.current;
+            } else {
+              capturedXRef.current = null;
+            }
+
+            ctx.save();
+            ctx.translate(
+              scaledX + scaledWidth / 2,
+              scaledY + scaledHeight / 2
+            );
+
+            if (jetPhase === "angled") {
+              ctx.rotate(-(45 * Math.PI) / 180);
+            }
+
+            ctx.drawImage(
+              image,
+              -scaledWidth / 2,
+              -scaledHeight / 2,
+              scaledWidth,
+              scaledHeight
+            );
+
+            ctx.restore();
+          }
+        }
+      });
+    };
+
+    const drawStillImageObjects = () => {
+      drawableObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url);
+
+        if (image && image.src !== JetImage) {
+          let scaledWidth = image.width * scale;
+          let scaledHeight = image.height * scale;
+          let scaledX: number, scaledY: number;
+          if (
+            scrollPosition >= obj.minScroll &&
+            scrollPosition <= obj.maxScroll
+          ) {
+            scaledX = (obj.x - offsetX) * scale;
+            scaledY = (obj.y + offsetY) * scale;
+
+            ctx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+          }
+        }
+      });
+    };
+
+    const drawParachutes = () => {
+      parachutes.forEach((obj) => {
+        const parachuteImage = imageObjects.current.get(obj.url);
+
+        if (parachuteImage) {
+          let scaledWidth = parachuteImage.width * 0.2 * scale;
+          let scaledHeight = parachuteImage.height * 0.2 * scale;
+          let scaledX, scaledY;
+
+          if (
+            scrollPosition >= obj.minScroll &&
+            scrollPosition <= obj.maxScroll
+          ) {
+            scaledX = (obj.x - offsetX) * scale;
+            scaledY = (obj.y + offsetY) * scale;
+            ctx.drawImage(
+              parachuteImage,
+              scaledX,
+              scaledY,
+              scaledWidth,
+              scaledHeight
+            );
+          }
+        }
+      });
+    };
+
+    const drawLoading = () => {
+      const ctx = waitingCanvasRef.current?.getContext("2d");
+      if (!ctx || gameState !== WAITING) return;
+
+      const loaderSpriteData = sprites.find(
+        (sprite) => sprite.url === LoaderSprite
+      );
+      if (!loaderSpriteData) return;
+
+      const image = new Image();
+      image.src = loaderSpriteData.url;
+
+      const animationDuration = 6000;
+
+      const totalFrames: number = loaderSpriteData.animation.length;
+
+      const frameDuration = animationDuration / totalFrames;
+
+      let animationStartTime: number;
+
+      const frames = Object.values(loaderSpriteData.frames).map(
+        (frameData) => ({
+          ...frameData,
+          frame: {
+            x: frameData.frame.x,
+            y: frameData.frame.y,
+            width: frameData.frame.w,
+            height: frameData.frame.h,
+          },
+        })
+      );
+
+      const animate = (currentTime: number) => {
+        if (!animationStartTime) animationStartTime = currentTime;
+        const elapsedTime = currentTime - animationStartTime;
+        const currentFrameIndex =
+          Math.floor(elapsedTime / frameDuration) % frames.length;
+
+        if (elapsedTime < animationDuration) {
+          ctx.clearRect(0, 0, screenWidth, screenHeight);
+
+          const frame = frames[currentFrameIndex].frame;
+          const spriteImage = image;
+          const scaledWidth = frame.width * scale;
+          const scaledHeight = frame.height * scale;
+          const scaledX = (screenWidth - scaledWidth) / 2;
+          const scaledY = (screenHeight - scaledHeight) / 2;
+
+          ctx.drawImage(
+            spriteImage,
+            frame.x,
+            frame.y,
+            frame.width,
+            frame.height,
+            scaledX,
+            scaledY,
+            scaledWidth,
+            scaledHeight
+          );
+
+          ctx.fillStyle = "white";
+          ctx.font = `bold ${20 * scale}px Arial`;
+          ctx.textAlign = "center";
+          ctx.fillText(
+            `Bet Receiving`,
+            screenWidth / 2,
+            screenHeight / 2 + scaledHeight
+          );
+
+          requestAnimationFrame(animate);
+        } else {
+          setGameState(RUNNING)
+        }
+      };
+
+      image.onload = () => {
+        requestAnimationFrame(animate);
+      };
+    };
+
     drawLoading();
-    //drawStillImageObjects(ctx, drawableObjects);
-    //drawJetAndFlameSprites(ctx, drawableObjects);
-    //drawParachutes(ctx, parachutes);
+    drawGradientBackground();
+    drawStillImageObjects();
+    drawJetAndFlameSprites();
+    drawParachutes();
   }, [
-    gameState,
-    elapsedTime,
-    drawGradientBackground,
-    drawStillImageObjects,
+    diagonalLength,
     drawableObjects,
-    drawJetAndFlameSprites,
-    drawParachutes,
+    elapsedTime,
+    gameState,
+    isRunning,
+    jetPhase,
+    offsetX,
+    offsetY,
     parachutes,
-    drawLoading,
-    currentFrameIndex,
+    scale,
+    screenHeight,
+    screenWidth,
+    scrollPosition,
+    sprites,
+    startTime,
   ]);
 
   useEffect(() => {
     let frameID = 0;
 
     function animate() {
-      setNow(Date.now());
+      setStartTime(Date.now());
       frameID = requestAnimationFrame(animate);
     }
     animate();
@@ -1156,66 +1153,78 @@ const BackgroundCanvas: React.FC = () => {
     };
   }, []);
 
-  
-
   return (
     <div className="App">
       <div style={{ position: "relative" }}>
-        {/* <canvas
+        {/* Background Canvas */}
+
+        <canvas
           ref={bgCanvasRef}
           width={screenWidth}
           height={screenHeight}
-          style={{ maxWidth: "100%" }}
-        /> */}
+          style={{
+            maxWidth: "100%",
+            zIndex: gameState === WAITING ? 1 : 2,
+          }}
+        />
+
+        {/* Waiting Canvas */}
 
         <canvas
           ref={waitingCanvasRef}
           width={screenWidth}
           height={screenHeight}
-          style={{ maxWidth: "100%" }}
+          style={{
+            maxWidth: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 3,
+            display: gameState === WAITING ? "block" : "none",
+          }}
         />
-        <h1
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            fontSize: "calc(max(max(16px, 5vw), 22px))",
-            transform: "translate(-50%, -50%)",
-            whiteSpace: "nowrap",
-            margin: 0,
-            padding: 0,
-            color:
-              parseFloat(currentGameOdds) >= parseFloat(targetGameOdds || "0")
-                ? "red"
-                : "green",
-          }}
-        >
-          {currentGameOdds} X
-        </h1>
-        <h2
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "calc(50% + 4rem)",
-            fontSize: "calc(max(max(16px, 2vw), 16px))",
-            transform: "translate(-50%, -50%)",
-            whiteSpace: "nowrap",
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          {targetGameOdds !== null ? targetGameOdds : ""}
-        </h2>
-      </div>
 
-      <div>
-        {/* <button onClick={toggleScrolling}>
-          {isRunning ? "Stop" : "Start"}
-        </button> */}
+        {gameState === RUNNING && (
+          <div>
+            <h1
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                fontSize: "calc(max(max(16px, 5vw), 22px))",
+                transform: "translate(-50%, -50%)",
+                whiteSpace: "nowrap",
+                margin: 0,
+                padding: 0,
+                color:
+                  parseFloat(currentGameOdds) >=
+                  parseFloat(targetGameOdds || "0")
+                    ? "red"
+                    : "green",
+              }}
+            >
+              {currentGameOdds} X
+            </h1>
+
+            <h2
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "calc(50% + 4rem)",
+                fontSize: "calc(max(max(16px, 2vw), 16px))",
+                transform: "translate(-50%, -50%)",
+                whiteSpace: "nowrap",
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              {targetGameOdds !== null ? targetGameOdds : ""}
+            </h2>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default BackgroundCanvas;
-//The component is being re-rendered on every tick

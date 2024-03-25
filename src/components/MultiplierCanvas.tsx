@@ -9,6 +9,7 @@ interface MultiplierCanvasProps {
   screenHeight: number;
 }
 
+
 const MultiplierCanvas: React.FC<MultiplierCanvasProps> = ({
   currentGameOdds,
   targetGameOdds,
