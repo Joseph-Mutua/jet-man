@@ -1,4 +1,10 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import "../App.css";
 
 //Game
@@ -54,6 +60,16 @@ import { Frame, ImageSprite, SpriteFrames, SpriteJson } from "./types";
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 import { generateTargetGameOdds } from "../utils/GenerateOdds";
 
+//Load images
+const loadImage = (src: string) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+};
+
 const BackgroundCanvas: React.FC = () => {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const waitingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,7 +87,7 @@ const BackgroundCanvas: React.FC = () => {
   const animationRef = useRef<number>();
 
   const [jetPhase, setJetPhase] = useState("horizontal");
-  const [isRunning, setIsRunning] = useState(false);
+  const [loadingAssetsComplete, setLoadingAssetsComplete] = useState(false);
 
   const dimensions = useWindowDimensions();
   const { screenWidth, screenHeight, scale } = dimensions;
@@ -103,7 +119,73 @@ const BackgroundCanvas: React.FC = () => {
 
   const currentGameOdds = Math.exp(0.00006 * elapsedTime).toFixed(2);
 
-  const [images, setImages] = useState<ImageSprite[]>([
+  const imageUrls = useMemo(
+    () => [
+      AirportImage,
+      RoadImage,
+      JetImage,
+      Fence,
+      GarageImage,
+      PlanetImageOne,
+      PlanetImageTwo,
+      PlanetImageThree,
+      GalaxyImageOne,
+      StarsImage,
+      CloudsOne,
+      CloudsTwo,
+      AirBalloonOne,
+      AirBalloonTwo,
+      SatelliteOne,
+      SatelliteTwo,
+    ],
+    []
+  );
+
+  const spriteUrls = useMemo(
+    () => [
+      FireOneSprite,
+      FireTwoSprite,
+      FireThreeSprite,
+      FireFourSprite,
+
+      BoomSprite,
+      LoaderSprite,
+      ParachuteSprite,
+    ],
+    []
+  );
+
+  const spriteDataUlrs = useMemo(
+    () => [
+      FireOneSpriteJson,
+      FireTwoSpriteJson,
+      FireThreeSpriteJson,
+      FireFourSpriteJson,
+    ],
+    []
+  );
+
+  useEffect(() => {
+    [...imageUrls, ...spriteUrls].forEach((url) => {
+      const image = new Image();
+      image.src = url;
+      image.onload = () => {
+        imageObjects.current.set(url, image);
+      };
+    });
+    setLoadingAssetsComplete(true);
+  }, [imageUrls, spriteUrls]);
+
+  const jetImage: ImageSprite = {
+    url: JetImage,
+    x: 100,
+    y: 1000,
+    minScroll: 0,
+    maxScroll: 3000,
+    zIndex: 100,
+  };
+
+  const [stillImageObjects, setStillImageObjects] = useState([
     {
       url: RoadImage,
       x: 0,
@@ -128,7 +210,6 @@ const BackgroundCanvas: React.FC = () => {
       maxScroll: 3000,
       zIndex: 10,
     },
-
     {
       url: CloudsOne,
       x: 0,
@@ -136,7 +217,6 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 0,
       maxScroll: 3000,
     },
-
     {
       url: Fence,
       x: 0,
@@ -144,7 +224,6 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 0,
       maxScroll: 3000,
     },
-
     {
       url: GarageImage,
       x: 1100,
@@ -152,22 +231,9 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 0,
       maxScroll: 3000,
     },
+  ]);
 
-    {
-      url: AirBalloonOne,
-      x: 700,
-      y: -400,
-      minScroll: 400,
-      maxScroll: 1000,
-    },
-
-    {
-      url: AirBalloonOne,
-      x: 700,
-      y: -400,
-      minScroll: 400,
-      maxScroll: 1000,
-    },
+  const [movingImageObjects, setMovingImageObjects] = useState([
     {
       url: AirBalloonOne,
       x: 1200,
@@ -182,116 +248,9 @@ const BackgroundCanvas: React.FC = () => {
       minScroll: 600,
       maxScroll: 1200,
     },
-    {
-      url: AirBalloonOne,
-      x: 2200,
-      y: -900,
-      minScroll: 900,
-      maxScroll: 1400,
-    },
-    {
-      url: AirBalloonTwo,
-      x: 2500,
-      y: -1100,
-      minScroll: 1000,
-      maxScroll: 1600,
-    },
-    {
-      url: AirBalloonOne,
-      x: 2700,
-      y: -1600,
-      minScroll: 1700,
-      maxScroll: 2200,
-    },
-    {
-      url: AirBalloonOne,
-      x: 2450,
-      y: -1200,
-      minScroll: 1250,
-      maxScroll: 1600,
-    },
-
-    {
-      url: AirBalloonTwo,
-      x: 1950,
-      y: -1250,
-      minScroll: 1250,
-      maxScroll: 1600,
-    },
-    {
-      url: AirBalloonTwo,
-      x: 2000,
-      y: -1350,
-      minScroll: 1350,
-      maxScroll: 1750,
-    },
-
-    {
-      url: CloudsTwo,
-      x: 2200,
-      y: -2100,
-      minScroll: 3000,
-      maxScroll: 3500,
-    },
-    {
-      url: SatelliteOne,
-      x: 3500,
-      y: -3000,
-      minScroll: 3050,
-      maxScroll: 3500,
-    },
-    {
-      url: SatelliteOne,
-      x: 4500,
-      y: -3400,
-      minScroll: 3500,
-      maxScroll: 4000,
-    },
-    {
-      url: SatelliteTwo,
-      x: 4500,
-      y: -3600,
-      minScroll: 3700,
-      maxScroll: 3900,
-    },
-    {
-      url: PlanetImageOne,
-      x: 4500,
-      y: -4100,
-      minScroll: 3800,
-      maxScroll: 4500,
-    },
-    {
-      url: PlanetImageTwo,
-      x: 5500,
-      y: -4400,
-      minScroll: 3900,
-      maxScroll: 4650,
-    },
-    {
-      url: PlanetImageThree,
-      x: 5700,
-      y: -4000,
-      minScroll: 4100,
-      maxScroll: 4900,
-    },
-    {
-      url: GalaxyImageOne,
-      x: 6000,
-      y: -5000,
-      minScroll: 5000,
-      maxScroll: 5600,
-    },
-    {
-      url: StarsImage,
-      x: 6000,
-      y: -5500,
-      minScroll: 5500,
-      maxScroll: 10600,
-    },
   ]);
 
-  const [sprites, setSprites] = useState([
+  const [flameSprites, setFlameSprites] = useState<ImageSprite[]>([
     {
       url: FireOneSprite,
       frames: FireOneSpriteJson.frames as SpriteFrames,
@@ -332,492 +291,671 @@ const BackgroundCanvas: React.FC = () => {
       maxScroll: 500,
       currentFrameIndex: 0,
     },
-
-    // {
-    //   url: BoomSprite,
-    //   frames: BoomSpriteJson.frames as SpriteFrames,
-    //   animation: BoomSpriteJson.animations.Boom,
-    //   x: 800,
-    //   y: 100,
-    //   minScroll: 20,
-    //   maxScroll: 500,
-    //   currentFrameIndex: 0,
-    // },
-
-    {
-      url: LoaderSprite,
-      frames: LoaderSpriteJson.frames as SpriteFrames,
-      animation: LoaderSpriteJson.animations.Loader,
-      x: 800,
-      y: 100,
-      minScroll: 20,
-      maxScroll: 500,
-      currentFrameIndex: 0,
-    },
   ]);
 
-  const [parachutes, setParachutes] = useState([
-    {
-      url: ParachuteSprite,
-      x: 1800,
-      y: 0,
-      minScroll: 500,
-      maxScroll: 600,
-    },
-    {
-      url: ParachuteSprite,
-      x: 1850,
-      y: 0,
-      minScroll: 500,
-      maxScroll: 600,
-    },
-    {
-      url: ParachuteSprite,
-      x: 1850,
-      y: -100,
-      minScroll: 550,
-      maxScroll: 650,
-    },
+  //   const [images, setImages] = useState<ImageSprite[]>([
+  //     {
+  //       url: RoadImage,
+  //       x: 0,
+  //       y: 960,
+  //       minScroll: 0,
+  //       maxScroll: 3000,
+  //       zIndex: 1,
+  //     },
+  //     {
+  //       url: JetImage,
+  //       x: 100,
+  //       y: 1000,
+  //       minScroll: 0,
+  //       maxScroll: 3000,
+  //       zIndex: 100,
+  //     },
+  //     {
+  //       url: AirportImage,
+  //       x: 10,
+  //       y: 660,
+  //       minScroll: 0,
+  //       maxScroll: 3000,
+  //       zIndex: 10,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 1900,
-      y: -150,
-      minScroll: 550,
-      maxScroll: 650,
-    },
+  //     {
+  //       url: CloudsOne,
+  //       x: 0,
+  //       y: 630,
+  //       minScroll: 0,
+  //       maxScroll: 3000,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 1950,
-      y: -150,
-      minScroll: 600,
-      maxScroll: 700,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2000,
-      y: -150,
-      minScroll: 600,
-      maxScroll: 700,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2050,
-      y: -200,
-      minScroll: 700,
-      maxScroll: 800,
-    },
+  //     {
+  //       url: Fence,
+  //       x: 0,
+  //       y: 880,
+  //       minScroll: 0,
+  //       maxScroll: 3000,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 2100,
-      y: -250,
-      minScroll: 800,
-      maxScroll: 900,
-    },
+  //     {
+  //       url: GarageImage,
+  //       x: 1100,
+  //       y: 880,
+  //       minScroll: 0,
+  //       maxScroll: 3000,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 2150,
-      y: -300,
-      minScroll: 900,
-      maxScroll: 1000,
-    },
+  //     {
+  //       url: AirBalloonOne,
+  //       x: 700,
+  //       y: -400,
+  //       minScroll: 400,
+  //       maxScroll: 1000,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 2200,
-      y: -350,
-      minScroll: 1000,
-      maxScroll: 1100,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2250,
-      y: -400,
-      minScroll: 1100,
-      maxScroll: 1200,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2300,
-      y: -450,
-      minScroll: 1200,
-      maxScroll: 1300,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2350,
-      y: -500,
-      minScroll: 1300,
-      maxScroll: 1350,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2400,
-      y: -550,
-      minScroll: 1400,
-      maxScroll: 1450,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2450,
-      y: -600,
-      minScroll: 800,
-      maxScroll: 900,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2500,
-      y: -650,
-      minScroll: 900,
-      maxScroll: 1000,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2550,
-      y: -700,
-      minScroll: 1000,
-      maxScroll: 1100,
-    },
+  //     {
+  //       url: AirBalloonOne,
+  //       x: 700,
+  //       y: -400,
+  //       minScroll: 400,
+  //       maxScroll: 1000,
+  //     },
+  //     {
+  //       url: AirBalloonOne,
+  //       x: 1200,
+  //       y: -400,
+  //       minScroll: 500,
+  //       maxScroll: 1000,
+  //     },
+  //     {
+  //       url: AirBalloonTwo,
+  //       x: 1600,
+  //       y: -600,
+  //       minScroll: 600,
+  //       maxScroll: 1200,
+  //     },
+  //     {
+  //       url: AirBalloonOne,
+  //       x: 2200,
+  //       y: -900,
+  //       minScroll: 900,
+  //       maxScroll: 1400,
+  //     },
+  //     {
+  //       url: AirBalloonTwo,
+  //       x: 2500,
+  //       y: -1100,
+  //       minScroll: 1000,
+  //       maxScroll: 1600,
+  //     },
+  //     {
+  //       url: AirBalloonOne,
+  //       x: 2700,
+  //       y: -1600,
+  //       minScroll: 1700,
+  //       maxScroll: 2200,
+  //     },
+  //     {
+  //       url: AirBalloonOne,
+  //       x: 2450,
+  //       y: -1200,
+  //       minScroll: 1250,
+  //       maxScroll: 1600,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 2600,
-      y: -750,
-      minScroll: 1100,
-      maxScroll: 1200,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2600,
-      y: -800,
-      minScroll: 1100,
-      maxScroll: 1200,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2600,
-      y: -800,
-      minScroll: 1150,
-      maxScroll: 1250,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2550,
-      y: -800,
-      minScroll: 1150,
-      maxScroll: 1250,
-    },
+  //     {
+  //       url: AirBalloonTwo,
+  //       x: 1950,
+  //       y: -1250,
+  //       minScroll: 1250,
+  //       maxScroll: 1600,
+  //     },
+  //     {
+  //       url: AirBalloonTwo,
+  //       x: 2000,
+  //       y: -1350,
+  //       minScroll: 1350,
+  //       maxScroll: 1750,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 2570,
-      y: -820,
-      minScroll: 1170,
-      maxScroll: 1250,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2590,
-      y: -820,
-      minScroll: 1170,
-      maxScroll: 1270,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2600,
-      y: -840,
-      minScroll: 1200,
-      maxScroll: 1300,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2800,
-      y: -950,
-      minScroll: 1300,
-      maxScroll: 1400,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2820,
-      y: -950,
-      minScroll: 1300,
-      maxScroll: 1400,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2850,
-      y: -980,
-      minScroll: 1300,
-      maxScroll: 1400,
-    },
+  //     {
+  //       url: CloudsTwo,
+  //       x: 2200,
+  //       y: -2100,
+  //       minScroll: 3000,
+  //       maxScroll: 3500,
+  //     },
+  //     {
+  //       url: SatelliteOne,
+  //       x: 3500,
+  //       y: -3000,
+  //       minScroll: 3050,
+  //       maxScroll: 3500,
+  //     },
+  //     {
+  //       url: SatelliteOne,
+  //       x: 4500,
+  //       y: -3400,
+  //       minScroll: 3500,
+  //       maxScroll: 4000,
+  //     },
+  //     {
+  //       url: SatelliteTwo,
+  //       x: 4500,
+  //       y: -3600,
+  //       minScroll: 3700,
+  //       maxScroll: 3900,
+  //     },
+  //     {
+  //       url: PlanetImageOne,
+  //       x: 4500,
+  //       y: -4100,
+  //       minScroll: 3800,
+  //       maxScroll: 4500,
+  //     },
+  //     {
+  //       url: PlanetImageTwo,
+  //       x: 5500,
+  //       y: -4400,
+  //       minScroll: 3900,
+  //       maxScroll: 4650,
+  //     },
+  //     {
+  //       url: PlanetImageThree,
+  //       x: 5700,
+  //       y: -4000,
+  //       minScroll: 4100,
+  //       maxScroll: 4900,
+  //     },
+  //     {
+  //       url: GalaxyImageOne,
+  //       x: 6000,
+  //       y: -5000,
+  //       minScroll: 5000,
+  //       maxScroll: 5600,
+  //     },
+  //     {
+  //       url: StarsImage,
+  //       x: 6000,
+  //       y: -5500,
+  //       minScroll: 5500,
+  //       maxScroll: 10600,
+  //     },
+  //   ]);
 
-    {
-      url: ParachuteSprite,
-      x: 2870,
-      y: -1000,
-      minScroll: 1300,
-      maxScroll: 1400,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2900,
-      y: -1000,
-      minScroll: 1350,
-      maxScroll: 1450,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2920,
-      y: -1000,
-      minScroll: 1350,
-      maxScroll: 1450,
-    },
+  //   const [sprites, setSprites] = useState([
+  //     {
+  //       url: FireOneSprite,
+  //       frames: FireOneSpriteJson.frames as SpriteFrames,
+  //       animation: FireOneSpriteJson.animations.Fire1,
+  //       x: 800,
+  //       y: 100,
+  //       minScroll: 20,
+  //       maxScroll: 500,
+  //       currentFrameIndex: 0,
+  //     },
+  //     {
+  //       url: FireTwoSprite,
+  //       frames: FireTwoSpriteJson.frames as SpriteFrames,
+  //       animation: FireTwoSpriteJson.animations.Fire2,
+  //       x: 800,
+  //       y: 100,
+  //       minScroll: 20,
+  //       maxScroll: 500,
+  //       currentFrameIndex: 0,
+  //     },
+  //     {
+  //       url: FireThreeSprite,
+  //       frames: FireThreeSpriteJson.frames as SpriteFrames,
+  //       animation: FireThreeSpriteJson.animations.Fire3,
+  //       x: 800,
+  //       y: 100,
+  //       minScroll: 20,
+  //       maxScroll: 500,
+  //       currentFrameIndex: 0,
+  //     },
+  //     {
+  //       url: FireFourSprite,
+  //       frames: FireFourSpriteJson.frames as SpriteFrames,
+  //       animation: FireFourSpriteJson.animations.Fire4,
+  //       x: 800,
+  //       y: 100,
+  //       minScroll: 20,
+  //       maxScroll: 500,
+  //       currentFrameIndex: 0,
+  //     },
 
-    {
-      url: ParachuteSprite,
-      x: 2980,
-      y: -1080,
-      minScroll: 1400,
-      maxScroll: 1500,
-    },
-    {
-      url: ParachuteSprite,
-      x: 2980,
-      y: -1100,
-      minScroll: 1450,
-      maxScroll: 1550,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3050,
-      y: -1140,
-      minScroll: 1450,
-      maxScroll: 1550,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3100,
-      y: -1190,
-      minScroll: 1500,
-      maxScroll: 1650,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3150,
-      y: -1240,
-      minScroll: 1550,
-      maxScroll: 1700,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3200,
-      y: -1290,
-      minScroll: 1600,
-      maxScroll: 1750,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3250,
-      y: -1340,
-      minScroll: 1650,
-      maxScroll: 1800,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3300,
-      y: -1390,
-      minScroll: 1700,
-      maxScroll: 1850,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3350,
-      y: -1440,
-      minScroll: 1750,
-      maxScroll: 1900,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3400,
-      y: -1490,
-      minScroll: 1800,
-      maxScroll: 1950,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3450,
-      y: -1540,
-      minScroll: 1850,
-      maxScroll: 2000,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3500,
-      y: -1590,
-      minScroll: 1900,
-      maxScroll: 2050,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3550,
-      y: -1640,
-      minScroll: 1950,
-      maxScroll: 2100,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3600,
-      y: -1690,
-      minScroll: 2000,
-      maxScroll: 2150,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3650,
-      y: -1740,
-      minScroll: 2050,
-      maxScroll: 2200,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3700,
-      y: -1790,
-      minScroll: 2100,
-      maxScroll: 2250,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3750,
-      y: -1840,
-      minScroll: 2150,
-      maxScroll: 2300,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3800,
-      y: -1890,
-      minScroll: 2200,
-      maxScroll: 2350,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3850,
-      y: -1940,
-      minScroll: 2250,
-      maxScroll: 2400,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3900,
-      y: -1990,
-      minScroll: 2300,
-      maxScroll: 2450,
-    },
-    {
-      url: ParachuteSprite,
-      x: 3950,
-      y: -2040,
-      minScroll: 2350,
-      maxScroll: 2500,
-    },
-    {
-      url: ParachuteSprite,
-      x: 4000,
-      y: -2090,
-      minScroll: 2400,
-      maxScroll: 2550,
-    },
-    {
-      url: ParachuteSprite,
-      x: 4050,
-      y: -2140,
-      minScroll: 2450,
-      maxScroll: 2600,
-    },
-    {
-      url: ParachuteSprite,
-      x: 4100,
-      y: -2190,
-      minScroll: 2500,
-      maxScroll: 2650,
-    },
-  ]);
+  // {
+  //   url: BoomSprite,
+  //   frames: BoomSpriteJson.frames as SpriteFrames,
+  //   animation: BoomSpriteJson.animations.Boom,
+  //   x: 800,
+  //   y: 100,
+  //   minScroll: 20,
+  //   maxScroll: 500,
+  //   currentFrameIndex: 0,
+  // },
 
-  const drawableObjects = [...images].sort(
+  //     {
+  //       url: LoaderSprite,
+  //       frames: LoaderSpriteJson.frames as SpriteFrames,
+  //       animation: LoaderSpriteJson.animations.Loader,
+  //       x: 800,
+  //       y: 100,
+  //       minScroll: 20,
+  //       maxScroll: 500,
+  //       currentFrameIndex: 0,
+  //     },
+  //   ]);
+
+  //   const [parachutes, setParachutes] = useState([
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 1800,
+  //       y: 0,
+  //       minScroll: 500,
+  //       maxScroll: 600,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 1850,
+  //       y: 0,
+  //       minScroll: 500,
+  //       maxScroll: 600,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 1850,
+  //       y: -100,
+  //       minScroll: 550,
+  //       maxScroll: 650,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 1900,
+  //       y: -150,
+  //       minScroll: 550,
+  //       maxScroll: 650,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 1950,
+  //       y: -150,
+  //       minScroll: 600,
+  //       maxScroll: 700,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2000,
+  //       y: -150,
+  //       minScroll: 600,
+  //       maxScroll: 700,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2050,
+  //       y: -200,
+  //       minScroll: 700,
+  //       maxScroll: 800,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2100,
+  //       y: -250,
+  //       minScroll: 800,
+  //       maxScroll: 900,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2150,
+  //       y: -300,
+  //       minScroll: 900,
+  //       maxScroll: 1000,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2200,
+  //       y: -350,
+  //       minScroll: 1000,
+  //       maxScroll: 1100,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2250,
+  //       y: -400,
+  //       minScroll: 1100,
+  //       maxScroll: 1200,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2300,
+  //       y: -450,
+  //       minScroll: 1200,
+  //       maxScroll: 1300,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2350,
+  //       y: -500,
+  //       minScroll: 1300,
+  //       maxScroll: 1350,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2400,
+  //       y: -550,
+  //       minScroll: 1400,
+  //       maxScroll: 1450,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2450,
+  //       y: -600,
+  //       minScroll: 800,
+  //       maxScroll: 900,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2500,
+  //       y: -650,
+  //       minScroll: 900,
+  //       maxScroll: 1000,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2550,
+  //       y: -700,
+  //       minScroll: 1000,
+  //       maxScroll: 1100,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2600,
+  //       y: -750,
+  //       minScroll: 1100,
+  //       maxScroll: 1200,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2600,
+  //       y: -800,
+  //       minScroll: 1100,
+  //       maxScroll: 1200,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2600,
+  //       y: -800,
+  //       minScroll: 1150,
+  //       maxScroll: 1250,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2550,
+  //       y: -800,
+  //       minScroll: 1150,
+  //       maxScroll: 1250,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2570,
+  //       y: -820,
+  //       minScroll: 1170,
+  //       maxScroll: 1250,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2590,
+  //       y: -820,
+  //       minScroll: 1170,
+  //       maxScroll: 1270,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2600,
+  //       y: -840,
+  //       minScroll: 1200,
+  //       maxScroll: 1300,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2800,
+  //       y: -950,
+  //       minScroll: 1300,
+  //       maxScroll: 1400,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2820,
+  //       y: -950,
+  //       minScroll: 1300,
+  //       maxScroll: 1400,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2850,
+  //       y: -980,
+  //       minScroll: 1300,
+  //       maxScroll: 1400,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2870,
+  //       y: -1000,
+  //       minScroll: 1300,
+  //       maxScroll: 1400,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2900,
+  //       y: -1000,
+  //       minScroll: 1350,
+  //       maxScroll: 1450,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2920,
+  //       y: -1000,
+  //       minScroll: 1350,
+  //       maxScroll: 1450,
+  //     },
+
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2980,
+  //       y: -1080,
+  //       minScroll: 1400,
+  //       maxScroll: 1500,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 2980,
+  //       y: -1100,
+  //       minScroll: 1450,
+  //       maxScroll: 1550,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3050,
+  //       y: -1140,
+  //       minScroll: 1450,
+  //       maxScroll: 1550,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3100,
+  //       y: -1190,
+  //       minScroll: 1500,
+  //       maxScroll: 1650,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3150,
+  //       y: -1240,
+  //       minScroll: 1550,
+  //       maxScroll: 1700,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3200,
+  //       y: -1290,
+  //       minScroll: 1600,
+  //       maxScroll: 1750,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3250,
+  //       y: -1340,
+  //       minScroll: 1650,
+  //       maxScroll: 1800,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3300,
+  //       y: -1390,
+  //       minScroll: 1700,
+  //       maxScroll: 1850,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3350,
+  //       y: -1440,
+  //       minScroll: 1750,
+  //       maxScroll: 1900,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3400,
+  //       y: -1490,
+  //       minScroll: 1800,
+  //       maxScroll: 1950,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3450,
+  //       y: -1540,
+  //       minScroll: 1850,
+  //       maxScroll: 2000,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3500,
+  //       y: -1590,
+  //       minScroll: 1900,
+  //       maxScroll: 2050,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3550,
+  //       y: -1640,
+  //       minScroll: 1950,
+  //       maxScroll: 2100,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3600,
+  //       y: -1690,
+  //       minScroll: 2000,
+  //       maxScroll: 2150,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3650,
+  //       y: -1740,
+  //       minScroll: 2050,
+  //       maxScroll: 2200,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3700,
+  //       y: -1790,
+  //       minScroll: 2100,
+  //       maxScroll: 2250,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3750,
+  //       y: -1840,
+  //       minScroll: 2150,
+  //       maxScroll: 2300,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3800,
+  //       y: -1890,
+  //       minScroll: 2200,
+  //       maxScroll: 2350,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3850,
+  //       y: -1940,
+  //       minScroll: 2250,
+  //       maxScroll: 2400,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3900,
+  //       y: -1990,
+  //       minScroll: 2300,
+  //       maxScroll: 2450,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 3950,
+  //       y: -2040,
+  //       minScroll: 2350,
+  //       maxScroll: 2500,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 4000,
+  //       y: -2090,
+  //       minScroll: 2400,
+  //       maxScroll: 2550,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 4050,
+  //       y: -2140,
+  //       minScroll: 2450,
+  //       maxScroll: 2600,
+  //     },
+  //     {
+  //       url: ParachuteSprite,
+  //       x: 4100,
+  //       y: -2190,
+  //       minScroll: 2500,
+  //       maxScroll: 2650,
+  //     },
+  //   ]);
+
+  const stillObjects = [...stillImageObjects].sort(
     (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
   );
 
-  // useEffect(() => {
-  //   const canvas = waitingCanvasRef.current;
-  //   if (!canvas) return;
-  //   const ctx = canvas.getContext("2d");
-  //   if (!ctx) return;
-  //   const image = new Image();
-  //   image.src = LoaderSprite;
-
-  //   // Assuming LoaderSpriteJson has a structure similar to what the error message describes
-  //   const frames = Object.values(LoaderSpriteJson.frames).map((frameData) => ({
-  //     ...frameData,
-  //     frame: {
-  //       x: frameData.frame.x,
-  //       y: frameData.frame.y,
-  //       width: frameData.frame.w,
-  //       height: frameData.frame.h,
-  //     },
-  //   }));
-
-  //   let lastTime = 0;
-  //   let currentFrameIndex = 0;
-
-  //   const animate = (time: number) => {
-  //     if (!lastTime) {
-  //       lastTime = time;
-  //     }
-  //     const deltaTime = time - lastTime;
-
-  //     if (deltaTime > 100) {
-  //       ctx.clearRect(0, 0, canvas.width, canvas.height);
-  //       const frame = frames[currentFrameIndex % frames.length];
-  //       ctx.drawImage(
-  //         image,
-  //         frame.frame.x,
-  //         frame.frame.y,
-  //         frame.frame.width,
-  //         frame.frame.height,
-  //         0,
-  //         0,
-  //         frame.frame.width,
-  //         frame.frame.height
-  //       );
-
-  //       currentFrameIndex++;
-  //       lastTime = time;
-  //     }
-  //     requestRef.current = requestAnimationFrame(animate);
-  //   };
-
-  //   image.onload = () => {
-  //     requestRef.current = requestAnimationFrame(animate);
-  //   };
-
-  //   return () => {
-  //     if (requestRef.current) cancelAnimationFrame(requestRef.current);
-  //   };
-  // }, []);
-
   //Load images
-  useEffect(() => {
-    [...images, ...sprites, ...parachutes].forEach((img) => {
-      const image = new Image();
-      image.src = img.url;
-      image.onload = () => {
-        imageObjects.current.set(img.url, image);
-      };
-    });
-  }, [images, sprites, parachutes]);
+  //   useEffect(() => {
+  //     preloadImages().then(() => {
+  //       setLoadingAssetsComplete(true);
+  //     });
+  //   }, [preloadImages]);
+
+  //   useEffect(() => {
+  //     [...images, ...sprites, ...parachutes].forEach((img) => {
+  //       const image = new Image();
+  //       image.src = img.url;
+  //       image.onload = () => {
+  //         imageObjects.current.set(img.url, image);
+  //       };
+  //     });
+  //   }, [images, sprites, parachutes]);
 
   useEffect(() => {
     if (gameState === RUNNING) {
@@ -870,34 +1008,42 @@ const BackgroundCanvas: React.FC = () => {
 
     const drawJetAndFlameSprites = () => {
       // const jetImage = imageObjects.current.get(obj.url === JetImage)
+      if (gameState !== RUNNING) return;
 
-      drawableObjects.forEach((obj) => {
+      stillObjects.forEach((obj) => {
         const image = imageObjects.current.get(obj.url);
         if (image) {
           let scaledWidth = image.width * scale;
           let scaledHeight = image.height * scale;
+
           let scaledX: number, scaledY: number;
 
           if (image.src === JetImage) {
             scaledX = (obj.x + offsetX) * scale;
             scaledY = (obj.y - offsetY) * scale;
 
-            sprites.forEach((sprite) => {
-              if (elapsedTime < 5000) {
+            flameSprites.forEach((sprite) => {
+              if (elapsedTime < 12000) {
                 sprite.url = FireOneSprite;
-              } else if (elapsedTime < 12000) {
+              } else if (elapsedTime < 22000) {
                 sprite.url = FireTwoSprite;
-              } else if (elapsedTime < 20000) {
+              } else if (elapsedTime < 35000) {
                 sprite.url = FireThreeSprite;
               } else {
                 sprite.url = FireFourSprite;
               }
 
+              if (
+                !sprite.animation ||
+                !sprite.currentFrameIndex ||
+                !sprite.frames
+              )
+                return;
               const frameKey = sprite.animation[sprite.currentFrameIndex];
               const frame = sprite.frames[frameKey].frame;
               const spriteImage = imageObjects.current.get(sprite.url);
 
-              if (spriteImage && isRunning) {
+              if (spriteImage) {
                 let spriteX: number = 0,
                   spriteY: number = 0;
                 let angle = 0;
@@ -933,10 +1079,6 @@ const BackgroundCanvas: React.FC = () => {
                   );
                   ctx.rotate(angle);
                   spriteX = spriteY = 0;
-                }
-
-                if (gameState === "WAITING") {
-                  ctx.globalAlpha = 0.5;
                 }
 
                 ctx.drawImage(
@@ -990,7 +1132,7 @@ const BackgroundCanvas: React.FC = () => {
     };
 
     const drawStillImageObjects = () => {
-      drawableObjects.forEach((obj) => {
+      stillObjects.forEach((obj) => {
         const image = imageObjects.current.get(obj.url);
 
         if (image && image.src !== JetImage) {
@@ -1010,8 +1152,8 @@ const BackgroundCanvas: React.FC = () => {
       });
     };
 
-    const drawParachutes = () => {
-      parachutes.forEach((obj) => {
+    const drawMovingImageObjects = () => {
+      movingImageObjects.forEach((obj) => {
         const parachuteImage = imageObjects.current.get(obj.url);
 
         if (parachuteImage) {
@@ -1039,25 +1181,22 @@ const BackgroundCanvas: React.FC = () => {
 
     const drawLoading = () => {
       const ctx = waitingCanvasRef.current?.getContext("2d");
-      if (!ctx || gameState !== WAITING) return;
-
-      const loaderSpriteData = sprites.find(
-        (sprite) => sprite.url === LoaderSprite
-      );
-      if (!loaderSpriteData) return;
+      if (!ctx || gameState !== WAITING || !loadingAssetsComplete) return;
 
       const image = new Image();
-      image.src = loaderSpriteData.url;
+
+      // image.src = loaderSpriteData.url;
+      image.src = LoaderSprite;
 
       const animationDuration = 6000;
 
-      const totalFrames: number = loaderSpriteData.animation.length;
+      const totalFrames: number = LoaderSpriteJson.animations.Loader.length;
 
       const frameDuration = animationDuration / totalFrames;
 
       let animationStartTime: number;
 
-      const frames = Object.values(loaderSpriteData.frames).map(
+      const frames = Object.values(LoaderSpriteJson.frames).map(
         (frameData) => ({
           ...frameData,
           frame: {
@@ -1108,7 +1247,7 @@ const BackgroundCanvas: React.FC = () => {
 
           requestAnimationFrame(animate);
         } else {
-          setGameState(RUNNING)
+          setGameState(RUNNING);
         }
       };
 
@@ -1120,24 +1259,26 @@ const BackgroundCanvas: React.FC = () => {
     drawLoading();
     drawGradientBackground();
     drawStillImageObjects();
+
     drawJetAndFlameSprites();
-    drawParachutes();
+
+    drawMovingImageObjects();
   }, [
     diagonalLength,
-    drawableObjects,
     elapsedTime,
+    flameSprites,
     gameState,
-    isRunning,
     jetPhase,
+    loadingAssetsComplete,
+    movingImageObjects,
     offsetX,
     offsetY,
-    parachutes,
     scale,
     screenHeight,
     screenWidth,
     scrollPosition,
-    sprites,
     startTime,
+    stillObjects,
   ]);
 
   useEffect(() => {
