@@ -31,18 +31,25 @@ export interface SpriteFrames {
   [key: string]: Frame;
 }
 
-export interface ImageSprite {
+export interface SpriteObject {
+  url: string;
+  x: number;
+  y: number;
+  minScroll: number;
+  maxScroll: number;
+  frames: SpriteFrames;
+  animation: string[];
+  currentFrameIndex: number;
+}
+
+export interface ImageObject {
   url: string;
   x: number;
   y: number;
   minScroll: number;
   maxScroll: number;
   zIndex?: number;
-  frames?: SpriteFrames; 
-  animation?: string[];
-  currentFrameIndex?: number;
 }
-
 
 export interface AnimatedSprite {
   url: string;
@@ -55,7 +62,6 @@ export interface AnimatedSprite {
   animation: string[];
   currentFrameIndex: number;
 }
-
 
 export interface JetStateUpdate {
   phase?: string;
