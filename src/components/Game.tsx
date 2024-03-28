@@ -467,181 +467,171 @@ const BackgroundCanvas: React.FC = () => {
       if (gameState !== RUNNING) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      //let jetIndex = stillObjects.findIndex((img) => img.url === JetImage);
-      // if (elapsedTime < 2000) {
-      //   if (jetIndex !== -1) {
-      //     let initialJetX = stillObjects[jetIndex].x;
-      //     let movementDistance = (elapsedTime * 10) / 2000;
+      let jetIndex = stillObjects.findIndex((img) => img.url === JetImage);
+      if (elapsedTime < 2000) {
+        if (jetIndex !== -1) {
+          let initialJetX = stillObjects[jetIndex].x;
+          let movementDistance = (elapsedTime * 10) / 2000;
 
-      //     stillObjects[jetIndex].x = initialJetX + movementDistance;
+          stillObjects[jetIndex].x = initialJetX + movementDistance;
 
-      //     const jetImage = imageObjects.current.get(JetImage);
+          const jetImage = imageObjects.current.get(JetImage);
 
-      //     let scaledWidth = jetImage.width * scale;
-      //     let scaledHeight = jetImage.height * scale;
+          let scaledWidth = jetImage.width * scale;
+          let scaledHeight = jetImage.height * scale;
 
-      //     // let scaledX = jetImage.x * scale;
-      //     // let scaledY = jetImage.y * scale;
+          if (jetImage) {
+            let scaledX = (jetImage.x + offsetX) * scale;
+            let scaledY = (jetImage.y - offsetY) * scale;
 
-      //     if (jetImage) {
-      //     let  scaledX = (jetImage.x + offsetX) * scale;
-      //     let  scaledY = (jetImage.y - offsetY) * scale;
+            if (scaledY <= screenHeight * 0.25) {
+              scaledY = screenHeight * 0.25;
 
-      //       if (scaledY <= screenHeight * 0.25) {
-      //         scaledY = screenHeight * 0.25;
+              if (capturedXRef.current === null) {
+                capturedXRef.current = scaledX;
+              }
+              scaledX = capturedXRef.current;
+            } else {
+              capturedXRef.current = null;
+            }
 
-      //         if (capturedXRef.current === null) {
-      //           capturedXRef.current = scaledX;
-      //         }
-      //         scaledX = capturedXRef.current;
-      //       } else {
-      //         capturedXRef.current = null;
-      //       }
+            bgCtx.save();
 
-      //       bgCtx.save();
+            bgCtx.translate(
+              scaledX + scaledWidth / 2,
+              scaledY + scaledHeight / 2
+            );
 
-      //       bgCtx.translate(
-      //         scaledX + scaledWidth / 2,
-      //         scaledY + scaledHeight / 2
-      //       );
+            if (elapsedTime > 2000) {
+              bgCtx.rotate(-(45 * Math.PI) / 180);
+            }
 
-      //       if (elapsedTime > 2000) {
+            bgCtx.restore();
+          }
+        }
+      }
 
-      //         bgCtx.rotate(-(45 * Math.PI) / 180);
+      stillObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url);
 
-      //       }
+        if (image) {
+          let scaledWidth = image.width * scale;
+          let scaledHeight = image.height * scale;
 
-      //       bgCtx.restore();
-      //     }
+          let scaledX: number, scaledY: number;
 
-      //   }
-      // }
+          if (image.src === JetImage) {
+            scaledX = (obj.x + offsetX) * scale;
+            scaledY = (obj.y - offsetY) * scale;
 
-   //   drawJet(elapsedTime);
+            flameSprites.forEach((sprite) => {
+              if (elapsedTime < 5000) {
+                sprite.url = FireOneSprite;
+              } else if (elapsedTime < 12000) {
+                sprite.url = FireTwoSprite;
+              } else if (elapsedTime < 20000) {
+                sprite.url = FireThreeSprite;
+              } else {
+                sprite.url = FireFourSprite;
+              }
 
+              let totalFrames = sprite.animation.length;
+              const frameDuration = 10;
 
-      // stillObjects.forEach((obj) => {
-      //   const image = imageObjects.current.get(obj.url);
+              const currentFrameIndex =
+                Math.floor(elapsedTime / frameDuration) % totalFrames;
+              const frameKey = sprite.animation[currentFrameIndex];
+              const frame = sprite.frames[frameKey].frame;
 
-      //   if (image) {
-      //     let scaledWidth = image.width * scale;
-      //     let scaledHeight = image.height * scale;
+              const spriteImage = imageObjects.current.get(sprite.url);
 
-      //     let scaledX: number, scaledY: number;
+              if (spriteImage) {
+                let spriteX: number = 0,
+                  spriteY: number = 0;
+                let angle = 0;
 
-      //     if (image.src === JetImage) {
-      //       scaledX = (obj.x + offsetX) * scale;
-      //       scaledY = (obj.y - offsetY) * scale;
+                if (elapsedTime < 2000) {
+                  spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
+                  spriteY = (obj.y - offsetY) * scale;
+                } else if (
+                  elapsedTime > 2000 &&
+                  scaledY > screenHeight * 0.25
+                ) {
+                  spriteX = (obj.x + offsetX - image.width / 2) * scale;
+                  spriteY = (obj.y - offsetY + image.height * 2) * scale;
+                  angle = (-45 * Math.PI) / 180;
+                } else if (
+                  elapsedTime > 2000 &&
+                  scaledY <= screenHeight * 0.25
+                ) {
+                  spriteX = screenWidth * 0.7;
+                  spriteY = screenHeight * 0.35;
+                  angle = (-45 * Math.PI) / 180;
+                }
 
-      //       flameSprites.forEach((sprite) => {
-      //         if (elapsedTime < 5000) {
-      //           sprite.url = FireOneSprite;
-      //         } else if (elapsedTime < 12000) {
-      //           sprite.url = FireTwoSprite;
-      //         } else if (elapsedTime < 20000) {
-      //           sprite.url = FireThreeSprite;
-      //         } else {
-      //           sprite.url = FireFourSprite;
-      //         }
+                const scaledFrameWidth = frame.w * scale;
+                const scaledFrameHeight = frame.h * scale;
 
-      //         let totalFrames = sprite.animation.length;
-      //         const frameDuration = 10;
+                bgCtx.save();
 
-      //         const currentFrameIndex =
-      //           Math.floor(elapsedTime / frameDuration) % totalFrames;
-      //         const frameKey = sprite.animation[currentFrameIndex];
-      //         const frame = sprite.frames[frameKey].frame;
+                if (elapsedTime > 2000) {
+                  bgCtx.translate(
+                    spriteX + scaledFrameWidth / 2,
+                    spriteY + scaledFrameHeight / 2
+                  );
+                  bgCtx.rotate(angle);
+                  spriteX = spriteY = 0;
+                }
 
-      //         const spriteImage = imageObjects.current.get(sprite.url);
+                bgCtx.drawImage(
+                  spriteImage,
+                  frame.x,
+                  frame.y,
+                  frame.w,
+                  frame.h,
+                  spriteX - (elapsedTime > 2000 ? scaledFrameWidth / 2 : 0),
+                  spriteY - (elapsedTime > 2000 ? scaledFrameHeight / 2 : 0),
+                  scaledFrameWidth,
+                  scaledFrameHeight
+                );
 
-      //         if (spriteImage) {
-      //           let spriteX: number = 0,
-      //             spriteY: number = 0;
-      //           let angle = 0;
+                bgCtx.restore();
+              }
+            });
 
-      //           if (elapsedTime < 2000) {
-      //             spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
-      //             spriteY = (obj.y - offsetY) * scale;
-      //           } else if (
-      //             elapsedTime > 2000 &&
-      //             scaledY > screenHeight * 0.25
-      //           ) {
-      //             spriteX = (obj.x + offsetX - image.width / 2) * scale;
-      //             spriteY = (obj.y - offsetY + image.height * 2) * scale;
-      //             angle = (-45 * Math.PI) / 180;
-      //           } else if (
-      //             elapsedTime > 2000 &&
-      //             scaledY <= screenHeight * 0.25
-      //           ) {
-      //             spriteX = screenWidth * 0.7;
-      //             spriteY = screenHeight * 0.35;
-      //             angle = (-45 * Math.PI) / 180;
-      //           }
+            if (scaledY <= screenHeight * 0.25) {
+              scaledY = screenHeight * 0.25;
 
-      //           const scaledFrameWidth = frame.w * scale;
-      //           const scaledFrameHeight = frame.h * scale;
+              if (capturedXRef.current === null) {
+                capturedXRef.current = scaledX;
+              }
+              scaledX = capturedXRef.current;
+            } else {
+              capturedXRef.current = null;
+            }
 
-      //           bgCtx.save();
+            bgCtx.save();
+            bgCtx.translate(
+              scaledX + scaledWidth / 2,
+              scaledY + scaledHeight / 2
+            );
 
-      //           if (elapsedTime > 2000) {
-      //             bgCtx.translate(
-      //               spriteX + scaledFrameWidth / 2,
-      //               spriteY + scaledFrameHeight / 2
-      //             );
-      //             bgCtx.rotate(angle);
-      //             spriteX = spriteY = 0;
-      //           }
+            if (elapsedTime > 2000) {
+              bgCtx.rotate(-(45 * Math.PI) / 180);
+            }
 
-      //           bgCtx.drawImage(
-      //             spriteImage,
-      //             frame.x,
-      //             frame.y,
-      //             frame.w,
-      //             frame.h,
-      //             spriteX - (elapsedTime > 2000 ? scaledFrameWidth / 2 : 0),
-      //             spriteY - (elapsedTime > 2000 ? scaledFrameHeight / 2 : 0),
-      //             scaledFrameWidth,
-      //             scaledFrameHeight
-      //           );
+            bgCtx.drawImage(
+              image,
+              -scaledWidth / 2,
+              -scaledHeight / 2,
+              scaledWidth,
+              scaledHeight
+            );
 
-      //           bgCtx.restore();
-      //         }
-      //       });
-
-      //       if (scaledY <= screenHeight * 0.25) {
-      //         scaledY = screenHeight * 0.25;
-
-      //         if (capturedXRef.current === null) {
-      //           capturedXRef.current = scaledX;
-      //         }
-      //         scaledX = capturedXRef.current;
-      //       } else {
-      //         capturedXRef.current = null;
-      //       }
-
-      //       bgCtx.save();
-      //       bgCtx.translate(
-      //         scaledX + scaledWidth / 2,
-      //         scaledY + scaledHeight / 2
-      //       );
-
-      //       if (elapsedTime > 2000) {
-      //         bgCtx.rotate(-(45 * Math.PI) / 180);
-      //       }
-
-      //       bgCtx.drawImage(
-      //         image,
-      //         -scaledWidth / 2,
-      //         -scaledHeight / 2,
-      //         scaledWidth,
-      //         scaledHeight
-      //       );
-
-      //       bgCtx.restore();
-      //     }
-
-      //   }
-      // });
+            bgCtx.restore();
+          }
+        }
+      });
     };
 
     // const updateJetPosition = (elapsedTime: number) => {
@@ -679,7 +669,6 @@ const BackgroundCanvas: React.FC = () => {
     //   }
     //   return { spriteX, spriteY, angle };
     // };
-
 
     // const drawSprite = (
     //   spriteImage: HTMLImageElement,
@@ -736,8 +725,6 @@ const BackgroundCanvas: React.FC = () => {
     //   );
     //   bgCtx.restore();
     // };
-
-
 
     // const drawJetAndFlameSprites = () => {
     //   if (gameState !== RUNNING) return;
@@ -846,32 +833,32 @@ const BackgroundCanvas: React.FC = () => {
       });
     };
 
-    // const drawMovingImageObjects = () => {
-    //   movingImageObjects.forEach((obj) => {
-    //     const parachuteImage = imageObjects.current.get(obj.url);
+    const drawMovingImageObjects = () => {
+      movingImageObjects.forEach((obj) => {
+        const parachuteImage = imageObjects.current.get(obj.url);
 
-    //     if (parachuteImage) {
-    //       let scaledWidth = parachuteImage.width * 0.2 * scale;
-    //       let scaledHeight = parachuteImage.height * 0.2 * scale;
-    //       let scaledX, scaledY;
+        if (parachuteImage) {
+          let scaledWidth = parachuteImage.width * 0.2 * scale;
+          let scaledHeight = parachuteImage.height * 0.2 * scale;
+          let scaledX, scaledY;
 
-    //       if (
-    //         scrollPosition >= obj.minScroll &&
-    //         scrollPosition <= obj.maxScroll
-    //       ) {
-    //         scaledX = (obj.x - offsetX) * scale;
-    //         scaledY = (obj.y + offsetY) * scale;
-    //         bgCtx.drawImage(
-    //           parachuteImage,
-    //           scaledX,
-    //           scaledY,
-    //           scaledWidth,
-    //           scaledHeight
-    //         );
-    //       }
-    //     }
-    //   });
-    // };
+          if (
+            scrollPosition >= obj.minScroll &&
+            scrollPosition <= obj.maxScroll
+          ) {
+            scaledX = (obj.x - offsetX) * scale;
+            scaledY = (obj.y + offsetY) * scale;
+            bgCtx.drawImage(
+              parachuteImage,
+              scaledX,
+              scaledY,
+              scaledWidth,
+              scaledHeight
+            );
+          }
+        }
+      });
+    };
 
     const drawLoading = () => {
       if (
@@ -944,7 +931,7 @@ const BackgroundCanvas: React.FC = () => {
     drawGradientBackground();
     drawStillImageObjects();
     drawJetAndFlameSprites();
-    // drawMovingImageObjects();
+    drawMovingImageObjects();
   }, [
     currentStateStartTime,
     diagonalLength,
