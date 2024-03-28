@@ -6,11 +6,11 @@ export interface Frame {
   sourceSize: { w: number; h: number };
 }
 
-export interface JsonData {
-  frames: Record<string, Frame>;
-  animations: any;
-  meta: any;
-}
+// export interface JsonData {
+//   frames: Record<string, Frame>;
+//   animations: any;
+//   meta: any;
+// }
 
 
 export interface SpriteJson {
