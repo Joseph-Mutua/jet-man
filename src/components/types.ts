@@ -62,3 +62,20 @@ export interface JetStateUpdate {
   position?: { x: number; y: number };
   speed?: number;
 }
+
+
+export interface SpriteFrameData {
+  frames: {
+    [key: string]: {
+      frame: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      };
+    };
+  };
+  animations: {
+    [animationName: string]: string[];
+  };
+}
