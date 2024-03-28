@@ -12,7 +12,6 @@ export interface Frame {
 //   meta: any;
 // }
 
-
 export interface SpriteJson {
   frames: Record<string, Frame>;
   meta: {
@@ -20,6 +19,7 @@ export interface SpriteJson {
     scale: string;
     size: { w: number; h: number };
   };
+  zIndex?: number;
 }
 
 export interface SpriteProps {
@@ -29,4 +29,42 @@ export interface SpriteProps {
 
 export interface SpriteFrames {
   [key: string]: Frame;
+}
+
+export interface SpriteObject {
+  url: string;
+  x: number;
+  y: number;
+  minScroll: number;
+  maxScroll: number;
+  frames: SpriteFrames;
+  animation: string[];
+  currentFrameIndex: number;
+}
+
+export interface ImageObject {
+  url: string;
+  x: number;
+  y: number;
+  minScroll: number;
+  maxScroll: number;
+  zIndex?: number;
+}
+
+export interface AnimatedSprite {
+  url: string;
+  x: number;
+  y: number;
+  minScroll: number;
+  maxScroll: number;
+
+  frames: SpriteFrames;
+  animation: string[];
+  currentFrameIndex: number;
+}
+
+export interface JetStateUpdate {
+  phase?: string;
+  position?: { x: number; y: number };
+  speed?: number;
 }

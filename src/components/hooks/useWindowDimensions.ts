@@ -1,25 +1,85 @@
-import React, {useEffect, useState} from 'react'
+// import { useEffect, useState } from "react";
+
+// export const useWindowDimensions = () => {
+//   const baseWidth = 1920; 
+//   const baseHeight = 1080; 
+//   const maxWidth = window.innerWidth * 0.9;
+//   const aspectRatio = 16 / 9;
+
+//   const [dimensions, setDimensions] = useState({
+//     screenWidth: window.innerWidth,
+//     screenHeight: window.innerWidth / aspectRatio,
+//     aspectRatio: 16 / 9,
+//     scale: Math.min(
+//       window.innerWidth / baseWidth,
+//        window.innerWidth / aspectRatio / baseHeight
+//     ),
+//   });
+
+//   useEffect(() => {
+//     const handleResize = () => {
+//       const screenWidth = Math.min(window.innerWidth, maxWidth);
+//       const screenHeight = screenWidth / aspectRatio;
+//       const scale = Math.min(
+//         screenWidth / baseWidth,
+//         screenHeight / baseHeight
+//       );
+
+//       setDimensions({ screenWidth, screenHeight, aspectRatio, scale });
+//     };
+
+//     window.addEventListener("resize", handleResize);
+//     handleResize();
+
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, [aspectRatio, maxWidth]);
+
+//   return dimensions;
+// };
+
+
+import { useEffect, useState } from "react";
 
 export const useWindowDimensions = () => {
+  const baseWidth = 1920;
+  const baseHeight = 1080;
   const maxWidth = window.innerWidth * 0.9;
   const aspectRatio = 16 / 9;
+
   const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerWidth / aspectRatio,
+    screenWidth: window.innerWidth,
+    screenHeight: window.innerWidth / aspectRatio,
+    aspectRatio: 16 / 9,
+    scale: Math.min(
+      window.innerWidth / baseWidth,
+      window.innerWidth / aspectRatio / baseHeight
+    ),
   });
 
   useEffect(() => {
-    const handleResize = () => {
-      const width = Math.min(window.innerWidth, maxWidth);
-      const height = width / aspectRatio;
-      setDimensions({ width, height });
+    const handleResize = (entries: { contentRect: { width: number; }; }[]) => {
+      for (let entry of entries) {
+        const { width } = entry.contentRect;
+        const screenWidth = Math.min(width, maxWidth);
+        const screenHeight = screenWidth / aspectRatio;
+        const scale = Math.min(
+          screenWidth / baseWidth,
+          screenHeight / baseHeight
+        );
+
+        setDimensions({ screenWidth, screenHeight, aspectRatio, scale });
+      }
     };
-    setTimeout(handleResize, 100);
 
-    window.addEventListener("resize", handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(document.body);
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    // Initial resize trigger
+    handleResize([{ contentRect: { width: window.innerWidth } }]);
+
+    return () => resizeObserver.disconnect();
+  }, [maxWidth, aspectRatio, baseWidth, baseHeight]);
 
   return dimensions;
 };
+

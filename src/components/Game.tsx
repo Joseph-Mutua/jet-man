@@ -8,7 +8,7 @@ import React, {
 import "../App.css";
 
 //Game
-import { ENDED, IGameState, RUNNING, WAITING } from "../components/types";
+import { ENDED, IGameState, RUNNING, WAITING } from "../common/constants";
 
 //background images
 import AirportImage from "../assets/images/Airport.png";
@@ -634,6 +634,184 @@ const BackgroundCanvas: React.FC = () => {
       });
     };
 
+    // const updateJetPosition = (elapsedTime: number) => {
+    //   let jetIndex = stillObjects.findIndex((img) => img.url === JetImage);
+    //   if (jetIndex !== -1 && elapsedTime < 2000) {
+    //     let initialJetX = stillObjects[jetIndex].x;
+    //     let movementDistance = (elapsedTime * 10) / 2000;
+    //     stillObjects[jetIndex].x = initialJetX + movementDistance;
+    //   }
+    // };
+
+    // const updateSpritePositionAndRotation = (
+    //   obj: HTMLImageElement,
+    //   sprite: HTMLIFrameElement,
+    //   elapsedTime: number,
+    //   scaledX: number,
+    //   scaledY: number,
+    //   imageWidth: number,
+    //   imageHeight: number
+    // ) => {
+    //   let spriteX,
+    //     spriteY,
+    //     angle = 0;
+    //   if (elapsedTime < 2000) {
+    //     spriteX = (obj.x + offsetX - imageWidth / 1.2) * scale;
+    //     spriteY = (obj.y - offsetY) * scale;
+    //   } else if (elapsedTime > 2000 && scaledY > screenHeight * 0.25) {
+    //     spriteX = (obj.x + offsetX - imageWidth / 2) * scale;
+    //     spriteY = (obj.y - offsetY + imageHeight * 2) * scale;
+    //     angle = (-45 * Math.PI) / 180;
+    //   } else if (elapsedTime > 2000 && scaledY <= screenHeight * 0.25) {
+    //     spriteX = screenWidth * 0.73;
+    //     spriteY = screenHeight * 0.35;
+    //     angle = (-45 * Math.PI) / 180;
+    //   }
+    //   return { spriteX, spriteY, angle };
+    // };
+
+    // const drawSprite = (
+    //   spriteImage: HTMLImageElement,
+    //   frame: { x: number; y: number; w: number; h: number },
+    //   elapsedTime: number,
+    //   spriteX: number,
+    //   spriteY: number,
+    //   scaledFrameWidth: number,
+    //   scaledFrameHeight: number,
+    //   angle: number
+    // ) => {
+    //   bgCtx.save();
+    //   if (elapsedTime > 2000) {
+    //     bgCtx.translate(
+    //       spriteX + scaledFrameWidth / 2,
+    //       spriteY + scaledFrameHeight / 2
+    //     );
+    //     bgCtx.rotate(angle);
+    //     spriteX = spriteY = 0;
+    //   }
+    //   bgCtx.drawImage(
+    //     spriteImage,
+    //     frame.x,
+    //     frame.y,
+    //     frame.w,
+    //     frame.h,
+    //     spriteX - (elapsedTime > 2000 ? scaledFrameWidth / 2 : 0),
+    //     spriteY - (elapsedTime > 2000 ? scaledFrameHeight / 2 : 0),
+    //     scaledFrameWidth,
+    //     scaledFrameHeight
+    //   );
+    //   bgCtx.restore();
+    // };
+
+    // const drawJet = (
+    //   image: HTMLImageElement,
+    //   scaledX: number,
+    //   scaledY: number,
+    //   scaledWidth: number,
+    //   scaledHeight: number,
+    //   elapsedTime: number
+    // ) => {
+    //   bgCtx.save();
+    //   bgCtx.translate(scaledX + scaledWidth / 2, scaledY + scaledHeight / 2);
+    //   if (elapsedTime > 2000) {
+    //     bgCtx.rotate(-(45 * Math.PI) / 180);
+    //   }
+    //   bgCtx.drawImage(
+    //     image,
+    //     -scaledWidth / 2,
+    //     -scaledHeight / 2,
+    //     scaledWidth,
+    //     scaledHeight
+    //   );
+    //   bgCtx.restore();
+    // };
+
+    // const drawJetAndFlameSprites = () => {
+    //   if (gameState !== RUNNING) return;
+    //   const elapsedTime = Math.max(0, now - currentStateStartTime);
+
+    //   updateJetPosition(elapsedTime);
+
+    //   stillObjects.forEach((obj) => {
+    //     const image = imageObjects.current.get(obj.url);
+    //     if (!image || image.src !== JetImage) return;
+
+    //     let scaledWidth = image.width * scale;
+    //     let scaledHeight = image.height * scale;
+    //     let scaledX = (obj.x + offsetX) * scale;
+    //     let scaledY = (obj.y - offsetY) * scale;
+
+    //     flameSprites.forEach((sprite) => {
+    //       // Update sprite.url based on elapsedTime...
+    //       const { spriteX, spriteY, angle } = updateSpritePositionAndRotation(
+    //         obj,
+    //         sprite,
+    //         elapsedTime,
+    //         scaledX,
+    //         scaledY,
+    //         image.width,
+    //         image.height
+    //       );
+    //       const spriteImage = imageObjects.current.get(sprite.url);
+    //       if (!spriteImage) return;
+
+    //       // Determine the current frame and draw the sprite...
+    //       let totalFrames = sprite.animation.length;
+    //       const frameDuration = 10;
+    //       const currentFrameIndex =
+    //         Math.floor(elapsedTime / frameDuration) % totalFrames;
+    //       const frameKey = sprite.animation[currentFrameIndex];
+    //       const frame = sprite.frames[frameKey].frame;
+    //       const scaledFrameWidth = frame.w * scale;
+    //       const scaledFrameHeight = frame.h * scale;
+
+    //       // Now drawing the sprite with position, frame, and rotation
+    //       drawSprite(
+    //         spriteImage,
+    //         frame,
+    //         elapsedTime,
+    //         spriteX,
+    //         spriteY,
+    //         scaledFrameWidth,
+    //         scaledFrameHeight,
+    //         angle
+    //       );
+
+    //       // Update sprite.url to match the phase based on elapsedTime
+    //       if (elapsedTime < 5000) {
+    //         sprite.url = FireOneSprite;
+    //       } else if (elapsedTime < 15000) {
+    //         sprite.url = FireTwoSprite;
+    //       } else if (elapsedTime < 35000) {
+    //         sprite.url = FireThreeSprite;
+    //       } else {
+    //         sprite.url = FireFourSprite;
+    //       }
+    //     });
+
+    //     // Draw the jet itself with potential rotation after 2 seconds
+    //     drawJet(
+    //       image,
+    //       scaledX,
+    //       scaledY,
+    //       scaledWidth,
+    //       scaledHeight,
+    //       elapsedTime
+    //     );
+
+    //     if (scaledY <= screenHeight * 0.25) {
+    //       scaledY = screenHeight * 0.25;
+
+    //       if (capturedXRef.current === null) {
+    //         capturedXRef.current = scaledX;
+    //       }
+    //       scaledX = capturedXRef.current;
+    //     } else {
+    //       capturedXRef.current = null;
+    //     }
+    //   });
+    // };
+
     const drawStillImageObjects = () => {
       stillObjects.forEach((obj) => {
         const image = imageObjects.current.get(obj.url);
@@ -660,8 +838,8 @@ const BackgroundCanvas: React.FC = () => {
         const parachuteImage = imageObjects.current.get(obj.url);
 
         if (parachuteImage) {
-          const scaledWidth = parachuteImage.width * 0.2 * scale;
-          const scaledHeight = parachuteImage.height * 0.2 * scale;
+          let scaledWidth = parachuteImage.width * 0.2 * scale;
+          let scaledHeight = parachuteImage.height * 0.2 * scale;
           let scaledX, scaledY;
 
           if (
