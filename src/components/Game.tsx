@@ -764,15 +764,15 @@ const Game: React.FC = () => {
     (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
   );
 
-  const resetJetPosition = () => {
-    // Find the index of the jet in stillObjects
-    const jetIndex = stillObjects.findIndex((obj) => obj.url === JetImage);
-    if (jetIndex !== -1) {
-      // Update the jet's position
-      stillObjects[jetIndex].x = 100;
-      stillObjects[jetIndex].y = 1000;
-    }
-  };
+  // const resetJetPosition = () => {
+
+  //   const jetIndex = stillObjects.findIndex((obj) => obj.url === JetImage);
+  //   if (jetIndex !== -1) {
+
+  //     stillObjects[jetIndex].x = 100;
+  //     stillObjects[jetIndex].y = 1000;
+  //   }
+  // };
 
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
@@ -814,9 +814,8 @@ const Game: React.FC = () => {
 
     const drawJetAndFlameSprites = () => {
       if (gameState !== RUNNING) return;
-      resetJetPosition();
+      //  resetJetPosition();
       const elapsedTime = Math.max(0, now - currentStateStartTime);
-      
 
       const jetIndex = stillObjects.findIndex((img) => img.url === JetImage);
       if (elapsedTime < 2000) {
@@ -1173,7 +1172,7 @@ const Game: React.FC = () => {
       }
     }
 
-    if (gameState === WAITING) {
+    if (gameState === WAITING || gameState === ENDED) {
       setScrollPosition(0);
     }
   }, [now, gameState, currentStateStartTime, diagonalLength]);
