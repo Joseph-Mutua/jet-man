@@ -1007,10 +1007,14 @@ const Game: React.FC = () => {
         (35 * Math.PI) / 180
       );
 
+      // Save the context's state before any transformation
       bgCtx.save();
+
+      // Translate and rotate for the jet
       bgCtx.translate(newX + scaledJetWidth / 2, newY + scaledJetHeight / 2);
       bgCtx.rotate(rotation);
 
+      // Draw the jet with its center as the pivot
       bgCtx.drawImage(
         jetImage,
         -scaledJetWidth / 2,
@@ -1018,37 +1022,44 @@ const Game: React.FC = () => {
         scaledJetWidth,
         scaledJetHeight
       );
-      bgCtx.restore();
 
+      // Compute the current flame sprite and frame
       const index = Math.min(
         Math.floor(totalElapsedTime / 5000),
         flameSprites.length - 1
       );
       const currentSprite = flameSprites[index];
-      if (!currentSprite.spriteSheet.complete) return;
+      if (!currentSprite.spriteSheet.complete) {
+        bgCtx.restore(); // Make sure to restore if we're returning early
+        return;
+      }
       const frames = Object.values(currentSprite.frames);
       const frameDuration = 10;
       const currentFrameIndex =
         Math.floor(totalElapsedTime / frameDuration) % frames.length;
       const frame = frames[currentFrameIndex].frame;
-      const flameX = newX - (jetImage.width / 1.2) * scale;
-      const flameY = newY + (jetImage.height / 2) * scale;
 
-      const scaledWidth = frame.w * scale;
-      const scaledHeight = frame.h * scale;
+      // Assuming the flame should be positioned relative to the jet
+      // Note: Adjust these values as needed to position the flame correctly relative to your jet image
+      const flameOffsetX = (-jetImage.width /0.8 ) * scale;
+      const flameOffsetY = (-jetImage.height / 2 ) * scale;
 
+      // Draw the flame sprite
+      // Note: The flame sprite is drawn relative to the jet's pivot without an additional call to rotate
       bgCtx.drawImage(
         currentSprite.spriteSheet,
         frame.x,
         frame.y,
         frame.w,
-        frame.h,
-        flameX,
-        flameY,
-        scaledWidth,
-        scaledHeight
+        frame.h, // Source rectangle
+        flameOffsetX,
+        flameOffsetY, // Position relative to the jet's pivot
+        frame.w * scale,
+        frame.h * scale // Destination rectangle scaled
       );
 
+      // Restore the context's state after drawing
+      bgCtx.restore();
     };
 
     const drawStillImageObjects = () => {
