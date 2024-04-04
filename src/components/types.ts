@@ -2,8 +2,9 @@ import fireOneJson from '../assets/data/Fire1.json';
 import fireTwoJson from '../assets/data/Fire2.json';
 import fireThreeJson from '../assets/data/Fire3.json';
 import fireFourJson from '../assets/data/Fire4.json';
+import boomJson from "../assets/data/Boom.json"
 
-export type FireJson = typeof fireOneJson | typeof fireTwoJson | typeof fireThreeJson | typeof fireFourJson; 
+export type FireJson = typeof fireOneJson | typeof fireTwoJson | typeof fireThreeJson | typeof fireFourJson | typeof boomJson; 
 interface Frame {
   x: number;
   y: number;
@@ -33,36 +34,6 @@ export interface ImageObject {
   maxScroll: number;
   zIndex?: number;
 }
-
-// export interface AnimatedSprite {
-//   url: string;
-//   frames: SpriteFrames;
-//   animation: string[];
-//   currentFrameIndex: number;
-// }
-
-
-// export interface SpriteFrameData {
-//   frames: {
-//     [key: string]: {
-//       frame: {
-//         x: number;
-//         y: number;
-//         w: number;
-//         h: number;
-//       };
-//     };
-//   };
-//   animations: {
-//     [animationName: string]: string[];
-//   };
-//   meta: {
-//     image: string;
-//     scale: string;
-//     size: { w: number; h: number };
-//   };
-// }
-
 
 export interface SpriteFrame {
   frame: { x: number; y: number; w: number; h: number };

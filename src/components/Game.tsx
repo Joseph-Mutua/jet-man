@@ -49,6 +49,9 @@ FireFourSheet.src = FireFourSprite;
 
 //Explosion Sprite
 import BoomSprite from "../assets/images/Boom.png";
+import BoomSpriteJson from "../assets/data/Boom.json";
+const BoomSheet = new Image();
+BoomSheet.src = BoomSprite;
 
 //Loading sprites
 import LoaderSprite from "../assets/images/Loader.png";
@@ -76,7 +79,6 @@ const Game: React.FC = () => {
   const offsetX = scrollPosition % diagonalLength;
   const offsetY = scrollPosition % diagonalLength;
 
-  //const capturedXRef = useRef<number | null>(null);
   const defaultZIndex = 1;
 
   //Timer States
@@ -86,6 +88,7 @@ const Game: React.FC = () => {
   const [currentStateStartTime, setCurrentStateStartTime] = useState<number>(
     Date.now()
   );
+  const [explosionStarted, setExplosionStarted] = useState(false);
 
   const targetMultiplier = useRef<string | null>(null);
   const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
@@ -213,149 +216,221 @@ const Game: React.FC = () => {
         currentFrameIndex: 0,
         spriteSheet: FireFourSheet,
       },
-    ],
-    []
-  );
-
-  const movingImageObjects = useMemo(
-    () => [
       {
-        url: AirBalloonOne,
-        x: 700,
-        y: -400,
-        minScroll: 400,
-        maxScroll: 1000,
-      },
-      {
-        url: AirBalloonOne,
-        x: 1200,
-        y: -400,
-        minScroll: 500,
-        maxScroll: 1000,
-      },
-      {
-        url: AirBalloonTwo,
-        x: 1600,
-        y: -600,
-        minScroll: 600,
-        maxScroll: 1200,
-      },
-      {
-        url: AirBalloonOne,
-        x: 2200,
-        y: -900,
-        minScroll: 900,
-        maxScroll: 1400,
-      },
-      {
-        url: AirBalloonTwo,
-        x: 2500,
-        y: -1100,
-        minScroll: 1000,
-        maxScroll: 1600,
-      },
-      {
-        url: AirBalloonOne,
-        x: 2700,
-        y: -1600,
-        minScroll: 1700,
-        maxScroll: 2200,
-      },
-      {
-        url: AirBalloonOne,
-        x: 2450,
-        y: -1200,
-        minScroll: 1250,
-        maxScroll: 1600,
-      },
-
-      {
-        url: AirBalloonTwo,
-        x: 1950,
-        y: -1250,
-        minScroll: 1250,
-        maxScroll: 1600,
-      },
-      {
-        url: AirBalloonTwo,
-        x: 2000,
-        y: -1350,
-        minScroll: 1350,
-        maxScroll: 1750,
-      },
-      {
-        url: CloudsTwo,
-        x: 2000,
-        y: -1700,
-        minScroll: 2000,
-        maxScroll: 2500,
-      },
-      {
-        url: CloudsTwo,
-        x: 2200,
-        y: -2100,
-        minScroll: 3000,
-        maxScroll: 3500,
-      },
-      {
-        url: SatelliteOne,
-        x: 3500,
-        y: -3000,
-        minScroll: 3050,
-        maxScroll: 3500,
-      },
-      {
-        url: SatelliteOne,
-        x: 4500,
-        y: -3400,
-        minScroll: 3500,
-        maxScroll: 4000,
-      },
-      {
-        url: SatelliteTwo,
-        x: 4500,
-        y: -3600,
-        minScroll: 3700,
-        maxScroll: 3900,
-      },
-      {
-        url: PlanetImageOne,
-        x: 4500,
-        y: -4100,
-        minScroll: 3800,
-        maxScroll: 4500,
-      },
-      {
-        url: PlanetImageTwo,
-        x: 5500,
-        y: -4400,
-        minScroll: 3900,
-        maxScroll: 4650,
-      },
-      {
-        url: PlanetImageThree,
-        x: 5700,
-        y: -4000,
-        minScroll: 4100,
-        maxScroll: 4900,
-      },
-      {
-        url: GalaxyImageOne,
-        x: 6000,
-        y: -5000,
-        minScroll: 5000,
-        maxScroll: 5600,
-      },
-      {
-        url: StarsImage,
-        x: 6000,
-        y: -5500,
-        minScroll: 5500,
-        maxScroll: 10600,
+        ...BoomSpriteJson,
+        currentFrameIndex: 0,
+        spriteSheet: BoomSheet,
       },
     ],
     []
   );
+
+  // const baseImageObjects = [
+  //   { url: AirBalloonOne, initialX: 1000, initialY: 0 },
+  //   { url: AirBalloonTwo, initialX: 1200, initialY: 0 },
+  //   // Add the rest of your base images here...
+  // ];
+
+  // // const movingImageObjects = useMemo(
+  // //   () => [
+  // //     {
+  // //       url: AirBalloonOne,
+  // //       x: 700,
+  // //       y: -400,
+  // //       minScroll: 400,
+  // //       maxScroll: 1000,
+  // //     },
+  // //     {
+  // //       url: AirBalloonOne,
+  // //       x: 1200,
+  // //       y: -400,
+  // //       minScroll: 500,
+  // //       maxScroll: 1000,
+  // //     },
+  // //     {
+  // //       url: AirBalloonTwo,
+  // //       x: 1600,
+  // //       y: -600,
+  // //       minScroll: 600,
+  // //       maxScroll: 1200,
+  // //     },
+  // //     {
+  // //       url: AirBalloonOne,
+  // //       x: 2200,
+  // //       y: -900,
+  // //       minScroll: 900,
+  // //       maxScroll: 1400,
+  // //     },
+  // //     {
+  // //       url: AirBalloonTwo,
+  // //       x: 2500,
+  // //       y: -1100,
+  // //       minScroll: 1000,
+  // //       maxScroll: 1600,
+  // //     },
+  // //     {
+  // //       url: AirBalloonOne,
+  // //       x: 2700,
+  // //       y: -1600,
+  // //       minScroll: 1700,
+  // //       maxScroll: 2200,
+  // //     },
+  // //     {
+  // //       url: AirBalloonOne,
+  // //       x: 2450,
+  // //       y: -1200,
+  // //       minScroll: 1250,
+  // //       maxScroll: 1600,
+  // //     },
+
+  // //     {
+  // //       url: AirBalloonTwo,
+  // //       x: 1950,
+  // //       y: -1250,
+  // //       minScroll: 1250,
+  // //       maxScroll: 1600,
+  // //     },
+  // //     {
+  // //       url: AirBalloonTwo,
+  // //       x: 2000,
+  // //       y: -1350,
+  // //       minScroll: 1350,
+  // //       maxScroll: 1750,
+  // //     },
+  // //     {
+  // //       url: CloudsTwo,
+  // //       x: 2000,
+  // //       y: -1700,
+  // //       minScroll: 2000,
+  // //       maxScroll: 2500,
+  // //     },
+  // //     {
+  // //       url: CloudsTwo,
+  // //       x: 2200,
+  // //       y: -2100,
+  // //       minScroll: 3000,
+  // //       maxScroll: 3500,
+  // //     },
+  // //     {
+  // //       url: SatelliteOne,
+  // //       x: 3500,
+  // //       y: -3000,
+  // //       minScroll: 3050,
+  // //       maxScroll: 3500,
+  // //     },
+  // //     {
+  // //       url: SatelliteOne,
+  // //       x: 4500,
+  // //       y: -3400,
+  // //       minScroll: 3500,
+  // //       maxScroll: 4000,
+  // //     },
+  // //     {
+  // //       url: SatelliteTwo,
+  // //       x: 4500,
+  // //       y: -3600,
+  // //       minScroll: 3700,
+  // //       maxScroll: 3900,
+  // //     },
+  // //     {
+  // //       url: PlanetImageOne,
+  // //       x: 4500,
+  // //       y: -4100,
+  // //       minScroll: 3800,
+  // //       maxScroll: 4500,
+  // //     },
+  // //     {
+  // //       url: PlanetImageTwo,
+  // //       x: 5500,
+  // //       y: -4400,
+  // //       minScroll: 3900,
+  // //       maxScroll: 4650,
+  // //     },
+  // //     {
+  // //       url: PlanetImageThree,
+  // //       x: 5700,
+  // //       y: -4000,
+  // //       minScroll: 4100,
+  // //       maxScroll: 4900,
+  // //     },
+  // //     {
+  // //       url: GalaxyImageOne,
+  // //       x: 6000,
+  // //       y: -5000,
+  // //       minScroll: 5000,
+  // //       maxScroll: 5600,
+  // //     },
+  // //     {
+  // //       url: StarsImage,
+  // //       x: 6000,
+  // //       y: -5500,
+  // //       minScroll: 5500,
+  // //       maxScroll: 10600,
+  // //     },
+  // //   ],
+  // //   []
+  // // );
+
+  // const movingImageObjects = useMemo(() => {
+  //   // Dynamically generate minScroll and other properties based on elapsed time
+  //   const elapsedTime = now - currentStateStartTime;
+  //   const scrollInterval = 1000; // This defines the gap between when images are introduced
+  //   if (gameState !== RUNNING) return;
+
+  //   return baseImageObjects.map((obj, index) => {
+  //     const dynamicMinScroll = elapsedTime / 3 + index * scrollInterval;
+  //     // Additional logic here to reset minScroll when the image moves off-screen
+  //     // For simplicity, this example just keeps increasing minScroll based on elapsedTime
+
+  //     return {
+  //       ...obj,
+  //       minScroll: dynamicMinScroll,
+  //       maxScroll: dynamicMinScroll + 100,
+  //     };
+  //   });
+  // }, [now]); // Depend on 'now' to recalculate when time updates
+
+  // Calculate the starting position for new images
+
+  // const generateMovingImageObjects = (elapsedTime: number) => {
+  //   const baseImages = [
+  //     { url: AirBalloonOne },
+  //     { url: AirBalloonTwo },
+  //     // Add additional images as needed
+  //   ];
+  //   const initialX = screenWidth;
+  //   const initialY = -100; // Starting above the screen
+
+  //   const speed = 0.1; // Speed of movement, adjust as necessary
+  //   const imageProductionInterval = 1000; // New image every 1000ms (1 second)
+
+  //   // Calculate the total distance moved by the first image
+  //   const distanceMoved = elapsedTime * speed;
+
+  //   return baseImages.map((obj, index) => {
+  //     // Offset for each image based on its index to stagger their introduction
+  //     const staggerOffset = index * 100; // Adjust based on desired spacing
+
+  //     // Adjust position based on the total distance moved, applying modulo for continuous loop
+  //     const effectiveDistance =
+  //       (distanceMoved + staggerOffset) %
+  //       (screenWidth + screenHeight + initialY);
+  //     let newX = initialX - effectiveDistance;
+  //     let newY = initialY + effectiveDistance;
+
+  //     // Ensure newX and newY are within bounds to start from top right again
+  //     if (newX < -100 || newY > screenHeight + 100) {
+  //       newX = initialX - (effectiveDistance - (screenWidth + screenHeight));
+  //       newY = initialY + (effectiveDistance - (screenWidth + screenHeight));
+  //     }
+
+  //     return {
+  //       ...obj,
+  //       x: newX,
+  //       y: newY,
+  //     };
+  //   });
+  // };
 
   const parachutes = useMemo(
     () => [
@@ -804,264 +879,6 @@ const Game: React.FC = () => {
       bgCtx.restore();
     };
 
-    // const drawJetAndFlameSprites = () => {
-    //   if (gameState !== RUNNING) return;
-
-    //   const elapsedTime = Math.max(0, now - currentStateStartTime);
-
-    //   const jetIndex = stillObjects.findIndex((img) => img.url === JetImage);
-    //   if (elapsedTime < 2000) {
-    //     if (jetIndex !== -1) {
-    //       const initialJetX = stillObjects[jetIndex].x;
-    //       const movementDistance = (elapsedTime * 10) / 2000;
-
-    //       stillObjects[jetIndex].x = initialJetX + movementDistance;
-
-    //       const jetImage = imageObjects.current.get(
-    //         JetImage
-    //       ) as HTMLImageElement;
-
-    //       const scaledWidth = jetImage.width * scale;
-    //       const scaledHeight = jetImage.height * scale;
-
-    //       if (jetImage) {
-    //         let scaledX = (jetImage.x + offsetX) * scale;
-    //         let scaledY = (jetImage.y - offsetY) * scale;
-
-    //         if (scaledY <= screenHeight * 0.25) {
-    //           scaledY = screenHeight * 0.25;
-
-    //           if (capturedXRef.current === null) {
-    //             capturedXRef.current = scaledX;
-    //           }
-    //           scaledX = capturedXRef.current;
-    //         } else {
-    //           capturedXRef.current = null;
-    //         }
-
-    //         bgCtx.save();
-
-    //         bgCtx.translate(
-    //           scaledX + scaledWidth / 2,
-    //           scaledY + scaledHeight / 2
-    //         );
-
-    //         if (elapsedTime > 2000) {
-    //           bgCtx.rotate(-(45 * Math.PI) / 180);
-    //         }
-    //         bgCtx.restore();
-    //       }
-    //     }
-    //   }
-
-    //   stillObjects.forEach((obj) => {
-    //     const image = imageObjects.current.get(obj.url) as HTMLImageElement;
-
-    //     if (image) {
-    //       const scaledWidth = image.width * scale;
-    //       const scaledHeight = image.height * scale;
-
-    //       let scaledX: number, scaledY: number;
-
-    //       if (image.src === JetImage) {
-    //         scaledX = (obj.x + offsetX) * scale;
-    //         scaledY = (obj.y - offsetY) * scale;
-
-    //         flameSprites.forEach((sprite) => {
-    //           if (elapsedTime < 5000) {
-    //             sprite.url = FireOneSprite;
-    //           } else if (elapsedTime < 12000) {
-    //             sprite.url = FireTwoSprite;
-    //           } else if (elapsedTime < 20000) {
-    //             sprite.url = FireThreeSprite;
-    //           } else {
-    //             sprite.url = FireFourSprite;
-    //           }
-
-    //           const totalFrames = sprite.animation.length;
-    //           const frameDuration = 10;
-
-    //           const currentFrameIndex =
-    //           Math.floor(elapsedTime / frameDuration) % totalFrames;
-    //           const frameKey = sprite.animation[currentFrameIndex];
-    //           const frame = sprite.frames[frameKey].frame;
-
-    //           const spriteImage = imageObjects.current.get(
-    //             sprite.url
-    //           ) as HTMLImageElement;
-
-    //           if (spriteImage) {
-    //             let spriteX = 0,
-    //               spriteY = 0;
-    //             let angle = 0;
-
-    //             if (elapsedTime < 2000) {
-    //               spriteX = (obj.x + offsetX - image.width / 1.2) * scale;
-    //               spriteY = (obj.y - offsetY) * scale;
-    //             } else if (
-    //               elapsedTime > 2000 &&
-    //               scaledY > screenHeight * 0.25
-    //             ) {
-    //               spriteX = (obj.x + offsetX - image.width / 2) * scale;
-    //               spriteY = (obj.y - offsetY + image.height * 2) * scale;
-    //               angle = (-45 * Math.PI) / 180;
-    //             } else if (
-    //               elapsedTime > 2000 &&
-    //               scaledY <= screenHeight * 0.25
-    //             ) {
-    //               spriteX = screenWidth * 0.7;
-    //               spriteY = screenHeight * 0.35;
-    //               angle = (-45 * Math.PI) / 180;
-    //             }
-
-    //             const scaledFrameWidth = frame.w * scale;
-    //             const scaledFrameHeight = frame.h * scale;
-
-    //             bgCtx.save();
-
-    //             if (elapsedTime > 2000) {
-    //               bgCtx.translate(
-    //                 spriteX + scaledFrameWidth / 2,
-    //                 spriteY + scaledFrameHeight / 2
-    //               );
-    //               bgCtx.rotate(angle);
-    //               spriteX = spriteY = 0;
-    //             }
-
-    //             bgCtx.drawImage(
-    //               spriteImage,
-    //               frame.x,
-    //               frame.y,
-    //               frame.w,
-    //               frame.h,
-    //               spriteX - (elapsedTime > 2000 ? scaledFrameWidth / 2 : 0),
-    //               spriteY - (elapsedTime > 2000 ? scaledFrameHeight / 2 : 0),
-    //               scaledFrameWidth,
-    //               scaledFrameHeight
-    //             );
-    //             bgCtx.restore();
-    //           }
-    //         });
-
-    //         if (scaledY <= screenHeight * 0.25) {
-    //           scaledY = screenHeight * 0.25;
-
-    //           if (capturedXRef.current === null) {
-    //             capturedXRef.current = scaledX;
-    //           }
-    //           scaledX = capturedXRef.current;
-    //         } else {
-    //           capturedXRef.current = null;
-    //         }SpriteFrameData
-
-    //         bgCtx.save();
-    //         bgCtx.translate(
-    //           scaledX + scaledWidth / 2,
-    //           scaledY + scaledHeight / 2
-    //         );
-
-    //         if (elapsedTime > 2000) {
-    //           bgCtx.rotate(-(45 * Math.PI) / 180);
-    //         }
-
-    //         bgCtx.drawImage(
-    //           image,
-    //           -scaledWidth / 2,
-    //           -scaledHeight / 2,
-    //           scaledWidth,
-    //           scaledHeight
-    //         );
-
-    //         bgCtx.restore();
-    //       }
-    //     }
-    //   });
-    // };
-
-    const drawJet = () => {
-      if (gameState !== RUNNING || !imageObjects) return;
-
-      const elapsedTime = Math.max(
-        0,
-        Math.min(now - currentStateStartTime, 7000)
-      );
-      const y = Math.exp(0.0006 * elapsedTime) * 10;
-
-      const initialJetX = 100;
-      const initialJetY = 1000;
-      const jetImage = imageObjects.current.get(JetImage) as HTMLImageElement;
-
-      if (!jetImage) return;
-
-      const scaledJetWidth = jetImage.width * scale;
-      const scaledJetHeight = jetImage.height * scale;
-
-      const newX = ((initialJetX * elapsedTime) / 500) * scale;
-      const newY = (initialJetY - y) * scale;
-
-      const totalElapsedTime = Math.max(0, now - currentStateStartTime);
-      const elapsedRotationTime = Math.max(0, totalElapsedTime - 2000);
-      const rotationRate = (35 * Math.PI) / 180 / 2000;
-      const rotation = -Math.min(
-        elapsedRotationTime * rotationRate,
-        (35 * Math.PI) / 180
-      );
-
-      // Save the context's state before any transformation
-      bgCtx.save();
-
-      // Translate and rotate for the jet
-      bgCtx.translate(newX + scaledJetWidth / 2, newY + scaledJetHeight / 2);
-      bgCtx.rotate(rotation);
-
-      // Draw the jet with its center as the pivot
-      bgCtx.drawImage(
-        jetImage,
-        -scaledJetWidth / 2,
-        -scaledJetHeight / 2,
-        scaledJetWidth,
-        scaledJetHeight
-      );
-
-      // Compute the current flame sprite and frame
-      const index = Math.min(
-        Math.floor(totalElapsedTime / 5000),
-        flameSprites.length - 1
-      );
-      const currentSprite = flameSprites[index];
-      if (!currentSprite.spriteSheet.complete) {
-        bgCtx.restore(); // Make sure to restore if we're returning early
-        return;
-      }
-      const frames = Object.values(currentSprite.frames);
-      const frameDuration = 10;
-      const currentFrameIndex =
-        Math.floor(totalElapsedTime / frameDuration) % frames.length;
-      const frame = frames[currentFrameIndex].frame;
-
-      // Assuming the flame should be positioned relative to the jet
-      // Note: Adjust these values as needed to position the flame correctly relative to your jet image
-      const flameOffsetX = (-jetImage.width /0.8 ) * scale;
-      const flameOffsetY = (-jetImage.height / 2 ) * scale;
-
-      // Draw the flame sprite
-      // Note: The flame sprite is drawn relative to the jet's pivot without an additional call to rotate
-      bgCtx.drawImage(
-        currentSprite.spriteSheet,
-        frame.x,
-        frame.y,
-        frame.w,
-        frame.h, // Source rectangle
-        flameOffsetX,
-        flameOffsetY, // Position relative to the jet's pivot
-        frame.w * scale,
-        frame.h * scale // Destination rectangle scaled
-      );
-
-      // Restore the context's state after drawing
-      bgCtx.restore();
-    };
-
     const drawStillImageObjects = () => {
       stillObjects.forEach((obj) => {
         const image = imageObjects.current.get(obj.url) as HTMLImageElement;
@@ -1083,32 +900,91 @@ const Game: React.FC = () => {
       });
     };
 
-    const drawMovingImageObjects = () => {
-      movingImageObjects.forEach((obj) => {
-        const parachuteImage = imageObjects.current.get(
-          obj.url
-        ) as HTMLImageElement;
+    // const drawMovingImageObjects = () => {
+    //   if (gameState !== RUNNING || !bgCtx || !movingImageObjects) return;
+    //   movingImageObjects.forEach((obj) => {
+    //     const image = imageObjects.current.get(obj.url) as HTMLImageElement;
+    //     if (!image) return;
 
-        if (parachuteImage) {
-          const scaledWidth = parachuteImage.width * scale;
-          const scaledHeight = parachuteImage.height * scale;
-          let scaledX, scaledY;
+    //     // Calculate position based on dynamic minScroll, or any other logic
+    //     const posX = obj.initialX - (obj.minScroll % screenWidth);
+    //     const posY = obj.initialY + (obj.minScroll / screenWidth) * 100; // Example calculation
 
-          if (
-            scrollPosition >= obj.minScroll &&
-            scrollPosition <= obj.maxScroll
-          ) {
-            scaledX = (obj.x - offsetX) * scale;
-            scaledY = (obj.y + offsetY) * scale;
-            bgCtx.drawImage(
-              parachuteImage,
-              scaledX,
-              scaledY,
-              scaledWidth,
-              scaledHeight
-            );
+    //     bgCtx.drawImage(image, posX, posY, image.width, image.height);
+    //   });
+    // };
+
+    // Drawing function remains mostly the same, but uses the `x` and `y` from `movingImageObjects`
+
+    // const getRandomInitialPosition = () => {
+    //   // Randomly choose between top edge or right edge for initial position
+    //   if (Math.random() > 0.5) {
+    //     // Position starts from the top edge, with a random X coordinate
+    //     return { x: Math.random() * screenWidth, y: -100 };
+    //   } else {
+    //     // Position starts from the right edge, with a random Y coordinate
+    //     return { x: screenWidth + 100, y: Math.random() * screenHeight };
+    //   }
+    // };
+
+    // Function to generate moving image objects
+    const generateMovingImageObjects = (elapsedTime: number) => {
+      // Define the initial position for the entry of images
+      const initialPosition = {
+        x: (screenWidth - 300) * scale,
+        y: -100, // Assuming the images are coming from just above the visible canvas
+      };
+
+      const baseImages = [
+        { url: AirBalloonOne },
+        { url: AirBalloonTwo },
+        // Add more images as needed
+      ];
+
+      const speed = 0.1; // Adjust this to control the speed of the diagonal movement
+      const imageProductionInterval = 1000; // New image every second
+
+      // Create a pattern that allows images to enter the screen in a staggered manner
+      return baseImages.flatMap((obj, index) => {
+        // Calculate how many times an image has been reintroduced based on the elapsed time and production interval
+        const repetitions = Math.floor(
+          elapsedTime / (imageProductionInterval + index * 100)
+        );
+
+        // Generate positions for each repetition of the image
+        return Array.from({ length: repetitions }).map((_, repIndex) => {
+          const adjustedTime =
+            elapsedTime - repIndex * imageProductionInterval - index * 100;
+          const distanceMoved = adjustedTime * speed;
+
+          // Calculate current positions based on the diagonal movement
+          let newX = initialPosition.x - distanceMoved;
+          let newY = initialPosition.y + distanceMoved;
+
+          // Ensure the image reappears from the top right after moving off-screen
+          if (newX < -100 || newY > screenHeight + 100) {
+            newX = initialPosition.x;
+            newY = initialPosition.y;
           }
-        }
+
+          return {
+            ...obj,
+            x: newX,
+            y: newY,
+          };
+        });
+      });
+    };
+
+    const drawMovingImageObjects = () => {
+      if (gameState !== RUNNING) return;
+      const elapsedTime = now - currentStateStartTime; // Update this based on your game's logic
+      const movingImageObjects = generateMovingImageObjects(elapsedTime);
+      movingImageObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url) as HTMLImageElement;
+        if (!image) return;
+
+        bgCtx.drawImage(image, obj.x, obj.y, image.width, image.height);
       });
     };
 
@@ -1204,21 +1080,152 @@ const Game: React.FC = () => {
       }
     };
 
-    // const drawExplosion = () => {
-    //   if (gameState !== ENDED) return;
-    //   const image = imageObjects.current.get( BoomSprite ) as HTMLImageElement;
-    //   const scaledWidth = image.width * scale;
-    //   const scaledHeight = image.height * scale;
-    //   const scaledX = (screenWidth - scaledWidth) / 2;
-    // }
+    const drawJetAndFlameSprites = () => {
+      if (gameState !== RUNNING || !imageObjects) return;
+      const jetImage = imageObjects.current.get(JetImage) as HTMLImageElement;
+
+      if (!jetImage) return;
+      let scaledJetWidth = jetImage.width * scale;
+      let scaledJetHeight = jetImage.height * scale;
+      let newJetX = ((100 * 0) / 500) * scale;
+      let newJetY = (1000 - Math.exp(0.0006 * 0) * 10) * scale;
+
+      if (gameState === RUNNING && !explosionStarted) {
+        const elapsedTime = Math.max(
+          0,
+          Math.min(now - currentStateStartTime, 7000)
+        );
+        const y = Math.exp(0.0006 * elapsedTime) * 10;
+
+        const initialJetX = 100;
+        const initialJetY = 1000;
+        if (!jetImage) return;
+
+        scaledJetWidth = jetImage.width * scale;
+        scaledJetHeight = jetImage.height * scale;
+
+        newJetX = ((initialJetX * elapsedTime) / 500) * scale;
+        newJetY = (initialJetY - y) * scale;
+
+        const totalElapsedTime = Math.max(0, now - currentStateStartTime);
+        const totalRotationDuration = 2000;
+        const elapsedRotationTime = Math.max(
+          0,
+          totalElapsedTime - totalRotationDuration
+        );
+        const rotationRate = (35 * Math.PI) / 180 / totalRotationDuration;
+        const rotation = -Math.min(
+          elapsedRotationTime * rotationRate,
+          (35 * Math.PI) / 180
+        );
+
+        bgCtx.save();
+        bgCtx.translate(
+          newJetX + scaledJetWidth / 2,
+          newJetY + scaledJetHeight / 2
+        );
+
+        bgCtx.rotate(rotation);
+
+        bgCtx.drawImage(
+          jetImage,
+          -scaledJetWidth / 2,
+          -scaledJetHeight / 2,
+          scaledJetWidth,
+          scaledJetHeight
+        );
+
+        const index = Math.min(
+          Math.floor(totalElapsedTime / 5000),
+          flameSprites.length - 1
+        );
+        const currentSprite = flameSprites[index];
+        if (!currentSprite.spriteSheet.complete) {
+          bgCtx.restore();
+          return;
+        }
+
+        const frames = Object.values(currentSprite.frames);
+        const frameDuration = 30;
+        const currentFrameIndex =
+          Math.floor(totalElapsedTime / frameDuration) % frames.length;
+        const frame = frames[currentFrameIndex].frame;
+
+        const flameOffsetX = -scaledJetWidth / 0.8;
+        const flameOffsetY = -scaledJetHeight / 2;
+
+        bgCtx.drawImage(
+          currentSprite.spriteSheet,
+          frame.x,
+          frame.y,
+          frame.w,
+          frame.h,
+          flameOffsetX,
+          flameOffsetY,
+          frame.w * scale,
+          frame.h * scale
+        );
+
+        bgCtx.restore();
+      }
+    };
+
+    const drawExplosion = () => {
+      const jetImage = imageObjects.current.get(JetImage) as HTMLImageElement;
+
+      if (!jetImage) return;
+      // const scaledJetWidth = jetImage.width * scale;
+      // const scaledJetHeight = jetImage.height * scale;
+
+      if (gameState === ENDED && explosionStarted) {
+        const explosionSprite = flameSprites[flameSprites.length - 1];
+        if (!explosionSprite.spriteSheet.complete) return;
+        const elapsedTimeSinceExplosion = Math.max(
+          0,
+          now - currentStateStartTime
+        );
+
+        const frames = Object.values(explosionSprite.frames);
+        const frameDuration = 100;
+        const currentFrameIndex =
+          Math.floor(elapsedTimeSinceExplosion / frameDuration) % frames.length;
+
+        const frame = frames[currentFrameIndex].frame;
+        // const lastJetX = newJetX + scaledJetWidth / 2;
+        // const lastJetY = newJetY + scaledJetHeight / 2;
+
+        const lastJetX = screenWidth / 2;
+        const lastJetY = screenHeight / 2;
+
+        bgCtx.drawImage(
+          explosionSprite.spriteSheet,
+          frame.x,
+          frame.y,
+          frame.w,
+          frame.h,
+          // lastJetX - (explosionSprite.spriteSheet.width / 2) * scale,
+          // lastJetY - (explosionSprite.spriteSheet.height / 2) * scale,
+          lastJetX,
+          lastJetY,
+          frame.w * scale,
+          frame.h * scale
+        );
+
+        if (elapsedTimeSinceExplosion >= 3000) {
+          setExplosionStarted(false);
+          setGameState(WAITING);
+          setCurrentStateStartTime(Date.now());
+        }
+      }
+    };
 
     drawLoading();
     drawGradientBackground();
     drawStillImageObjects();
-    // drawJetAndFlameSprites();
-    drawJet();
+    drawJetAndFlameSprites();
     drawMovingImageObjects();
     drawParachutes();
+    drawExplosion();
   }, [gameState, now]);
 
   useEffect(() => {
@@ -1233,11 +1240,10 @@ const Game: React.FC = () => {
       targetMultiplier.current &&
       parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
     ) {
-      if (gameState === RUNNING) {
-        resetJetPosition();
-        setGameState(WAITING);
-        setCurrentStateStartTime(Date.now());
-      }
+      resetJetPosition();
+      setGameState(ENDED);
+      setExplosionStarted(true);
+      setCurrentStateStartTime(Date.now());
     }
   }, [gameState, currentMultiplier]);
 
@@ -1255,10 +1261,12 @@ const Game: React.FC = () => {
       }
     }
 
-    if (gameState === WAITING || gameState === ENDED) {
-      setScrollPosition(0);
-    }
-  }, [now, gameState, currentStateStartTime, diagonalLength]);
+    // if (gameState === ENDED) {
+    //   setScrollPosition(0);
+    //   setExplosionStarted(true);
+    //   setCurrentStateStartTime(Date.now());
+    // }
+  }, [now, gameState, diagonalLength]);
 
   useEffect(() => {
     let frameID: number;
@@ -1266,9 +1274,7 @@ const Game: React.FC = () => {
       setNow(Date.now());
       frameID = requestAnimationFrame(animate);
     };
-
     frameID = requestAnimationFrame(animate);
-
     return () => {
       if (frameID) cancelAnimationFrame(frameID);
     };
@@ -1305,7 +1311,7 @@ const Game: React.FC = () => {
           }}
         />
 
-        {gameState === RUNNING && (
+        {(gameState === RUNNING || gameState === ENDED) && (
           <div>
             <h1
               style={{
