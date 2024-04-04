@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import "../App.css";
 
 //Game
-import { IGameState, RUNNING, WAITING, ENDED } from "../common/constants";
+import {ENDED, IGameState, RUNNING, WAITING} from "../common/constants";
 
 //background images
 import AirportImage from "../assets/images/Airport.png";
@@ -29,24 +29,12 @@ import SatelliteTwo from "../assets/images/Satellite1.png";
 //Flame Sprites
 import FireOneSprite from "../assets/images/Fire1.png";
 import FireOneSpriteJson from "../assets/data/Fire1.json";
-const FireOneSheet = new Image();
-FireOneSheet.src = FireOneSprite;
-
 import FireTwoSprite from "../assets/images/Fire2.png";
 import FireTwoSpriteJson from "../assets/data/Fire2.json";
-const FireTwoSheet = new Image();
-FireTwoSheet.src = FireTwoSprite;
-
 import FireThreeSprite from "../assets/images/Fire3.png";
 import FireThreeSpriteJson from "../assets/data/Fire3.json";
-const FireThreeSheet = new Image();
-FireThreeSheet.src = FireThreeSprite;
-
 import FireFourSprite from "../assets/images/Fire4.png";
 import FireFourSpriteJson from "../assets/data/Fire4.json";
-const FireFourSheet = new Image();
-FireFourSheet.src = FireFourSprite;
-
 //Explosion Sprite
 import BoomSprite from "../assets/images/Boom.png";
 
@@ -57,20 +45,74 @@ import LoaderSpriteJson from "../assets/data/Loader.json";
 //Parachute
 import ParachuteSprite from "../assets/images/Parachute2.png";
 
-import { useWindowDimensions } from "./hooks/useWindowDimensions";
+import {useWindowDimensions} from "./hooks/useWindowDimensions";
 
-import { FireJson } from "./types";
-import { generateTargetGameOdds as generateMultiplier } from "../utils/GenerateOdds";
+import {FireJson} from "./types";
+import {generateTargetGameOdds as generateMultiplier} from "../utils/GenerateOdds";
+
+const FireOneSheet = new Image();
+FireOneSheet.src = FireOneSprite;
+
+const FireTwoSheet = new Image();
+FireTwoSheet.src = FireTwoSprite;
+
+const FireThreeSheet = new Image();
+FireThreeSheet.src = FireThreeSprite;
+
+const FireFourSheet = new Image();
+FireFourSheet.src = FireFourSprite;
+
+
+const imageObjects = new Map();
+
+
+const imageUrls = [
+  AirportImage,
+  RoadImage,
+  JetImage,
+  Fence,
+  GarageImage,
+  PlanetImageOne,
+  PlanetImageTwo,
+  PlanetImageThree,
+  GalaxyImageOne,
+  StarsImage,
+  CloudsOne,
+  CloudsTwo,
+  AirBalloonOne,
+  AirBalloonTwo,
+  SatelliteOne,
+  SatelliteTwo,
+];
+
+const spriteUrls = [
+  FireOneSprite,
+  FireTwoSprite,
+  FireThreeSprite,
+  FireFourSprite,
+
+  BoomSprite,
+  LoaderSprite,
+  ParachuteSprite,
+];
+
+let loadingAssetsComplete = false;
+[...imageUrls, ...spriteUrls].forEach((url) => {
+  const image = new Image();
+  image.src = url;
+  image.onload = () => {
+    imageObjects.set(url, image);
+    // some checks
+    loadingAssetsComplete = true;
+  };
+});
 
 const Game: React.FC = () => {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const waitingCanvasRef = useRef<HTMLCanvasElement>(null);
-  const imageObjects = useRef(new Map());
-  const [scrollPosition, setScrollPosition] = useState(0);
 
   //Game States
-  const [loadingAssetsComplete, setLoadingAssetsComplete] = useState(false);
-  const { screenWidth, screenHeight, scale } = useWindowDimensions();
+  const {screenWidth, screenHeight, scale} = useWindowDimensions();
 
   const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
   const offsetX = scrollPosition % diagonalLength;
@@ -80,62 +122,14 @@ const Game: React.FC = () => {
   const defaultZIndex = 1;
 
   //Timer States
-  const [gameState, setGameState] = useState<IGameState>(WAITING);
-  const [elapsed, setElapsed] = useState(0);
+  const [gameState, setGameState] =
+    useState<IGameState>(WAITING);
   const [now, setNow] = useState<number>(Date.now());
-  const [currentStateStartTime, setCurrentStateStartTime] = useState<number>(
-    Date.now()
-  );
+  const [currentStateStartTime, setCurrentStateStartTime] =
+    useState<number>(Date.now());
 
   const targetMultiplier = useRef<string | null>(null);
   const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
-
-  const imageUrls = useMemo(
-    () => [
-      AirportImage,
-      RoadImage,
-      JetImage,
-      Fence,
-      GarageImage,
-      PlanetImageOne,
-      PlanetImageTwo,
-      PlanetImageThree,
-      GalaxyImageOne,
-      StarsImage,
-      CloudsOne,
-      CloudsTwo,
-      AirBalloonOne,
-      AirBalloonTwo,
-      SatelliteOne,
-      SatelliteTwo,
-    ],
-    []
-  );
-
-  const spriteUrls = useMemo(
-    () => [
-      FireOneSprite,
-      FireTwoSprite,
-      FireThreeSprite,
-      FireFourSprite,
-
-      BoomSprite,
-      LoaderSprite,
-      ParachuteSprite,
-    ],
-    []
-  );
-
-  useEffect(() => {
-    [...imageUrls, ...spriteUrls].forEach((url) => {
-      const image = new Image();
-      image.src = url;
-      image.onload = () => {
-        imageObjects.current.set(url, image);
-      };
-    });
-    setLoadingAssetsComplete(true);
-  }, [imageUrls, spriteUrls]);
 
   const stillImageObjects = useMemo(
     () => [
@@ -754,24 +748,12 @@ const Game: React.FC = () => {
     (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
   );
 
-  const resetJetPosition = () => {
-    // Example initial positions, adjust these values as needed
-    const initialJetX = 100;
-    const initialJetY = 1000;
-
-    const jetIndex = stillImageObjects.findIndex((obj) => obj.url === JetImage);
-    if (jetIndex !== -1) {
-      stillImageObjects[jetIndex].x = initialJetX;
-      stillImageObjects[jetIndex].y = initialJetY;
-    }
-  };
-
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
     const loadingCtx = waitingCanvasRef.current?.getContext("2d");
     if (!bgCtx || !loadingCtx) return;
     for (const ctx of [bgCtx, loadingCtx]) {
-      ctx.clearRect(0, 0, screenWidth, screenHeight);
+      ctx.clearRect(0, 0, ctx.canvas.width, screenHeight);
     }
 
     const drawGradientBackground = () => {
@@ -1041,8 +1023,8 @@ const Game: React.FC = () => {
 
       // Assuming the flame should be positioned relative to the jet
       // Note: Adjust these values as needed to position the flame correctly relative to your jet image
-      const flameOffsetX = (-jetImage.width /0.8 ) * scale;
-      const flameOffsetY = (-jetImage.height / 2 ) * scale;
+      const flameOffsetX = (-jetImage.width / 0.8) * scale;
+      const flameOffsetY = (-jetImage.height / 2) * scale;
 
       // Draw the flame sprite
       // Note: The flame sprite is drawn relative to the jet's pivot without an additional call to rotate
@@ -1197,10 +1179,8 @@ const Game: React.FC = () => {
           screenHeight / 2 + scaledHeight
         );
       } else {
-        if (gameState === WAITING) {
           setGameState(RUNNING);
           setCurrentStateStartTime(Date.now());
-        }
       }
     };
 
@@ -1223,8 +1203,7 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     if (gameState === RUNNING) {
-      const newMultiplier = generateMultiplier();
-      targetMultiplier.current = newMultiplier;
+      targetMultiplier.current = generateMultiplier();
     }
   }, [gameState]);
 
@@ -1234,31 +1213,11 @@ const Game: React.FC = () => {
       parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
     ) {
       if (gameState === RUNNING) {
-        resetJetPosition();
         setGameState(WAITING);
         setCurrentStateStartTime(Date.now());
       }
     }
   }, [gameState, currentMultiplier]);
-
-  useEffect(() => {
-    if (gameState === RUNNING) {
-      const elapsed = now - currentStateStartTime;
-      setElapsed(elapsed);
-
-      if (elapsed > 2000) {
-        const scrollRate = 2;
-
-        setScrollPosition((prevPosition) =>
-          Math.min(prevPosition + scrollRate, diagonalLength * 0.6)
-        );
-      }
-    }
-
-    if (gameState === WAITING || gameState === ENDED) {
-      setScrollPosition(0);
-    }
-  }, [now, gameState, currentStateStartTime, diagonalLength]);
 
   useEffect(() => {
     let frameID: number;
@@ -1276,7 +1235,7 @@ const Game: React.FC = () => {
 
   return (
     <div>
-      <div style={{ position: "relative" }}>
+      <div style={{position: "relative"}}>
         {/* Background Canvas */}
 
         <canvas
