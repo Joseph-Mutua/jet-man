@@ -266,6 +266,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
     const loadingCtx = waitingCanvasRef.current?.getContext("2d");
+
     if (!bgCtx || !loadingCtx || !loadingAssetsComplete) return;
     bgCtx.clearRect(0, 0, screenWidth, screenHeight);
     loadingCtx.clearRect(0, 0, screenWidth, screenHeight);
@@ -396,7 +397,7 @@ const Game: React.FC = () => {
       );
 
       lastJetPosition.current.x = newX;
-      lastJetPosition.current.y = Math.max(newY, screenHeight / 2);
+      lastJetPosition.current.y = newY - scaledJetHeight * 2;
 
       const index = Math.min(
         Math.floor(totalElapsedTime / 5000),
@@ -464,8 +465,6 @@ const Game: React.FC = () => {
         return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      // console.log("🚀 ~ drawLoading ~ elapsedTime:", elapsedTime);
-
       if (elapsedTime > 6000) {
         setGameState(RUNNING);
         setCurrentStateStartTime(Date.now());
@@ -521,7 +520,6 @@ const Game: React.FC = () => {
       );
     };
 
-  
     const drawExplosion = () => {
       if (gameState !== ENDED) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
@@ -552,13 +550,76 @@ const Game: React.FC = () => {
         frame.w,
         frame.h,
         lastJetPosition.current.x,
-        lastJetPosition.current.y,
-        frame.w * scale,
-        frame.h * scale
+        lastJetPosition.current.y - 20,
+        (frame.w * scale) / 2,
+        (frame.h * scale) / 2
       );
 
       bgCtx.restore();
     };
+
+    // const baseImageObjects = [
+    //   { url: AirBalloonOne, initialX: 1000, initialY: 0 },
+    //   { url: AirBalloonTwo, initialX: 1200, initialY: 0 },
+    //   // Add the rest of your base images here...
+    // ];
+
+
+    // const movingImageObjects = useMemo(() => {
+    //   const elapsedTime = now - currentStateStartTime;
+    //   const scrollInterval = 1000;
+    //   if (gameState !== RUNNING) return;
+
+    //   return baseImageObjects.map((obj, index) => {
+    //     const dynamicMinScroll = elapsedTime / 3 + index * scrollInterval;
+    //     return {
+    //       ...obj,
+    //       minScroll: dynamicMinScroll,
+    //       maxScroll: dynamicMinScroll + 100,
+    //     };
+    //   });
+
+    // }, [now]);
+
+    //Calculate the starting position for new images
+
+    // const generateMovingImageObjects = (elapsedTime: number) => {
+    //   const baseImages = [
+    //     { url: AirBalloonOne },
+    //     { url: AirBalloonTwo },
+    //   ];
+    //   const initialX = screenWidth;
+    //   const initialY = -100; 
+
+    //   const speed = 0.1;
+    //   const imageProductionInterval = 1000; 
+
+    //   const distanceMoved = elapsedTime * speed;
+
+    //   return baseImages.map((obj, index) => {
+    //     const staggerOffset = index * 100; 
+
+    //     const effectiveDistance =
+    //       (distanceMoved + staggerOffset) %
+    //       (screenWidth + screenHeight + initialY);
+    //     let newX = initialX - effectiveDistance;
+    //     let newY = initialY + effectiveDistance;
+
+    //     if (newX < -100 || newY > screenHeight + 100) {
+    //       newX = initialX - (effectiveDistance - (screenWidth + screenHeight));
+    //       newY = initialY + (effectiveDistance - (screenWidth + screenHeight));
+    //     }
+
+    //     return {
+    //       ...obj,
+    //       x: newX,
+    //       y: newY,
+    //     };
+    //   });
+    // };
+
+
+
 
     drawLoading();
     drawGradientBackground();
@@ -617,7 +678,6 @@ const Game: React.FC = () => {
       if (frameID) cancelAnimationFrame(frameID);
     };
   }, []);
-
 
   return (
     <div>
@@ -690,8 +750,6 @@ const Game: React.FC = () => {
             </h2>
           </div>
         )}
-
-
       </div>
     </div>
   );
