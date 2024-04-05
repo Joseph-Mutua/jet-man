@@ -87,7 +87,6 @@ const imageUrls = [
   satelliteOne,
   satelliteTwo,
 ];
-
 const spriteUrls = [
   fireOneSprite,
   fireTwoSprite,
@@ -98,10 +97,9 @@ const spriteUrls = [
   loaderSprite,
   parachuteSprite,
 ];
-
 const allUrls = [...imageUrls, ...spriteUrls];
-
 let loadingAssetsComplete = false;
+
 Promise.all(
   allUrls.map((url) =>
     loadImage(url).then((image) => imageObjects.set(url, image))
@@ -264,75 +262,6 @@ const Game: React.FC = () => {
   const targetMultiplier = useRef<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
-
-  // targetMultiplier.current = generateGameMultiplier();
-
-  // const baseImageObjects = [
-  //   { url: AirBalloonOne, initialX: 1000, initialY: 0 },
-  //   { url: AirBalloonTwo, initialX: 1200, initialY: 0 },
-  //   // Add the rest of your base images here...
-  // ];
-
-  // const movingImageObjects = useMemo(() => {
-  //   // Dynamically generate minScroll and other properties based on elapsed time
-  //   const elapsedTime = now - currentStateStartTime;
-  //   const scrollInterval = 1000; // This defines the gap between when images are introduced
-  //   if (gameState !== RUNNING) return;
-
-  //   return baseImageObjects.map((obj, index) => {
-  //     const dynamicMinScroll = elapsedTime / 3 + index * scrollInterval;
-  //     // Additional logic here to reset minScroll when the image moves off-screen
-  //     // For simplicity, this example just keeps increasing minScroll based on elapsedTime
-
-  //     return {
-  //       ...obj,
-  //       minScroll: dynamicMinScroll,
-  //       maxScroll: dynamicMinScroll + 100,
-  //     };
-  //   });
-  // }, [now]); // Depend on 'now' to recalculate when time updates
-
-  // Calculate the starting position for new images
-
-  // const generateMovingImageObjects = (elapsedTime: number) => {
-  //   const baseImages = [
-  //     { url: AirBalloonOne },
-  //     { url: AirBalloonTwo },
-  //     // Add additional images as needed
-  //   ];
-  //   const initialX = screenWidth;
-  //   const initialY = -100; // Starting above the screen
-
-  //   const speed = 0.1; // Speed of movement, adjust as necessary
-  //   const imageProductionInterval = 1000; // New image every 1000ms (1 second)
-
-  //   // Calculate the total distance moved by the first image
-  //   const distanceMoved = elapsedTime * speed;
-
-  //   return baseImages.map((obj, index) => {
-  //     // Offset for each image based on its index to stagger their introduction
-  //     const staggerOffset = index * 100; // Adjust based on desired spacing
-
-  //     // Adjust position based on the total distance moved, applying modulo for continuous loop
-  //     const effectiveDistance =
-  //       (distanceMoved + staggerOffset) %
-  //       (screenWidth + screenHeight + initialY);
-  //     let newX = initialX - effectiveDistance;
-  //     let newY = initialY + effectiveDistance;
-
-  //     // Ensure newX and newY are within bounds to start from top right again
-  //     if (newX < -100 || newY > screenHeight + 100) {
-  //       newX = initialX - (effectiveDistance - (screenWidth + screenHeight));
-  //       newY = initialY + (effectiveDistance - (screenWidth + screenHeight));
-  //     }
-
-  //     return {
-  //       ...obj,
-  //       x: newX,
-  //       y: newY,
-  //     };
-  //   });
-  // };
 
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
@@ -597,7 +526,7 @@ const Game: React.FC = () => {
       if (gameState !== ENDED) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      if (elapsedTime > 1000) {
+      if (elapsedTime > 2000) {
         setGameState(WAITING);
         setCurrentStateStartTime(Date.now());
         return;
@@ -652,17 +581,6 @@ const Game: React.FC = () => {
       parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
     ) {
       if (gameState === RUNNING) {
-        // const elapsedTime = Math.max(0, now - currentStateStartTime);
-        // const y = Math.exp(0.0006 * elapsedTime) * 10;
-        // const initialJetX = 100;
-        // const initialJetY = 1000;
-        // const newX = ((initialJetX * elapsedTime) / 500) * scale;
-        // const newY = (initialJetY - y) * scale;
-
-        // Store these coordinates for later use
-        // lastJetPosition.current.x = newX;
-        // lastJetPosition.current.y = newY;
-
         setGameState(ENDED);
         setCurrentStateStartTime(Date.now());
       }
@@ -700,7 +618,6 @@ const Game: React.FC = () => {
     };
   }, []);
 
-  //console.log("GameState", gameState);
 
   return (
     <div>
@@ -773,6 +690,8 @@ const Game: React.FC = () => {
             </h2>
           </div>
         )}
+
+
       </div>
     </div>
   );
