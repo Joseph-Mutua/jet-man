@@ -52,7 +52,7 @@ import parachuteSprite from "../assets/images/Parachute2.png";
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
 import { FireJson } from "./types";
-import { generateTargetGameOdds as generateMultiplier } from "../utils/GenerateOdds";
+import { generateGameMultiplier } from "../utils/generateMultiplier";
 import { loadImage } from "../utils/LoadImage";
 
 const FireOneSheet = new Image();
@@ -263,6 +263,7 @@ const Game: React.FC = () => {
   const targetMultiplier = useRef<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
+  // targetMultiplier.current = generateGameMultiplier();
 
   // const baseImageObjects = [
   //   { url: AirBalloonOne, initialX: 1000, initialY: 0 },
@@ -334,10 +335,9 @@ const Game: React.FC = () => {
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
     const loadingCtx = waitingCanvasRef.current?.getContext("2d");
-    if (!bgCtx || !loadingCtx) return;
-    for (const ctx of [bgCtx, loadingCtx]) {
-      ctx.clearRect(0, 0, ctx.canvas.width, screenHeight);
-    }
+    if (!bgCtx || !loadingCtx || !loadingAssetsComplete) return;
+    bgCtx.clearRect(0, 0, screenWidth, screenHeight);
+    loadingCtx.clearRect(0, 0, screenWidth, screenHeight);
 
     const drawGradientBackground = () => {
       const gradient = bgCtx.createLinearGradient(
@@ -421,6 +421,7 @@ const Game: React.FC = () => {
 
     const drawJetAndFlameSprites = () => {
       if (gameState !== RUNNING) return;
+
       const elapsedTime = Math.max(
         0,
         Math.min(now - currentStateStartTime, 7000)
@@ -466,7 +467,7 @@ const Game: React.FC = () => {
 
       const index = Math.min(
         Math.floor(totalElapsedTime / 5000),
-        flameSprites.length - 1
+        flameSprites.length - 2
       );
       const currentSprite = flameSprites[index];
       if (!currentSprite.spriteSheet.complete) {
@@ -528,8 +529,15 @@ const Game: React.FC = () => {
     const drawLoading = () => {
       if (!loadingCtx || gameState !== WAITING || !loadingAssetsComplete)
         return;
-      const image = new Image();
-      image.src = loaderSprite;
+      const elapsedTime = Math.max(0, now - currentStateStartTime);
+
+      if (elapsedTime >= 6000) {
+        setGameState(RUNNING);
+        setCurrentStateStartTime(Date.now());
+        return;
+      }
+
+      const loaderImage = imageObjects.get(loaderSprite) as HTMLImageElement;
 
       const animationDuration = 6000;
       const totalFrames: number = loaderSpriteJson.animations.Loader.length;
@@ -547,51 +555,75 @@ const Game: React.FC = () => {
         })
       );
 
-      const elapsedTime = now - currentStateStartTime;
       const currentFrameIndex =
         Math.floor(elapsedTime / frameDuration) % frames.length;
+      const frame = frames[currentFrameIndex]?.frame;
 
-      if (elapsedTime < animationDuration) {
-        const frame = frames[currentFrameIndex]?.frame;
-        const spriteImage = image;
-        const scaledWidth = frame?.width * scale;
-        const scaledHeight = frame?.height * scale;
-        const scaledX = (screenWidth - scaledWidth) / 2;
-        const scaledY = (screenHeight - scaledHeight) / 2;
+      const scaledWidth = frame?.width * scale;
+      const scaledHeight = frame?.height * scale;
+      const scaledX = (screenWidth - scaledWidth) / 2;
+      const scaledY = (screenHeight - scaledHeight) / 2;
 
-        loadingCtx.drawImage(
-          spriteImage,
-          frame?.x,
-          frame?.y,
-          frame?.width,
-          frame?.height,
-          scaledX,
-          scaledY,
-          scaledWidth,
-          scaledHeight
-        );
+      loadingCtx.drawImage(
+        loaderImage,
+        frame?.x,
+        frame?.y,
+        frame?.width,
+        frame?.height,
+        scaledX,
+        scaledY,
+        scaledWidth,
+        scaledHeight
+      );
 
-        loadingCtx.fillStyle = "white";
-        loadingCtx.font = `bold ${20 * scale}px Arial`;
-        loadingCtx.textAlign = "center";
-        loadingCtx.fillText(
-          `Bet Receiving`,
-          screenWidth / 2,
-          screenHeight / 2 + scaledHeight
-        );
-      } else {
-        setGameState(RUNNING);
-        setCurrentStateStartTime(Date.now());
-      }
+      loadingCtx.fillStyle = "white";
+      loadingCtx.font = `bold ${20 * scale}px Arial`;
+      loadingCtx.textAlign = "center";
+      loadingCtx.fillText(
+        `Bet Receiving`,
+        screenWidth / 2,
+        screenHeight / 2 + scaledHeight
+      );
     };
 
-    // const drawExplosion = () => {
-    //   if (gameState !== ENDED) return;
-    //   const image = imageObjects.current.get( BoomSprite ) as HTMLImageElement;
-    //   const scaledWidth = image.width * scale;
-    //   const scaledHeight = image.height * scale;
-    //   const scaledX = (screenWidth - scaledWidth) / 2;
-    // }
+    const drawExplosion = () => {
+      if (gameState !== ENDED) return;
+      const elapsedTime = Math.max(0, now - currentStateStartTime);
+      console.log("🚀 ~ drawExplosion ~ elapsedTime:", elapsedTime);
+
+      if (elapsedTime > 1000) {
+        setGameState(WAITING);
+        setCurrentStateStartTime(Date.now());
+        return;
+      }
+
+      const index = flameSprites.length - 1;
+
+      const currentSprite = flameSprites[index];
+      if (!currentSprite.spriteSheet.complete) {
+        bgCtx.restore();
+        return;
+      }
+      const frames = Object.values(currentSprite.frames);
+      const frameDuration = 100;
+      const currentFrameIndex =
+        Math.floor(elapsedTime / frameDuration) % frames.length;
+      const frame = frames[currentFrameIndex].frame;
+
+      bgCtx.drawImage(
+        currentSprite.spriteSheet,
+        frame.x,
+        frame.y,
+        frame.w,
+        frame.h,
+        screenWidth / 2,
+        screenHeight / 2,
+        frame.w * scale,
+        frame.h * scale
+      );
+
+      bgCtx.restore();
+    };
 
     drawLoading();
     drawGradientBackground();
@@ -599,12 +631,12 @@ const Game: React.FC = () => {
     drawJetAndFlameSprites();
     drawMovingImageObjects();
     drawParachutes();
-    // drawExplosion();
+    drawExplosion();
   }, [gameState, now]);
 
   useEffect(() => {
     if (gameState === RUNNING) {
-      targetMultiplier.current = generateMultiplier();
+      targetMultiplier.current = generateGameMultiplier();
     }
   }, [gameState]);
 
@@ -614,7 +646,7 @@ const Game: React.FC = () => {
       parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
     ) {
       if (gameState === RUNNING) {
-        setGameState(WAITING);
+        setGameState(ENDED);
         setCurrentStateStartTime(Date.now());
       }
     }
@@ -650,6 +682,8 @@ const Game: React.FC = () => {
       if (frameID) cancelAnimationFrame(frameID);
     };
   }, []);
+
+  console.log("GameState", gameState);
 
   return (
     <div>
