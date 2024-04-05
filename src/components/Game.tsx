@@ -52,7 +52,7 @@ import parachuteSprite from "../assets/images/Parachute2.png";
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
 import { FireJson } from "./types";
-import { generateGameMultiplier } from "../utils/generateMultiplier";
+import { generateGameMultiplier } from "../utils/GenerateMultiplier";
 import { loadImage } from "../utils/LoadImage";
 
 const FireOneSheet = new Image();
@@ -243,6 +243,7 @@ const parachutes = [
 const Game: React.FC = () => {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const waitingCanvasRef = useRef<HTMLCanvasElement>(null);
+  const lastJetPosition = useRef({ x: 0, y: 0 });
 
   //Game States
   const { screenWidth, screenHeight, scale } = useWindowDimensions();
@@ -263,6 +264,7 @@ const Game: React.FC = () => {
   const targetMultiplier = useRef<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
+
   // targetMultiplier.current = generateGameMultiplier();
 
   // const baseImageObjects = [
@@ -370,8 +372,6 @@ const Game: React.FC = () => {
     };
 
     const drawStillImageObjects = () => {
-      if (!loadingAssetsComplete) return;
-
       stillImageObjects.forEach((obj) => {
         const image = imageObjects.get(obj.url) as HTMLImageElement;
 
@@ -393,6 +393,7 @@ const Game: React.FC = () => {
     };
 
     const drawMovingImageObjects = () => {
+      if (gameState !== RUNNING) return;
       movingImageObjects.forEach((obj) => {
         const parachuteImage = imageObjects.get(obj.url) as HTMLImageElement;
 
@@ -446,6 +447,7 @@ const Game: React.FC = () => {
         0,
         totalElapsedTime - rotationDuration
       );
+
       const rotationRate = (35 * Math.PI) / 180 / rotationDuration;
       const rotation = -Math.min(
         elapsedRotationTime * rotationRate,
@@ -453,7 +455,6 @@ const Game: React.FC = () => {
       );
 
       bgCtx.save();
-
       bgCtx.translate(newX + scaledJetWidth / 2, newY + scaledJetHeight / 2);
       bgCtx.rotate(rotation);
 
@@ -465,6 +466,9 @@ const Game: React.FC = () => {
         scaledJetHeight
       );
 
+      lastJetPosition.current.x = newX;
+      lastJetPosition.current.y = Math.max(newY, screenHeight / 2);
+
       const index = Math.min(
         Math.floor(totalElapsedTime / 5000),
         flameSprites.length - 2
@@ -474,6 +478,7 @@ const Game: React.FC = () => {
         bgCtx.restore();
         return;
       }
+
       const frames = Object.values(currentSprite.frames);
       const frameDuration = 10;
       const currentFrameIndex =
@@ -494,7 +499,6 @@ const Game: React.FC = () => {
         frame.w * scale,
         frame.h * scale
       );
-
       bgCtx.restore();
     };
 
@@ -531,7 +535,9 @@ const Game: React.FC = () => {
         return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      if (elapsedTime >= 6000) {
+      // console.log("🚀 ~ drawLoading ~ elapsedTime:", elapsedTime);
+
+      if (elapsedTime > 6000) {
         setGameState(RUNNING);
         setCurrentStateStartTime(Date.now());
         return;
@@ -586,10 +592,10 @@ const Game: React.FC = () => {
       );
     };
 
+  
     const drawExplosion = () => {
       if (gameState !== ENDED) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
-      console.log("🚀 ~ drawExplosion ~ elapsedTime:", elapsedTime);
 
       if (elapsedTime > 1000) {
         setGameState(WAITING);
@@ -616,8 +622,8 @@ const Game: React.FC = () => {
         frame.y,
         frame.w,
         frame.h,
-        screenWidth / 2,
-        screenHeight / 2,
+        lastJetPosition.current.x,
+        lastJetPosition.current.y,
         frame.w * scale,
         frame.h * scale
       );
@@ -646,6 +652,17 @@ const Game: React.FC = () => {
       parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
     ) {
       if (gameState === RUNNING) {
+        // const elapsedTime = Math.max(0, now - currentStateStartTime);
+        // const y = Math.exp(0.0006 * elapsedTime) * 10;
+        // const initialJetX = 100;
+        // const initialJetY = 1000;
+        // const newX = ((initialJetX * elapsedTime) / 500) * scale;
+        // const newY = (initialJetY - y) * scale;
+
+        // Store these coordinates for later use
+        // lastJetPosition.current.x = newX;
+        // lastJetPosition.current.y = newY;
+
         setGameState(ENDED);
         setCurrentStateStartTime(Date.now());
       }
@@ -683,7 +700,7 @@ const Game: React.FC = () => {
     };
   }, []);
 
-  console.log("GameState", gameState);
+  //console.log("GameState", gameState);
 
   return (
     <div>
