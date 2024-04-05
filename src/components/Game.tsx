@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import "../App.css";
 
 //Game
-import { IGameState, RUNNING, WAITING, ENDED } from "../common/constants";
+import {ENDED, IGameState, RUNNING, WAITING} from "../common/constants";
 
 //background images
 import AirportImage from "../assets/images/Airport.png";
@@ -29,24 +29,12 @@ import SatelliteTwo from "../assets/images/Satellite1.png";
 //Flame Sprites
 import FireOneSprite from "../assets/images/Fire1.png";
 import FireOneSpriteJson from "../assets/data/Fire1.json";
-const FireOneSheet = new Image();
-FireOneSheet.src = FireOneSprite;
-
 import FireTwoSprite from "../assets/images/Fire2.png";
 import FireTwoSpriteJson from "../assets/data/Fire2.json";
-const FireTwoSheet = new Image();
-FireTwoSheet.src = FireTwoSprite;
-
 import FireThreeSprite from "../assets/images/Fire3.png";
 import FireThreeSpriteJson from "../assets/data/Fire3.json";
-const FireThreeSheet = new Image();
-FireThreeSheet.src = FireThreeSprite;
-
 import FireFourSprite from "../assets/images/Fire4.png";
 import FireFourSpriteJson from "../assets/data/Fire4.json";
-const FireFourSheet = new Image();
-FireFourSheet.src = FireFourSprite;
-
 //Explosion Sprite
 import BoomSprite from "../assets/images/Boom.png";
 import BoomSpriteJson from "../assets/data/Boom.json";
@@ -60,85 +48,91 @@ import LoaderSpriteJson from "../assets/data/Loader.json";
 //Parachute
 import ParachuteSprite from "../assets/images/Parachute2.png";
 
-import { useWindowDimensions } from "./hooks/useWindowDimensions";
+import {useWindowDimensions} from "./hooks/useWindowDimensions";
 
-import { FireJson } from "./types";
-import { generateTargetGameOdds as generateMultiplier } from "../utils/GenerateOdds";
+import {FireJson} from "./types";
+import {generateTargetGameOdds as generateMultiplier} from "../utils/GenerateOdds";
+
+const FireOneSheet = new Image();
+FireOneSheet.src = FireOneSprite;
+
+const FireTwoSheet = new Image();
+FireTwoSheet.src = FireTwoSprite;
+
+const FireThreeSheet = new Image();
+FireThreeSheet.src = FireThreeSprite;
+
+const FireFourSheet = new Image();
+FireFourSheet.src = FireFourSprite;
+
+
+const imageObjects = new Map();
+
+
+const imageUrls = [
+  AirportImage,
+  RoadImage,
+  JetImage,
+  Fence,
+  GarageImage,
+  PlanetImageOne,
+  PlanetImageTwo,
+  PlanetImageThree,
+  GalaxyImageOne,
+  StarsImage,
+  CloudsOne,
+  CloudsTwo,
+  AirBalloonOne,
+  AirBalloonTwo,
+  SatelliteOne,
+  SatelliteTwo,
+];
+
+const spriteUrls = [
+  FireOneSprite,
+  FireTwoSprite,
+  FireThreeSprite,
+  FireFourSprite,
+
+  BoomSprite,
+  LoaderSprite,
+  ParachuteSprite,
+];
+
+let loadingAssetsComplete = false;
+[...imageUrls, ...spriteUrls].forEach((url) => {
+  const image = new Image();
+  image.src = url;
+  image.onload = () => {
+    imageObjects.set(url, image);
+    // some checks
+    loadingAssetsComplete = true;
+  };
+});
 
 const Game: React.FC = () => {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const waitingCanvasRef = useRef<HTMLCanvasElement>(null);
-  const imageObjects = useRef(new Map());
-  const [scrollPosition, setScrollPosition] = useState(0);
 
   //Game States
-  const [loadingAssetsComplete, setLoadingAssetsComplete] = useState(false);
-  const { screenWidth, screenHeight, scale } = useWindowDimensions();
+  const {screenWidth, screenHeight, scale} = useWindowDimensions();
 
   const diagonalLength = Math.sqrt(screenWidth ** 2 + screenHeight ** 2) * 5;
   const offsetX = scrollPosition % diagonalLength;
   const offsetY = scrollPosition % diagonalLength;
 
+  //const capturedXRef = useRef<number | null>(null);
   const defaultZIndex = 1;
 
   //Timer States
-  const [gameState, setGameState] = useState<IGameState>(WAITING);
-  const [elapsed, setElapsed] = useState(0);
+  const [gameState, setGameState] =
+    useState<IGameState>(WAITING);
   const [now, setNow] = useState<number>(Date.now());
-  const [currentStateStartTime, setCurrentStateStartTime] = useState<number>(
-    Date.now()
-  );
-  const [explosionStarted, setExplosionStarted] = useState(false);
+  const [currentStateStartTime, setCurrentStateStartTime] =
+    useState<number>(Date.now());
 
   const targetMultiplier = useRef<string | null>(null);
   const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
-
-  const imageUrls = useMemo(
-    () => [
-      AirportImage,
-      RoadImage,
-      JetImage,
-      Fence,
-      GarageImage,
-      PlanetImageOne,
-      PlanetImageTwo,
-      PlanetImageThree,
-      GalaxyImageOne,
-      StarsImage,
-      CloudsOne,
-      CloudsTwo,
-      AirBalloonOne,
-      AirBalloonTwo,
-      SatelliteOne,
-      SatelliteTwo,
-    ],
-    []
-  );
-
-  const spriteUrls = useMemo(
-    () => [
-      FireOneSprite,
-      FireTwoSprite,
-      FireThreeSprite,
-      FireFourSprite,
-
-      BoomSprite,
-      LoaderSprite,
-      ParachuteSprite,
-    ],
-    []
-  );
-
-  useEffect(() => {
-    [...imageUrls, ...spriteUrls].forEach((url) => {
-      const image = new Image();
-      image.src = url;
-      image.onload = () => {
-        imageObjects.current.set(url, image);
-      };
-    });
-    setLoadingAssetsComplete(true);
-  }, [imageUrls, spriteUrls]);
 
   const stillImageObjects = useMemo(
     () => [
@@ -829,24 +823,12 @@ const Game: React.FC = () => {
     (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
   );
 
-  const resetJetPosition = () => {
-    // Example initial positions, adjust these values as needed
-    const initialJetX = 100;
-    const initialJetY = 1000;
-
-    const jetIndex = stillImageObjects.findIndex((obj) => obj.url === JetImage);
-    if (jetIndex !== -1) {
-      stillImageObjects[jetIndex].x = initialJetX;
-      stillImageObjects[jetIndex].y = initialJetY;
-    }
-  };
-
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
     const loadingCtx = waitingCanvasRef.current?.getContext("2d");
     if (!bgCtx || !loadingCtx) return;
     for (const ctx of [bgCtx, loadingCtx]) {
-      ctx.clearRect(0, 0, screenWidth, screenHeight);
+      ctx.clearRect(0, 0, ctx.canvas.width, screenHeight);
     }
 
     const drawGradientBackground = () => {
@@ -914,65 +896,108 @@ const Game: React.FC = () => {
     //   });
     // };
 
-    // Drawing function remains mostly the same, but uses the `x` and `y` from `movingImageObjects`
+    const drawJet = () => {
+      if (gameState !== RUNNING || !imageObjects) return;
 
-    // const getRandomInitialPosition = () => {
-    //   // Randomly choose between top edge or right edge for initial position
-    //   if (Math.random() > 0.5) {
-    //     // Position starts from the top edge, with a random X coordinate
-    //     return { x: Math.random() * screenWidth, y: -100 };
-    //   } else {
-    //     // Position starts from the right edge, with a random Y coordinate
-    //     return { x: screenWidth + 100, y: Math.random() * screenHeight };
-    //   }
-    // };
+      const elapsedTime = Math.max(
+        0,
+        Math.min(now - currentStateStartTime, 7000)
+      );
+      const y = Math.exp(0.0006 * elapsedTime) * 10;
 
-    // Function to generate moving image objects
-    const generateMovingImageObjects = (elapsedTime: number) => {
-      // Define the initial position for the entry of images
-      const initialPosition = {
-        x: (screenWidth - 300) * scale,
-        y: -100, // Assuming the images are coming from just above the visible canvas
-      };
+      const initialJetX = 100;
+      const initialJetY = 1000;
+      const jetImage = imageObjects.current.get(JetImage) as HTMLImageElement;
 
-      const baseImages = [
-        { url: AirBalloonOne },
-        { url: AirBalloonTwo },
-        // Add more images as needed
-      ];
+      if (!jetImage) return;
 
-      const speed = 0.1; // Adjust this to control the speed of the diagonal movement
-      const imageProductionInterval = 1000; // New image every second
+      const scaledJetWidth = jetImage.width * scale;
+      const scaledJetHeight = jetImage.height * scale;
 
-      // Create a pattern that allows images to enter the screen in a staggered manner
-      return baseImages.flatMap((obj, index) => {
-        // Calculate how many times an image has been reintroduced based on the elapsed time and production interval
-        const repetitions = Math.floor(
-          elapsedTime / (imageProductionInterval + index * 100)
-        );
+      const newX = ((initialJetX * elapsedTime) / 500) * scale;
+      const newY = (initialJetY - y) * scale;
 
-        // Generate positions for each repetition of the image
-        return Array.from({ length: repetitions }).map((_, repIndex) => {
-          const adjustedTime =
-            elapsedTime - repIndex * imageProductionInterval - index * 100;
-          const distanceMoved = adjustedTime * speed;
+      const totalElapsedTime = Math.max(0, now - currentStateStartTime);
+      const elapsedRotationTime = Math.max(0, totalElapsedTime - 2000);
+      const rotationRate = (35 * Math.PI) / 180 / 2000;
+      const rotation = -Math.min(
+        elapsedRotationTime * rotationRate,
+        (35 * Math.PI) / 180
+      );
 
-          // Calculate current positions based on the diagonal movement
-          let newX = initialPosition.x - distanceMoved;
-          let newY = initialPosition.y + distanceMoved;
+      // Save the context's state before any transformation
+      bgCtx.save();
 
-          // Ensure the image reappears from the top right after moving off-screen
-          if (newX < -100 || newY > screenHeight + 100) {
-            newX = initialPosition.x;
-            newY = initialPosition.y;
+      // Translate and rotate for the jet
+      bgCtx.translate(newX + scaledJetWidth / 2, newY + scaledJetHeight / 2);
+      bgCtx.rotate(rotation);
+
+      // Draw the jet with its center as the pivot
+      bgCtx.drawImage(
+        jetImage,
+        -scaledJetWidth / 2,
+        -scaledJetHeight / 2,
+        scaledJetWidth,
+        scaledJetHeight
+      );
+
+      // Compute the current flame sprite and frame
+      const index = Math.min(
+        Math.floor(totalElapsedTime / 5000),
+        flameSprites.length - 1
+      );
+      const currentSprite = flameSprites[index];
+      if (!currentSprite.spriteSheet.complete) {
+        bgCtx.restore(); // Make sure to restore if we're returning early
+        return;
+      }
+      const frames = Object.values(currentSprite.frames);
+      const frameDuration = 10;
+      const currentFrameIndex =
+        Math.floor(totalElapsedTime / frameDuration) % frames.length;
+      const frame = frames[currentFrameIndex].frame;
+
+      // Assuming the flame should be positioned relative to the jet
+      // Note: Adjust these values as needed to position the flame correctly relative to your jet image
+      const flameOffsetX = (-jetImage.width / 0.8) * scale;
+      const flameOffsetY = (-jetImage.height / 2) * scale;
+
+      // Draw the flame sprite
+      // Note: The flame sprite is drawn relative to the jet's pivot without an additional call to rotate
+      bgCtx.drawImage(
+        currentSprite.spriteSheet,
+        frame.x,
+        frame.y,
+        frame.w,
+        frame.h, // Source rectangle
+        flameOffsetX,
+        flameOffsetY, // Position relative to the jet's pivot
+        frame.w * scale,
+        frame.h * scale // Destination rectangle scaled
+      );
+
+      // Restore the context's state after drawing
+      bgCtx.restore();
+    };
+
+    const drawStillImageObjects = () => {
+      stillObjects.forEach((obj) => {
+        const image = imageObjects.current.get(obj.url) as HTMLImageElement;
+
+        if (image && image.src !== JetImage) {
+          const scaledWidth = image.width * scale;
+          const scaledHeight = image.height * scale;
+          let scaledX: number, scaledY: number;
+          if (
+            scrollPosition >= obj.minScroll &&
+            scrollPosition <= obj.maxScroll
+          ) {
+            scaledX = (obj.x - offsetX) * scale;
+            scaledY = (obj.y + offsetY) * scale;
+
+            bgCtx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
           }
-
-          return {
-            ...obj,
-            x: newX,
-            y: newY,
-          };
-        });
+        }
       });
     };
 
@@ -1073,151 +1098,19 @@ const Game: React.FC = () => {
           screenHeight / 2 + scaledHeight
         );
       } else {
-        if (gameState === WAITING) {
           setGameState(RUNNING);
           setCurrentStateStartTime(Date.now());
         }
       }
     };
 
-    const drawJetAndFlameSprites = () => {
-      if (gameState !== RUNNING || !imageObjects) return;
-      const jetImage = imageObjects.current.get(JetImage) as HTMLImageElement;
-
-      if (!jetImage) return;
-      let scaledJetWidth = jetImage.width * scale;
-      let scaledJetHeight = jetImage.height * scale;
-      let newJetX = ((100 * 0) / 500) * scale;
-      let newJetY = (1000 - Math.exp(0.0006 * 0) * 10) * scale;
-
-      if (gameState === RUNNING && !explosionStarted) {
-        const elapsedTime = Math.max(
-          0,
-          Math.min(now - currentStateStartTime, 7000)
-        );
-        const y = Math.exp(0.0006 * elapsedTime) * 10;
-
-        const initialJetX = 100;
-        const initialJetY = 1000;
-        if (!jetImage) return;
-
-        scaledJetWidth = jetImage.width * scale;
-        scaledJetHeight = jetImage.height * scale;
-
-        newJetX = ((initialJetX * elapsedTime) / 500) * scale;
-        newJetY = (initialJetY - y) * scale;
-
-        const totalElapsedTime = Math.max(0, now - currentStateStartTime);
-        const totalRotationDuration = 2000;
-        const elapsedRotationTime = Math.max(
-          0,
-          totalElapsedTime - totalRotationDuration
-        );
-        const rotationRate = (35 * Math.PI) / 180 / totalRotationDuration;
-        const rotation = -Math.min(
-          elapsedRotationTime * rotationRate,
-          (35 * Math.PI) / 180
-        );
-
-        bgCtx.save();
-        bgCtx.translate(
-          newJetX + scaledJetWidth / 2,
-          newJetY + scaledJetHeight / 2
-        );
-
-        bgCtx.rotate(rotation);
-
-        bgCtx.drawImage(
-          jetImage,
-          -scaledJetWidth / 2,
-          -scaledJetHeight / 2,
-          scaledJetWidth,
-          scaledJetHeight
-        );
-
-        const index = Math.min(
-          Math.floor(totalElapsedTime / 5000),
-          flameSprites.length - 1
-        );
-        const currentSprite = flameSprites[index];
-        if (!currentSprite.spriteSheet.complete) {
-          bgCtx.restore();
-          return;
-        }
-
-        const frames = Object.values(currentSprite.frames);
-        const frameDuration = 30;
-        const currentFrameIndex =
-          Math.floor(totalElapsedTime / frameDuration) % frames.length;
-        const frame = frames[currentFrameIndex].frame;
-
-        const flameOffsetX = -scaledJetWidth / 0.8;
-        const flameOffsetY = -scaledJetHeight / 2;
-
-        bgCtx.drawImage(
-          currentSprite.spriteSheet,
-          frame.x,
-          frame.y,
-          frame.w,
-          frame.h,
-          flameOffsetX,
-          flameOffsetY,
-          frame.w * scale,
-          frame.h * scale
-        );
-
-        bgCtx.restore();
-      }
-    };
-
-    const drawExplosion = () => {
-      const jetImage = imageObjects.current.get(JetImage) as HTMLImageElement;
-
-      if (!jetImage) return;
-      // const scaledJetWidth = jetImage.width * scale;
-      // const scaledJetHeight = jetImage.height * scale;
-
-      if (gameState === ENDED && explosionStarted) {
-        const explosionSprite = flameSprites[flameSprites.length - 1];
-        if (!explosionSprite.spriteSheet.complete) return;
-        const elapsedTimeSinceExplosion = Math.max(
-          0,
-          now - currentStateStartTime
-        );
-
-        const frames = Object.values(explosionSprite.frames);
-        const frameDuration = 100;
-        const currentFrameIndex =
-          Math.floor(elapsedTimeSinceExplosion / frameDuration) % frames.length;
-
-        const frame = frames[currentFrameIndex].frame;
-        // const lastJetX = newJetX + scaledJetWidth / 2;
-        // const lastJetY = newJetY + scaledJetHeight / 2;
-
-        const lastJetX = screenWidth / 2;
-        const lastJetY = screenHeight / 2;
-
-        bgCtx.drawImage(
-          explosionSprite.spriteSheet,
-          frame.x,
-          frame.y,
-          frame.w,
-          frame.h,
-          // lastJetX - (explosionSprite.spriteSheet.width / 2) * scale,
-          // lastJetY - (explosionSprite.spriteSheet.height / 2) * scale,
-          lastJetX,
-          lastJetY,
-          frame.w * scale,
-          frame.h * scale
-        );
-
-        if (elapsedTimeSinceExplosion >= 3000) {
-          setExplosionStarted(false);
-          setGameState(WAITING);
-          setCurrentStateStartTime(Date.now());
-        }
-      }
-    };
+    // const drawExplosion = () => {
+    //   if (gameState !== ENDED) return;
+    //   const image = imageObjects.current.get( BoomSprite ) as HTMLImageElement;
+    //   const scaledWidth = image.width * scale;
+    //   const scaledHeight = image.height * scale;
+    //   const scaledX = (screenWidth - scaledWidth) / 2;
+    // }
 
     drawLoading();
     drawGradientBackground();
@@ -1230,8 +1123,7 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     if (gameState === RUNNING) {
-      const newMultiplier = generateMultiplier();
-      targetMultiplier.current = newMultiplier;
+      targetMultiplier.current = generateMultiplier();
     }
   }, [gameState]);
 
@@ -1240,33 +1132,12 @@ const Game: React.FC = () => {
       targetMultiplier.current &&
       parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
     ) {
-      resetJetPosition();
-      setGameState(ENDED);
-      setExplosionStarted(true);
-      setCurrentStateStartTime(Date.now());
-    }
-  }, [gameState, currentMultiplier]);
-
-  useEffect(() => {
-    if (gameState === RUNNING) {
-      const elapsed = now - currentStateStartTime;
-      setElapsed(elapsed);
-
-      if (elapsed > 2000) {
-        const scrollRate = 2;
-
-        setScrollPosition((prevPosition) =>
-          Math.min(prevPosition + scrollRate, diagonalLength * 0.6)
-        );
+      if (gameState === RUNNING) {
+        setGameState(WAITING);
+        setCurrentStateStartTime(Date.now());
       }
     }
-
-    // if (gameState === ENDED) {
-    //   setScrollPosition(0);
-    //   setExplosionStarted(true);
-    //   setCurrentStateStartTime(Date.now());
-    // }
-  }, [now, gameState, diagonalLength]);
+  }, [gameState, currentMultiplier]);
 
   useEffect(() => {
     let frameID: number;
@@ -1282,7 +1153,7 @@ const Game: React.FC = () => {
 
   return (
     <div>
-      <div style={{ position: "relative" }}>
+      <div style={{position: "relative"}}>
         {/* Background Canvas */}
 
         <canvas
