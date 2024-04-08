@@ -47,7 +47,7 @@ import loaderSprite from "../assets/images/Loader.png";
 import loaderSpriteJson from "../assets/data/Loader.json";
 
 //Parachute
-import parachuteSprite from "../assets/images/Parachute2.png";
+import parachuteImage from "../assets/images/Parachute2.png";
 
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
@@ -86,6 +86,7 @@ const imageUrls = [
   airBalloonTwo,
   satelliteOne,
   satelliteTwo,
+  parachuteImage,
 ];
 const spriteUrls = [
   fireOneSprite,
@@ -95,7 +96,6 @@ const spriteUrls = [
 
   boomSprite,
   loaderSprite,
-  parachuteSprite,
 ];
 const allUrls = [...imageUrls, ...spriteUrls];
 let loadingAssetsComplete = false;
@@ -190,6 +190,17 @@ const movingImageObjects = [
   },
 ];
 
+const parachuteObjects = [
+  {
+    url: parachuteImage,
+    x: 0,
+    y: 0,
+    dx: 0,
+    dy: 0,
+    disappearTime: 0,
+  },
+];
+
 const flameSprites: (FireJson & {
   currentFrameIndex: number;
   spriteSheet: HTMLImageElement;
@@ -218,30 +229,6 @@ const flameSprites: (FireJson & {
     ...boomSpriteJson,
     currentFrameIndex: 0,
     spriteSheet: BoomSheet,
-  },
-];
-
-const parachutes = [
-  {
-    url: parachuteSprite,
-    x: 1800,
-    y: 0,
-    minScroll: 500,
-    maxScroll: 600,
-  },
-  {
-    url: parachuteSprite,
-    x: 1850,
-    y: 0,
-    minScroll: 500,
-    maxScroll: 600,
-  },
-  {
-    url: parachuteSprite,
-    x: 1850,
-    y: -100,
-    minScroll: 550,
-    maxScroll: 650,
   },
 ];
 
@@ -332,7 +319,7 @@ const Game: React.FC = () => {
     const drawMovingImageObjects = () => {
       if (gameState !== RUNNING || !bgCtx) return;
 
-      const elapsedTime = now - currentStateStartTime;
+      const elapsedTime = Math.max(0, now - currentStateStartTime);
       if (elapsedTime < 5000) return;
 
       let imagesToDraw: string[] = [];
@@ -368,22 +355,16 @@ const Game: React.FC = () => {
       }
 
       movingImageObjects.forEach((obj, index) => {
-        const balloonImage = imageObjects.get(obj.url) as HTMLImageElement;
+        const imageToDraw = imageObjects.get(obj.url) as HTMLImageElement;
 
-        if (balloonImage) {
-          const scaledWidth = balloonImage.width * scale;
-          const scaledHeight = balloonImage.height * scale;
+        if (imageToDraw) {
+          const scaledWidth = imageToDraw.width * scale;
+          const scaledHeight = imageToDraw.height * scale;
 
           obj.x -= obj.dx * scale;
           obj.y += obj.dy * scale;
 
-          bgCtx.drawImage(
-            balloonImage,
-            obj.x,
-            obj.y,
-            scaledWidth,
-            scaledHeight
-          );
+          bgCtx.drawImage(imageToDraw, obj.x, obj.y, scaledWidth, scaledHeight);
 
           if (obj.x + scaledWidth < 0 || obj.y + scaledHeight > screenHeight) {
             movingImageObjects.splice(index, 1);
@@ -439,7 +420,7 @@ const Game: React.FC = () => {
       );
 
       lastJetPosition.current.x = newX;
-      lastJetPosition.current.y = newY - scaledJetHeight * 2;
+      lastJetPosition.current.y = newY;
 
       const index = Math.min(
         Math.floor(totalElapsedTime / 5000),
@@ -473,31 +454,48 @@ const Game: React.FC = () => {
       );
       bgCtx.restore();
     };
-
     const drawParachutes = () => {
-      if (gameState !== RUNNING) return;
-      parachutes.forEach((obj) => {
-        const parachuteImage = imageObjects.get(obj.url) as HTMLImageElement;
+      if (gameState !== RUNNING || !bgCtx || !parachuteImage) return;
 
-        if (parachuteImage) {
-          const scaledWidth = parachuteImage.width * 0.2 * scale;
-          const scaledHeight = parachuteImage.height * 0.2 * scale;
-          let scaledX, scaledY;
+      if (parachuteObjects.length < 20 && Math.random() < 0.2) {
+        const numParachutes = Math.floor(Math.random() * 10) + 1;
 
-          if (
-            scrollPosition >= obj.minScroll &&
-            scrollPosition <= obj.maxScroll
-          ) {
-            scaledX = (obj.x - offsetX) * scale;
-            scaledY = (obj.y + offsetY) * scale;
-            bgCtx.drawImage(
-              parachuteImage,
-              scaledX,
-              scaledY,
-              scaledWidth,
-              scaledHeight
-            );
-          }
+        for (let i = 0; i < numParachutes; i++) {
+          const angle = Math.random() * Math.PI;
+          const direction = Math.sign(Math.random() - 0.5);
+
+          const speedX = 1 + Math.random() * 2;
+          const speedY = 3 + Math.random() * 2;
+
+          const newParachute = {
+            url: parachuteImage,
+            x: lastJetPosition.current.x,
+            y: lastJetPosition.current.y,
+            dx: direction * speedX * Math.cos(angle),
+            dy: speedY * Math.sin(angle),
+            disappearTime: now + (3000 + Math.random() * 5000),
+          };
+
+          parachuteObjects.push(newParachute);
+        }
+      }
+
+      parachuteObjects.forEach((obj, index) => {
+        const imageToDraw = imageObjects.get(obj.url) as HTMLImageElement;
+        const scaledWidth = imageToDraw.width * 0.2 * scale;
+        const scaledHeight = imageToDraw.height * 0.2 * scale;
+
+        obj.x -= obj.dx * scale;
+        obj.y += obj.dy * scale;
+
+        bgCtx.drawImage(imageToDraw, obj.x, obj.y, scaledWidth, scaledHeight);
+
+        if (
+          obj.x + scaledWidth < 0 ||
+          obj.y + scaledHeight > screenHeight ||
+          now > obj.disappearTime
+        ) {
+          parachuteObjects.splice(index, 1);
         }
       });
     };
@@ -585,6 +583,9 @@ const Game: React.FC = () => {
         Math.floor(elapsedTime / frameDuration) % frames.length;
       const frame = frames[currentFrameIndex].frame;
 
+      const jet = imageObjects.get(jetImage) as HTMLImageElement;
+      const scaledJetHeight = jet.height * scale * 2;
+
       bgCtx.drawImage(
         currentSprite.spriteSheet,
         frame.x,
@@ -592,9 +593,9 @@ const Game: React.FC = () => {
         frame.w,
         frame.h,
         lastJetPosition.current.x,
-        lastJetPosition.current.y,
-        (frame.w * scale) / 2,
-        (frame.h * scale) / 2
+        lastJetPosition.current.y - scaledJetHeight,
+        (frame.w * scale) / 1.5,
+        (frame.h * scale) / 1.5
       );
       bgCtx.restore();
     };
@@ -604,7 +605,6 @@ const Game: React.FC = () => {
     drawStillImageObjects();
     drawJetAndFlameSprites();
     drawMovingImageObjects();
-    // updateMovingImageObjects();
     drawParachutes();
     drawExplosion();
   }, [gameState, now]);
