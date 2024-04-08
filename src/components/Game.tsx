@@ -117,48 +117,39 @@ const stillImageObjects = [
     url: roadImage,
     x: 0,
     y: 960,
-    minScroll: 0,
-    maxScroll: 3000,
     zIndex: 1,
   },
   {
     url: jetImage,
     x: 100,
     y: 1000,
-    minScroll: 0,
-    maxScroll: 3000,
+
     zIndex: 100,
   },
   {
     url: airportImage,
     x: 10,
     y: 660,
-    minScroll: 0,
-    maxScroll: 3000,
     zIndex: 10,
   },
   {
     url: fence,
     x: 0,
     y: 880,
-    minScroll: 0,
-    maxScroll: 3000,
+
     zIndex: 2,
   },
   {
     url: garageImage,
     x: 1100,
     y: 880,
-    minScroll: 0,
-    maxScroll: 3000,
+
     zIndex: 5,
   },
   {
     url: cloudsOne,
     x: 0,
     y: 600,
-    minScroll: 0,
-    maxScroll: 1000,
   },
 ];
 
@@ -198,6 +189,8 @@ const parachuteObjects = [
     dx: 0,
     dy: 0,
     disappearTime: 0,
+    downwardSpeed: 1 + Math.random(),
+    switchToDownward: false,
   },
 ];
 
@@ -302,16 +295,11 @@ const Game: React.FC = () => {
         if (image && image.src !== jetImage) {
           const scaledWidth = image.width * scale;
           const scaledHeight = image.height * scale;
-          let scaledX: number, scaledY: number;
-          if (
-            scrollPosition >= obj.minScroll &&
-            scrollPosition <= obj.maxScroll
-          ) {
-            scaledX = (obj.x - offsetX) * scale;
-            scaledY = (obj.y + offsetY) * scale;
 
-            bgCtx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
-          }
+          const scaledX = (obj.x - offsetX) * scale;
+          const scaledY = (obj.y + offsetY) * scale;
+
+          bgCtx.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
         }
       });
     };
@@ -455,27 +443,28 @@ const Game: React.FC = () => {
       bgCtx.restore();
     };
     const drawParachutes = () => {
-      if (gameState !== RUNNING || !bgCtx || !parachuteImage) return;
+      if (gameState !== RUNNING || !bgCtx) return;
+      const elapsedTime = Math.max(0, now - currentStateStartTime);
+      if (elapsedTime < 1000) return;
 
       if (parachuteObjects.length < 20 && Math.random() < 0.2) {
         const numParachutes = Math.floor(Math.random() * 10) + 1;
 
         for (let i = 0; i < numParachutes; i++) {
-          const angle = Math.random() * Math.PI;
+          const angle = (Math.random() * Math.PI) / 2;
           const direction = Math.sign(Math.random() - 0.5);
-
-          const speedX = 1 + Math.random() * 2;
-          const speedY = 3 + Math.random() * 2;
+          const initialSpeed = 2 + Math.random() * 5;
 
           const newParachute = {
             url: parachuteImage,
             x: lastJetPosition.current.x,
             y: lastJetPosition.current.y,
-            dx: direction * speedX * Math.cos(angle),
-            dy: speedY * Math.sin(angle),
-            disappearTime: now + (3000 + Math.random() * 5000),
+            dx: direction * initialSpeed * Math.cos(angle),
+            dy: -initialSpeed * Math.sin(angle),
+            disappearTime: now + (2000 + Math.random() * 5000),
+            downwardSpeed: 2 + Math.random(),
+            switchToDownward: false,
           };
-
           parachuteObjects.push(newParachute);
         }
       }
@@ -484,6 +473,14 @@ const Game: React.FC = () => {
         const imageToDraw = imageObjects.get(obj.url) as HTMLImageElement;
         const scaledWidth = imageToDraw.width * 0.2 * scale;
         const scaledHeight = imageToDraw.height * 0.2 * scale;
+
+        if (
+          !obj.switchToDownward &&
+          obj.y < lastJetPosition.current.y - 150 * scale
+        ) {
+          obj.dy = obj.downwardSpeed;
+          obj.switchToDownward = true;
+        }
 
         obj.x -= obj.dx * scale;
         obj.y += obj.dy * scale;
@@ -537,6 +534,7 @@ const Game: React.FC = () => {
       const scaledHeight = frame?.height * scale;
       const scaledX = (screenWidth - scaledWidth) / 2;
       const scaledY = (screenHeight - scaledHeight) / 2;
+      loadingCtx.globalAlpha = 1.0;
 
       loadingCtx.drawImage(
         loaderImage,
@@ -641,7 +639,7 @@ const Game: React.FC = () => {
       }
     }
 
-    if (gameState === WAITING || gameState === ENDED) {
+    if (gameState === WAITING) {
       setScrollPosition(0);
     }
   }, [now, gameState, currentStateStartTime, diagonalLength]);
