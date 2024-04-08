@@ -14,7 +14,7 @@ import garageImage from "../assets/images/Garage.png";
 
 import planetImageOne from "../assets/images/13.png";
 import planetImageTwo from "../assets/images/16.png";
-import PlanetImageThree from "../assets/images/21.png";
+import planetImageThree from "../assets/images/21.png";
 
 import galaxyImageOne from "../assets/images/18.png";
 import starsImage from "../assets/images/Stars.png";
@@ -77,7 +77,7 @@ const imageUrls = [
   garageImage,
   planetImageOne,
   planetImageTwo,
-  PlanetImageThree,
+  planetImageThree,
   galaxyImageOne,
   starsImage,
   cloudsOne,
@@ -151,7 +151,7 @@ const stillImageObjects = [
     y: 880,
     minScroll: 0,
     maxScroll: 3000,
-    zIndex: 5
+    zIndex: 5,
   },
   {
     url: cloudsOne,
@@ -167,6 +167,18 @@ const defaultZIndex = 1;
 stillImageObjects.sort(
   (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
 );
+
+const movingObjectStageOneUrls = [airBalloonOne, airBalloonTwo];
+
+const movingObjectStageTwoUrls = [satelliteOne, satelliteTwo];
+
+const movingObjectStageThreeUrls = [
+  planetImageOne,
+  planetImageTwo,
+  planetImageThree,
+  starsImage,
+  cloudsTwo,
+];
 
 const movingImageObjects = [
   {
@@ -317,21 +329,31 @@ const Game: React.FC = () => {
       });
     };
 
-    const imageUrls = [
-      airBalloonOne,
-      airBalloonTwo /* ... add your 10 image URLs here */,
-    ];
-
-    function insertMovingImageObjects() {
+    const drawMovingImageObjects = () => {
       if (gameState !== RUNNING || !bgCtx) return;
 
       const elapsedTime = now - currentStateStartTime;
-      if (elapsedTime < 3000) return;
+      if (elapsedTime < 5000) return;
+
+      let imagesToDraw: string[] = [];
+      if (elapsedTime < 12000) {
+        imagesToDraw = movingObjectStageOneUrls;
+      } else if (elapsedTime < 45000) {
+        imagesToDraw = [
+          ...movingObjectStageOneUrls,
+          ...movingObjectStageTwoUrls,
+        ];
+      } else if (elapsedTime > 45000) {
+        imagesToDraw = [
+          ...movingObjectStageTwoUrls,
+          ...movingObjectStageThreeUrls,
+        ];
+      }
 
       if (movingImageObjects.length < 5) {
         const randomImageUrl =
-          imageUrls[Math.floor(Math.random() * imageUrls.length)];
-        const randomX = screenWidth / 1.5 + 50;
+          imagesToDraw[Math.floor(Math.random() * imagesToDraw.length)];
+        const randomX = screenWidth / 1.5;
         const randomY = -Math.random() * 200;
 
         const newObject = {
@@ -346,30 +368,29 @@ const Game: React.FC = () => {
       }
 
       movingImageObjects.forEach((obj, index) => {
-        const parachuteImage = imageObjects.get(obj.url) as HTMLImageElement;
+        const balloonImage = imageObjects.get(obj.url) as HTMLImageElement;
 
-        if (parachuteImage) {
-          const scaledWidth = parachuteImage.width * scale;
-          const scaledHeight = parachuteImage.height * scale;
+        if (balloonImage) {
+          const scaledWidth = balloonImage.width * scale;
+          const scaledHeight = balloonImage.height * scale;
 
           obj.x -= obj.dx * scale;
           obj.y += obj.dy * scale;
 
           bgCtx.drawImage(
-            parachuteImage,
+            balloonImage,
             obj.x,
             obj.y,
             scaledWidth,
             scaledHeight
           );
 
-          // Remove image if it goes entirely offscreen
           if (obj.x + scaledWidth < 0 || obj.y + scaledHeight > screenHeight) {
-            movingImageObjects.splice(index, 1); // Remove from array
+            movingImageObjects.splice(index, 1);
           }
         }
       });
-    }
+    };
 
     const drawJetAndFlameSprites = () => {
       if (gameState !== RUNNING) return;
@@ -582,9 +603,8 @@ const Game: React.FC = () => {
     drawGradientBackground();
     drawStillImageObjects();
     drawJetAndFlameSprites();
-    // drawMovingImageObjects();
+    drawMovingImageObjects();
     // updateMovingImageObjects();
-    insertMovingImageObjects();
     drawParachutes();
     drawExplosion();
   }, [gameState, now]);
