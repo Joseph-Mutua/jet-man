@@ -447,7 +447,7 @@ const Game: React.FC = () => {
       const elapsedTime = Math.max(0, now - currentStateStartTime);
       if (elapsedTime < 1000) return;
 
-      if (parachuteObjects.length < 20 && Math.random() < 0.2) {
+      if (parachuteObjects.length < 10 && Math.random() < 0.2) {
         const numParachutes = Math.floor(Math.random() * 10) + 1;
 
         for (let i = 0; i < numParachutes; i++) {
