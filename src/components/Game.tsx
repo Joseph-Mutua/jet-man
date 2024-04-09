@@ -46,14 +46,21 @@ BoomSheet.src = boomSprite;
 import loaderSprite from "../assets/images/Loader.png";
 import loaderSpriteJson from "../assets/data/Loader.json";
 
+import loaderWindowOne from "../assets/images/LoaderWindow0.png";
+import loaderWindowOneJson from "../assets/data/LoaderWindow0.json";
+
+import loaderWindowTwo from "../assets/images/LoaderWindow1.png";
+import loaderWindowTwoJson from "../assets/data/LoaderWindow1.json";
+
 //Parachute
 import parachuteImage from "../assets/images/Parachute2.png";
 
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
-import { FireJson } from "./types";
+import { SpriteJson } from "./types";
 import { generateGameMultiplier } from "../utils/GenerateMultiplier";
 import { loadImage } from "../utils/LoadImage";
+import { ExtractSpriteFrames } from "../utils/ExtractSpriteFrames";
 
 const FireOneSheet = new Image();
 FireOneSheet.src = fireOneSprite;
@@ -96,6 +103,8 @@ const spriteUrls = [
 
   boomSprite,
   loaderSprite,
+  loaderWindowOne,
+  loaderWindowTwo,
 ];
 const allUrls = [...imageUrls, ...spriteUrls];
 let loadingAssetsComplete = false;
@@ -194,7 +203,7 @@ const parachuteObjects = [
   },
 ];
 
-const flameSprites: (FireJson & {
+const flameSprites: (SpriteJson & {
   currentFrameIndex: number;
   spriteSheet: HTMLImageElement;
 })[] = [
@@ -228,7 +237,7 @@ const flameSprites: (FireJson & {
 const Game: React.FC = () => {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const waitingCanvasRef = useRef<HTMLCanvasElement>(null);
-  const lastJetPosition = useRef({ x: 0, y: 0 });
+  const currentJetPosition = useRef({ x: 0, y: 0 });
 
   //Game States
   const { screenWidth, screenHeight, scale } = useWindowDimensions();
@@ -407,8 +416,8 @@ const Game: React.FC = () => {
         scaledJetHeight
       );
 
-      lastJetPosition.current.x = newX;
-      lastJetPosition.current.y = newY;
+      currentJetPosition.current.x = newX;
+      currentJetPosition.current.y = newY;
 
       const index = Math.min(
         Math.floor(totalElapsedTime / 5000),
@@ -443,7 +452,7 @@ const Game: React.FC = () => {
       bgCtx.restore();
     };
     const drawParachutes = () => {
-      if (gameState !== RUNNING || !bgCtx) return;
+      if (gameState !== RUNNING) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
       if (elapsedTime < 1000) return;
 
@@ -457,8 +466,8 @@ const Game: React.FC = () => {
 
           const newParachute = {
             url: parachuteImage,
-            x: lastJetPosition.current.x,
-            y: lastJetPosition.current.y,
+            x: currentJetPosition.current.x,
+            y: currentJetPosition.current.y,
             dx: direction * initialSpeed * Math.cos(angle),
             dy: -initialSpeed * Math.sin(angle),
             disappearTime: now + (2000 + Math.random() * 5000),
@@ -470,13 +479,13 @@ const Game: React.FC = () => {
       }
 
       parachuteObjects.forEach((obj, index) => {
-        const imageToDraw = imageObjects.get(obj.url) as HTMLImageElement;
-        const scaledWidth = imageToDraw.width * 0.2 * scale;
-        const scaledHeight = imageToDraw.height * 0.2 * scale;
+        const parachuteToDraw = imageObjects.get(obj.url) as HTMLImageElement;
+        const scaledWidth = parachuteToDraw.width * 0.2 * scale;
+        const scaledHeight = parachuteToDraw.height * 0.2 * scale;
 
         if (
           !obj.switchToDownward &&
-          obj.y < lastJetPosition.current.y - 150 * scale
+          obj.y < currentJetPosition.current.y - 150 * scale
         ) {
           obj.dy = obj.downwardSpeed;
           obj.switchToDownward = true;
@@ -485,7 +494,13 @@ const Game: React.FC = () => {
         obj.x -= obj.dx * scale;
         obj.y += obj.dy * scale;
 
-        bgCtx.drawImage(imageToDraw, obj.x, obj.y, scaledWidth, scaledHeight);
+        bgCtx.drawImage(
+          parachuteToDraw,
+          obj.x,
+          obj.y,
+          scaledWidth,
+          scaledHeight
+        );
 
         if (
           obj.x + scaledWidth < 0 ||
@@ -502,60 +517,102 @@ const Game: React.FC = () => {
         return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      if (elapsedTime > 6000) {
+      if (elapsedTime < 1000) {
+        const loaderWindowOneImage = imageObjects.get(
+          loaderWindowOne
+        ) as HTMLImageElement;
+        const animationDuration = 1000;
+        const totalFrames: number =
+          loaderWindowOneJson.animations.LoaderWindow.length;
+        const frameDuration = animationDuration / totalFrames;
+
+        const frames = ExtractSpriteFrames(loaderWindowOneJson);
+
+        const currentFrameIndex =
+          Math.floor(elapsedTime / frameDuration) % frames.length;
+        const frame = frames[currentFrameIndex].frame;
+
+        loadingCtx.drawImage(
+          loaderWindowOneImage,
+          frame.x,
+          frame.y,
+          frame.width,
+          frame.height,
+          0,
+          0,
+          screenWidth,
+          screenHeight
+        );
+      } else if (elapsedTime < 5500) {
+        loadingCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        loadingCtx.fillRect(0, 0, screenWidth, screenHeight);
+
+        const loaderImage = imageObjects.get(loaderSprite) as HTMLImageElement;
+        const animationDuration = 5500;
+        const totalFrames: number = loaderSpriteJson.animations.Loader.length;
+        const frameDuration = animationDuration / totalFrames;
+
+        const frames = ExtractSpriteFrames(loaderSpriteJson);
+
+        const currentFrameIndex =
+          Math.floor(elapsedTime / frameDuration) % frames.length;
+        const frame = frames[currentFrameIndex].frame;
+
+        const scaledWidth = frame.width * scale;
+        const scaledHeight = frame.height * scale;
+        const scaledX = (screenWidth - scaledWidth) / 2;
+        const scaledY = (screenHeight - scaledHeight) / 2;
+
+        loadingCtx.drawImage(
+          loaderImage,
+          frame.x,
+          frame.y,
+          frame.width,
+          frame.height,
+          scaledX,
+          scaledY,
+          scaledWidth,
+          scaledHeight
+        );
+
+        loadingCtx.fillStyle = "white";
+        loadingCtx.font = `bold ${20 * scale}px Arial`;
+        loadingCtx.textAlign = "center";
+        loadingCtx.fillText(
+          `Bet Receiving`,
+          screenWidth / 2,
+          screenHeight / 2 + scaledHeight
+        );
+      } else if (elapsedTime < 6000) {
+        const loaderWindowTwoImage = imageObjects.get(
+          loaderWindowTwo
+        ) as HTMLImageElement;
+        const animationDuration = 500;
+        const totalFrames: number =
+          loaderWindowTwoJson.animations.LoaderWindow.length;
+        const frameDuration = animationDuration / totalFrames;
+
+        const frames = ExtractSpriteFrames(loaderWindowTwoJson);
+
+        const currentFrameIndex =
+          Math.floor(elapsedTime / frameDuration) % frames.length;
+        const frame = frames[currentFrameIndex].frame;
+
+        loadingCtx.drawImage(
+          loaderWindowTwoImage,
+          frame.x,
+          frame.y,
+          frame.width,
+          frame.height,
+          0,
+          0,
+          screenWidth,
+          screenHeight
+        );
+      } else if (elapsedTime > 6000) {
         setGameState(RUNNING);
         setCurrentStateStartTime(Date.now());
-        return;
       }
-
-      const loaderImage = imageObjects.get(loaderSprite) as HTMLImageElement;
-
-      const animationDuration = 6000;
-      const totalFrames: number = loaderSpriteJson.animations.Loader.length;
-      const frameDuration = animationDuration / totalFrames;
-
-      const frames = Object.values(loaderSpriteJson.frames).map(
-        (frameData) => ({
-          ...frameData,
-          frame: {
-            x: frameData.frame.x,
-            y: frameData.frame.y,
-            width: frameData.frame.w,
-            height: frameData.frame.h,
-          },
-        })
-      );
-
-      const currentFrameIndex =
-        Math.floor(elapsedTime / frameDuration) % frames.length;
-      const frame = frames[currentFrameIndex]?.frame;
-
-      const scaledWidth = frame?.width * scale;
-      const scaledHeight = frame?.height * scale;
-      const scaledX = (screenWidth - scaledWidth) / 2;
-      const scaledY = (screenHeight - scaledHeight) / 2;
-      loadingCtx.globalAlpha = 1.0;
-
-      loadingCtx.drawImage(
-        loaderImage,
-        frame?.x,
-        frame?.y,
-        frame?.width,
-        frame?.height,
-        scaledX,
-        scaledY,
-        scaledWidth,
-        scaledHeight
-      );
-
-      loadingCtx.fillStyle = "white";
-      loadingCtx.font = `bold ${20 * scale}px Arial`;
-      loadingCtx.textAlign = "center";
-      loadingCtx.fillText(
-        `Bet Receiving`,
-        screenWidth / 2,
-        screenHeight / 2 + scaledHeight
-      );
     };
 
     const drawExplosion = () => {
@@ -590,8 +647,8 @@ const Game: React.FC = () => {
         frame.y,
         frame.w,
         frame.h,
-        lastJetPosition.current.x,
-        lastJetPosition.current.y - scaledJetHeight,
+        currentJetPosition.current.x,
+        currentJetPosition.current.y - scaledJetHeight,
         (frame.w * scale) / 1.5,
         (frame.h * scale) / 1.5
       );
