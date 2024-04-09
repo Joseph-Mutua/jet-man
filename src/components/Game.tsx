@@ -197,7 +197,6 @@ const parachuteObjects = [
     y: 0,
     dx: 0,
     dy: 0,
-    disappearTime: 0,
     downwardSpeed: 1 + Math.random(),
     switchToDownward: false,
   },
@@ -344,8 +343,8 @@ const Game: React.FC = () => {
           url: randomImageUrl,
           x: randomX,
           y: randomY,
-          dx: 0.5 + Math.random(),
-          dy: 1 + Math.random() * 1.5,
+          dx: 1 + Math.random(),
+          dy: 2 + Math.random() * 1.5,
         };
 
         movingImageObjects.push(newObject);
@@ -363,7 +362,7 @@ const Game: React.FC = () => {
 
           bgCtx.drawImage(imageToDraw, obj.x, obj.y, scaledWidth, scaledHeight);
 
-          if (obj.x + scaledWidth < 0 || obj.y + scaledHeight > screenHeight) {
+          if (obj.x + scaledWidth < 0 || obj.y - scaledHeight > screenHeight) {
             movingImageObjects.splice(index, 1);
           }
         }
@@ -392,7 +391,7 @@ const Game: React.FC = () => {
       const newY = (initialJetY - y) * scale;
 
       const totalElapsedTime = Math.max(0, now - currentStateStartTime);
-      const rotationDuration = 2000;
+      const rotationDuration = 3000;
       const elapsedRotationTime = Math.max(
         0,
         totalElapsedTime - rotationDuration
@@ -430,7 +429,7 @@ const Game: React.FC = () => {
       }
 
       const frames = Object.values(currentSprite.frames);
-      const frameDuration = 30;
+      const frameDuration = 40;
       const currentFrameIndex =
         Math.floor(totalElapsedTime / frameDuration) % frames.length;
       const frame = frames[currentFrameIndex].frame;
@@ -449,6 +448,7 @@ const Game: React.FC = () => {
         frame.w * scale,
         frame.h * scale
       );
+
       bgCtx.restore();
     };
     const drawParachutes = () => {
@@ -457,7 +457,7 @@ const Game: React.FC = () => {
       if (elapsedTime < 1000) return;
 
       if (parachuteObjects.length < 10 && Math.random() < 0.2) {
-        const numParachutes = Math.floor(Math.random() * 10) + 1;
+        const numParachutes = Math.floor(Math.random() * 5) + 1;
 
         for (let i = 0; i < numParachutes; i++) {
           const angle = (Math.random() * Math.PI) / 2;
@@ -470,7 +470,6 @@ const Game: React.FC = () => {
             y: currentJetPosition.current.y,
             dx: direction * initialSpeed * Math.cos(angle),
             dy: -initialSpeed * Math.sin(angle),
-            disappearTime: now + (2000 + Math.random() * 5000),
             downwardSpeed: 2 + Math.random(),
             switchToDownward: false,
           };
@@ -502,11 +501,7 @@ const Game: React.FC = () => {
           scaledHeight
         );
 
-        if (
-          obj.x + scaledWidth < 0 ||
-          obj.y + scaledHeight > screenHeight ||
-          now > obj.disappearTime
-        ) {
+        if (obj.x + scaledWidth < 0 || obj.y - scaledHeight > screenHeight) {
           parachuteObjects.splice(index, 1);
         }
       });
@@ -517,11 +512,11 @@ const Game: React.FC = () => {
         return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      if (elapsedTime < 1000) {
+      if (elapsedTime < 500) {
         const loaderWindowOneImage = imageObjects.get(
           loaderWindowOne
         ) as HTMLImageElement;
-        const animationDuration = 1000;
+        const animationDuration = 500;
         const totalFrames: number =
           loaderWindowOneJson.animations.LoaderWindow.length;
         const frameDuration = animationDuration / totalFrames;
@@ -543,7 +538,7 @@ const Game: React.FC = () => {
           screenWidth,
           screenHeight
         );
-      } else if (elapsedTime < 5500) {
+      } else if (elapsedTime < 5000) {
         loadingCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
         loadingCtx.fillRect(0, 0, screenWidth, screenHeight);
 
@@ -583,7 +578,7 @@ const Game: React.FC = () => {
           screenWidth / 2,
           screenHeight / 2 + scaledHeight
         );
-      } else if (elapsedTime < 6000) {
+      } else if (elapsedTime < 5500) {
         const loaderWindowTwoImage = imageObjects.get(
           loaderWindowTwo
         ) as HTMLImageElement;
@@ -609,7 +604,7 @@ const Game: React.FC = () => {
           screenWidth,
           screenHeight
         );
-      } else if (elapsedTime > 6000) {
+      } else if (elapsedTime > 5500) {
         setGameState(RUNNING);
         setCurrentStateStartTime(Date.now());
       }
@@ -619,7 +614,7 @@ const Game: React.FC = () => {
       if (gameState !== ENDED) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
 
-      if (elapsedTime > 2000) {
+      if (elapsedTime > 1000) {
         setGameState(WAITING);
         setCurrentStateStartTime(Date.now());
         return;
@@ -633,7 +628,7 @@ const Game: React.FC = () => {
         return;
       }
       const frames = Object.values(currentSprite.frames);
-      const frameDuration = 100;
+      const frameDuration = 50;
       const currentFrameIndex =
         Math.floor(elapsedTime / frameDuration) % frames.length;
       const frame = frames[currentFrameIndex].frame;
@@ -688,7 +683,7 @@ const Game: React.FC = () => {
       setElapsed(elapsed);
 
       if (elapsed > 2000) {
-        const scrollRate = 2;
+        const scrollRate = 4;
 
         setScrollPosition((prevPosition) =>
           Math.min(prevPosition + scrollRate, diagonalLength * 0.6)
