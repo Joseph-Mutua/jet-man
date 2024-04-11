@@ -15,6 +15,22 @@ export type SpriteJson =
   | typeof boomJson
   | typeof loaderJson
   | typeof loaderwindowOneJson
-  | typeof loaderWindowTwoJson
- 
+  | typeof loaderWindowTwoJson;
 
+export type ParachuteObject = {
+  url: string;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  downwardSpeed: number;
+  switchToDownward: boolean;
+};
+
+export type MovingImageObject = {
+  url: string;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+};

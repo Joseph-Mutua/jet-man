@@ -26,8 +26,9 @@ export const useWindowDimensions = () => {
           screenWidth / baseWidth,
           screenHeight / baseHeight
         );
-
+        
         setDimensions({ screenWidth, screenHeight, aspectRatio, scale });
+
       }
     };
 

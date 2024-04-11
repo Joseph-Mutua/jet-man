@@ -57,7 +57,7 @@ import parachuteImage from "../assets/images/Parachute2.png";
 
 import { useWindowDimensions } from "./hooks/useWindowDimensions";
 
-import { SpriteJson } from "./types";
+import { MovingImageObject, ParachuteObject, SpriteJson } from "./types";
 import { generateGameMultiplier } from "../utils/GenerateMultiplier";
 import { loadImage } from "../utils/LoadImage";
 import { ExtractSpriteFrames } from "../utils/ExtractSpriteFrames";
@@ -106,9 +106,10 @@ const spriteUrls = [
   loaderWindowOne,
   loaderWindowTwo,
 ];
-const allUrls = [...imageUrls, ...spriteUrls];
-let loadingAssetsComplete = false;
 
+const allUrls = [...imageUrls, ...spriteUrls];
+
+let loadingAssetsComplete = false;
 Promise.all(
   allUrls.map((url) =>
     loadImage(url).then((image) => imageObjects.set(url, image))
@@ -163,7 +164,6 @@ const stillImageObjects = [
 ];
 
 const defaultZIndex = 1;
-
 stillImageObjects.sort(
   (a, b) => (a.zIndex || defaultZIndex) - (b.zIndex || defaultZIndex)
 );
@@ -172,34 +172,16 @@ const movingObjectStageOneUrls = [airBalloonOne, airBalloonTwo];
 
 const movingObjectStageTwoUrls = [satelliteOne, satelliteTwo];
 
+let movingImageObjects: MovingImageObject[] = [];
+
+let parachuteObjects: ParachuteObject[] = [];
+
 const movingObjectStageThreeUrls = [
   planetImageOne,
   planetImageTwo,
   planetImageThree,
   starsImage,
   cloudsTwo,
-];
-
-const movingImageObjects = [
-  {
-    url: airBalloonOne,
-    x: 0,
-    y: 0,
-    dx: 0.5 + Math.random(),
-    dy: 1 + Math.random() * 1.5,
-  },
-];
-
-const parachuteObjects = [
-  {
-    url: parachuteImage,
-    x: 0,
-    y: 0,
-    dx: 0,
-    dy: 0,
-    downwardSpeed: 1 + Math.random(),
-    switchToDownward: false,
-  },
 ];
 
 const flameSprites: (SpriteJson & {
@@ -235,7 +217,7 @@ const flameSprites: (SpriteJson & {
 
 const Game: React.FC = () => {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
-  const waitingCanvasRef = useRef<HTMLCanvasElement>(null);
+  const loadingCanvasRef = useRef<HTMLCanvasElement>(null);
   const currentJetPosition = useRef({ x: 0, y: 0 });
 
   //Game States
@@ -260,7 +242,7 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
-    const loadingCtx = waitingCanvasRef.current?.getContext("2d");
+    const loadingCtx = loadingCanvasRef.current?.getContext("2d");
 
     if (!bgCtx || !loadingCtx || !loadingAssetsComplete) return;
     bgCtx.clearRect(0, 0, screenWidth, screenHeight);
@@ -371,16 +353,15 @@ const Game: React.FC = () => {
 
     const drawJetAndFlameSprites = () => {
       if (gameState !== RUNNING) return;
-
       const elapsedTime = Math.max(
         0,
         Math.min(now - currentStateStartTime, 7000)
       );
       const y = Math.exp(0.0006 * elapsedTime) * 10;
 
+      const jet = imageObjects.get(jetImage) as HTMLImageElement;
       const initialJetX = 100;
       const initialJetY = 1000;
-      const jet = imageObjects.get(jetImage) as HTMLImageElement;
 
       if (!jet) return;
 
@@ -391,7 +372,7 @@ const Game: React.FC = () => {
       const newY = (initialJetY - y) * scale;
 
       const totalElapsedTime = Math.max(0, now - currentStateStartTime);
-      const rotationDuration = 3000;
+      const rotationDuration = 2000;
       const elapsedRotationTime = Math.max(
         0,
         totalElapsedTime - rotationDuration
@@ -423,6 +404,7 @@ const Game: React.FC = () => {
         flameSprites.length - 2
       );
       const currentSprite = flameSprites[index];
+
       if (!currentSprite.spriteSheet.complete) {
         bgCtx.restore();
         return;
@@ -451,18 +433,20 @@ const Game: React.FC = () => {
 
       bgCtx.restore();
     };
+
     const drawParachutes = () => {
       if (gameState !== RUNNING) return;
       const elapsedTime = Math.max(0, now - currentStateStartTime);
       if (elapsedTime < 1000) return;
 
+      //parachuteObjects = [];
       if (parachuteObjects.length < 10 && Math.random() < 0.2) {
         const numParachutes = Math.floor(Math.random() * 5) + 1;
 
         for (let i = 0; i < numParachutes; i++) {
           const angle = (Math.random() * Math.PI) / 2;
           const direction = Math.sign(Math.random() - 0.5);
-          const initialSpeed = 2 + Math.random() * 5;
+          const initialSpeed = 3 + Math.random() * 5;
 
           const newParachute = {
             url: parachuteImage,
@@ -582,13 +566,13 @@ const Game: React.FC = () => {
         const loaderWindowTwoImage = imageObjects.get(
           loaderWindowTwo
         ) as HTMLImageElement;
+
         const animationDuration = 500;
         const totalFrames: number =
           loaderWindowTwoJson.animations.LoaderWindow.length;
         const frameDuration = animationDuration / totalFrames;
 
         const frames = ExtractSpriteFrames(loaderWindowTwoJson);
-
         const currentFrameIndex =
           Math.floor(elapsedTime / frameDuration) % frames.length;
         const frame = frames[currentFrameIndex].frame;
@@ -647,7 +631,10 @@ const Game: React.FC = () => {
         (frame.w * scale) / 1.5,
         (frame.h * scale) / 1.5
       );
+
       bgCtx.restore();
+      parachuteObjects = [];
+      movingImageObjects = [];
     };
 
     drawLoading();
@@ -709,77 +696,74 @@ const Game: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <div style={{ position: "relative" }}>
-        {/* Background Canvas */}
+    <div style={{ position: "relative" }}>
+      {/* Background Canvas */}
 
-        <canvas
-          ref={bgCanvasRef}
-          width={screenWidth}
-          height={screenHeight}
-          style={{
-            maxWidth: "100%",
-            zIndex: gameState === WAITING ? 1 : 2,
-          }}
-        />
+      <canvas
+        ref={bgCanvasRef}
+        width={screenWidth}
+        height={screenHeight}
+        style={{
+          maxWidth: "100%",
+          zIndex: gameState === WAITING ? 1 : 2,
+        }}
+      />
 
-        {/* Waiting Canvas */}
+      {/* Waiting Canvas */}
 
-        <canvas
-          ref={waitingCanvasRef}
-          width={screenWidth}
-          height={screenHeight}
-          style={{
-            maxWidth: "100%",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: 3,
-            display: gameState === WAITING ? "block" : "none",
-          }}
-        />
+      <canvas
+        ref={loadingCanvasRef}
+        width={screenWidth}
+        height={screenHeight}
+        style={{
+          maxWidth: "100%",
+          position: "absolute",
+          top: "0",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 3,
+          display: gameState === WAITING ? "block" : "none",
+        }}
+      />
 
-        {(gameState === RUNNING || gameState === ENDED) && (
-          <div>
-            <h1
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                fontSize: "calc(max(max(16px, 5vw), 22px))",
-                transform: "translate(-50%, -50%)",
-                whiteSpace: "nowrap",
-                margin: 0,
-                padding: 0,
-                color:
-                  parseFloat(currentMultiplier) >=
-                  parseFloat(targetMultiplier.current || "0")
-                    ? "red"
-                    : "green",
-              }}
-            >
-              {currentMultiplier} X
-            </h1>
+      {(gameState === RUNNING || gameState === ENDED) && (
+        <div>
+          <h1
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              fontSize: "calc(max(max(16px, 5vw), 22px))",
+              transform: "translate(-50%, -50%)",
+              whiteSpace: "nowrap",
+              margin: 0,
+              padding: 0,
+              color:
+                parseFloat(currentMultiplier) >=
+                parseFloat(targetMultiplier.current || "0")
+                  ? "red"
+                  : "green",
+            }}
+          >
+            {currentMultiplier} X
+          </h1>
 
-            <h2
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "calc(50% + 4rem)",
-                fontSize: "calc(max(max(16px, 2vw), 16px))",
-                transform: "translate(-50%, -50%)",
-                whiteSpace: "nowrap",
-                margin: 0,
-                padding: 0,
-              }}
-            >
-              {targetMultiplier.current !== null
-                ? targetMultiplier.current
-                : ""}
-            </h2>
-          </div>
-        )}
-      </div>
+          <h2
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "calc(50% + 4rem)",
+              fontSize: "calc(max(max(16px, 2vw), 16px))",
+              transform: "translate(-50%, -50%)",
+              whiteSpace: "nowrap",
+              margin: 0,
+              padding: 0,
+            }}
+          >
+            {targetMultiplier.current !== null ? targetMultiplier.current : ""}
+          </h2>
+        </div>
+      )}
     </div>
   );
 };
