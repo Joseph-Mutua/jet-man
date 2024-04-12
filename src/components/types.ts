@@ -1,81 +1,36 @@
-export interface Frame {
-  frame: { x: number; y: number; w: number; h: number };
-  rotated: boolean;
-  trimmed: boolean;
-  spriteSourceSize: { x: number; y: number; w: number; h: number };
-  sourceSize: { w: number; h: number };
-}
+import fireOneJson from "../assets/data/Fire1.json";
+import fireTwoJson from "../assets/data/Fire2.json";
+import fireThreeJson from "../assets/data/Fire3.json";
+import fireFourJson from "../assets/data/Fire4.json";
+import boomJson from "../assets/data/Boom.json";
+import loaderJson from "../assets/data/Loader.json";
+import loaderwindowOneJson from "../assets/data/LoaderWindow0.json";
+import loaderWindowTwoJson from "../assets/data/LoaderWindow1.json";
 
-export interface SpriteJson {
-  frames: Record<string, Frame>;
-  meta: {
-    image: string;
-    scale: string;
-    size: { w: number; h: number };
-  };
-  zIndex?: number;
-}
+export type SpriteJson =
+  | typeof fireOneJson
+  | typeof fireTwoJson
+  | typeof fireThreeJson
+  | typeof fireFourJson
+  | typeof boomJson
+  | typeof loaderJson
+  | typeof loaderwindowOneJson
+  | typeof loaderWindowTwoJson;
 
-export interface SpriteProps {
-  imageSrc: string;
-  json: SpriteJson;
-}
-
-export interface SpriteFrames {
-  [key: string]: Frame;
-}
-
-export interface SpriteObject {
+export type ParachuteObject = {
   url: string;
   x: number;
   y: number;
-  minScroll: number;
-  maxScroll: number;
-  frames: SpriteFrames;
-  animation: string[];
-  currentFrameIndex: number;
-}
+  dx: number;
+  dy: number;
+  downwardSpeed: number;
+  switchToDownward: boolean;
+};
 
-export interface ImageObject {
+export type MovingImageObject = {
   url: string;
   x: number;
   y: number;
-  minScroll: number;
-  maxScroll: number;
-  zIndex?: number;
-}
-
-export interface AnimatedSprite {
-  url: string;
-  x: number;
-  y: number;
-  minScroll: number;
-  maxScroll: number;
-
-  frames: SpriteFrames;
-  animation: string[];
-  currentFrameIndex: number;
-}
-
-export interface JetStateUpdate {
-  phase?: string;
-  position?: { x: number; y: number };
-  speed?: number;
-}
-
-
-export interface SpriteFrameData {
-  frames: {
-    [key: string]: {
-      frame: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-      };
-    };
-  };
-  animations: {
-    [animationName: string]: string[];
-  };
-}
+  dx: number;
+  dy: number;
+};

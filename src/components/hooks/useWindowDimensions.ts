@@ -17,8 +17,8 @@ export const useWindowDimensions = () => {
   });
 
   useEffect(() => {
-    const handleResize = (entries: { contentRect: { width: number; }; }[]) => {
-      for (let entry of entries) {
+    const handleResize = (entries: { contentRect: { width: number } }[]) => {
+      for (const entry of entries) {
         const { width } = entry.contentRect;
         const screenWidth = Math.min(width, maxWidth);
         const screenHeight = screenWidth / aspectRatio;
@@ -26,8 +26,9 @@ export const useWindowDimensions = () => {
           screenWidth / baseWidth,
           screenHeight / baseHeight
         );
-
+        
         setDimensions({ screenWidth, screenHeight, aspectRatio, scale });
+
       }
     };
 
@@ -42,4 +43,3 @@ export const useWindowDimensions = () => {
 
   return dimensions;
 };
-
