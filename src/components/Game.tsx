@@ -543,9 +543,10 @@ const Game: React.FC = () => {
         const currentFrameIndex =
           Math.floor(elapsedTime / frameDuration) % frames.length;
         const frame = frames[currentFrameIndex].frame;
+        const jetScale = Math.max(0.4, scale);
 
-        const scaledWidth = frame.width * scale;
-        const scaledHeight = frame.height * scale;
+        const scaledWidth = frame.width * jetScale;
+        const scaledHeight = frame.height * jetScale;
         const scaledX = (screenWidth - scaledWidth) / 2;
         const scaledY = (screenHeight - scaledHeight) / 2;
 
