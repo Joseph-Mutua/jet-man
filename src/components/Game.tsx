@@ -60,7 +60,7 @@ import { useWindowDimensions } from "./hooks/useWindowDimensions";
 import { MovingImageObject, ParachuteObject, SpriteJson } from "./types";
 import { generateGameMultiplier } from "../utils/GenerateMultiplier";
 import { loadImage } from "../utils/LoadImage";
-import { ExtractSpriteFrames } from "../utils/ExtractSpriteFrames";
+import { extractSpriteFrames } from "../utils/ExtractSpriteFrames";
 
 const FireOneSheet = new Image();
 FireOneSheet.src = fireOneSprite;
@@ -236,9 +236,11 @@ const Game: React.FC = () => {
     Date.now()
   );
 
-  const targetMultiplier = useRef<string | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  const currentMultiplier = Math.exp(0.00006 * elapsed).toFixed(2);
+  const targetMultiplier = useRef<number>(0);
+  const [multiplierElapsed, setMultiplierElapsed] = useState(0);
+  const currentMultiplier = parseFloat(
+    Math.exp(0.00006 * multiplierElapsed).toFixed(2)
+  );
 
   useEffect(() => {
     const bgCtx = bgCanvasRef.current?.getContext("2d");
@@ -411,9 +413,11 @@ const Game: React.FC = () => {
       }
 
       const frames = Object.values(currentSprite.frames);
+
       const frameDuration = 40;
       const currentFrameIndex =
         Math.floor(totalElapsedTime / frameDuration) % frames.length;
+
       const frame = frames[currentFrameIndex].frame;
 
       const flameOffsetX = (-jet.width / 0.8) * scale;
@@ -505,10 +509,11 @@ const Game: React.FC = () => {
           loaderWindowOneJson.animations.LoaderWindow.length;
         const frameDuration = animationDuration / totalFrames;
 
-        const frames = ExtractSpriteFrames(loaderWindowOneJson);
+        const frames = extractSpriteFrames(loaderWindowOneJson);
 
         const currentFrameIndex =
           Math.floor(elapsedTime / frameDuration) % frames.length;
+
         const frame = frames[currentFrameIndex].frame;
 
         loadingCtx.drawImage(
@@ -531,7 +536,7 @@ const Game: React.FC = () => {
         const totalFrames: number = loaderSpriteJson.animations.Loader.length;
         const frameDuration = animationDuration / totalFrames;
 
-        const frames = ExtractSpriteFrames(loaderSpriteJson);
+        const frames = extractSpriteFrames(loaderSpriteJson);
 
         const currentFrameIndex =
           Math.floor(elapsedTime / frameDuration) % frames.length;
@@ -572,7 +577,7 @@ const Game: React.FC = () => {
           loaderWindowTwoJson.animations.LoaderWindow.length;
         const frameDuration = animationDuration / totalFrames;
 
-        const frames = ExtractSpriteFrames(loaderWindowTwoJson);
+        const frames = extractSpriteFrames(loaderWindowTwoJson);
         const currentFrameIndex =
           Math.floor(elapsedTime / frameDuration) % frames.length;
         const frame = frames[currentFrameIndex].frame;
@@ -588,7 +593,7 @@ const Game: React.FC = () => {
           screenWidth,
           screenHeight
         );
-      } else if (elapsedTime > 5500) {
+      } else if (elapsedTime > 5400) {
         setGameState(RUNNING);
         setCurrentStateStartTime(Date.now());
       }
@@ -647,7 +652,7 @@ const Game: React.FC = () => {
   }, [gameState, now]);
 
   useEffect(() => {
-    if (gameState === RUNNING) {
+    if (gameState === WAITING) {
       targetMultiplier.current = generateGameMultiplier();
     }
   }, [gameState]);
@@ -655,7 +660,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     if (
       targetMultiplier.current &&
-      parseFloat(currentMultiplier) >= parseFloat(targetMultiplier.current)
+      currentMultiplier >= targetMultiplier.current
     ) {
       if (gameState === RUNNING) {
         setGameState(ENDED);
@@ -667,7 +672,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     if (gameState === RUNNING) {
       const elapsed = now - currentStateStartTime;
-      setElapsed(elapsed);
+      setMultiplierElapsed(elapsed);
 
       if (elapsed > 2000) {
         const scrollRate = 4;
@@ -733,22 +738,19 @@ const Game: React.FC = () => {
               position: "absolute",
               left: "50%",
               top: "50%",
-              fontSize: "calc(max(max(16px, 5vw), 22px))",
+              fontSize: "calc(max(max(16px, 7vw), 28px))",
               transform: "translate(-50%, -50%)",
               whiteSpace: "nowrap",
               margin: 0,
               padding: 0,
               color:
-                parseFloat(currentMultiplier) >=
-                parseFloat(targetMultiplier.current || "0")
-                  ? "red"
-                  : "green",
+                currentMultiplier >= targetMultiplier.current ? "red" : "green",
             }}
           >
             {currentMultiplier} X
           </h1>
 
-          <h2
+          {/* <h2
             style={{
               position: "absolute",
               left: "50%",
@@ -761,7 +763,7 @@ const Game: React.FC = () => {
             }}
           >
             {targetMultiplier.current !== null ? targetMultiplier.current : ""}
-          </h2>
+          </h2> */}
         </div>
       )}
     </div>

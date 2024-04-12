@@ -1,6 +1,6 @@
 import { SpriteJson } from "../components/types";
 
-export const ExtractSpriteFrames= (spriteJson: SpriteJson) =>{
+export const extractSpriteFrames= (spriteJson: SpriteJson) =>{
   return Object.values(spriteJson.frames).map((frameData) => ({
     ...frameData,
     frame: {
