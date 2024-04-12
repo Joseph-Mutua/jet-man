@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 export const useWindowDimensions = () => {
   const baseWidth = 1920;
   const baseHeight = 1080;
-  const maxWidth = window.innerWidth * 0.9;
+  const maxWidth = window.innerWidth
   const aspectRatio = 16 / 9;
 
   const [dimensions, setDimensions] = useState({
