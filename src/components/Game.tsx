@@ -367,8 +367,10 @@ const Game: React.FC = () => {
 
       if (!jet) return;
 
-      const scaledJetWidth = jet.width * scale;
-      const scaledJetHeight = jet.height * scale;
+      const jetScale = Math.max(0.4, scale);
+      const scaledJetHeight = jet.height * jetScale;
+
+      const scaledJetWidth = jet.width * jetScale;
 
       const newX = ((initialJetX * elapsedTime) / 500) * scale;
       const newY = (initialJetY - y) * scale;
@@ -420,8 +422,8 @@ const Game: React.FC = () => {
 
       const frame = frames[currentFrameIndex].frame;
 
-      const flameOffsetX = (-jet.width / 0.8) * scale;
-      const flameOffsetY = (-jet.height / 2) * scale;
+      const flameOffsetX = (-jet.width / 0.8) * jetScale;
+      const flameOffsetY = (-jet.height / 2) * jetScale;
 
       bgCtx.drawImage(
         currentSprite.spriteSheet,
@@ -431,8 +433,8 @@ const Game: React.FC = () => {
         frame.h,
         flameOffsetX,
         flameOffsetY,
-        frame.w * scale,
-        frame.h * scale
+        frame.w * jetScale,
+        frame.h * jetScale
       );
 
       bgCtx.restore();
